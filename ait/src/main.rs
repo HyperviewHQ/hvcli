@@ -1,3 +1,7 @@
+use crate::hyperview::api_constants::ASSET_TYPES;
+
+mod hyperview;
+
 fn main() {
-    println!("Hello, world!");
+    ASSET_TYPES.iter().for_each(|t| println!("{t}"));
 }
