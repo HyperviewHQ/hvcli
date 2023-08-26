@@ -1,5 +1,7 @@
 use std::path::MAIN_SEPARATOR_STR;
 
+use clap::Parser;
+use log::LevelFilter;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -12,6 +14,14 @@ pub struct AppConfig {
     pub instance_url: String,
 }
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+pub struct AppArgs {
+    #[arg(short = 'l', long, help = "Debug level", default_value = "error", value_parser(["error", "warn", "debug", "info", "trace"]))]
+    pub debug_level: String,
+}
+
 pub fn get_config_path() -> String {
     let home_path = dirs::home_dir().expect("Error: Home directory not found");
 
@@ -21,6 +31,16 @@ pub fn get_config_path() -> String {
         MAIN_SEPARATOR_STR,
         MAIN_SEPARATOR_STR
     )
+}
+
+pub fn get_debug_filter(debug_level: &str) -> LevelFilter {
+    match debug_level {
+        "error" => LevelFilter::Error,
+        "warn" => LevelFilter::Warn,
+        "debug" => LevelFilter::Debug,
+        "trace" => LevelFilter::Trace,
+        _ => LevelFilter::Info,
+    }
 }
 
 #[cfg(test)]
@@ -60,12 +80,22 @@ mod tests {
         .unwrap();
 
         let config: AppConfig =
-            confy::load_path(tmp_file.path().to_str().unwrap().to_string()).unwrap();
+            confy::load_path(tmp_file.path().to_str().unwrap()).unwrap();
         assert_eq!(config.client_id, "test_id");
         assert_eq!(config.client_secret, "test_secret");
         assert_eq!(config.scope, "test_scope");
         assert_eq!(config.auth_url, "https://test_auth_url");
         assert_eq!(config.token_url, "https://test_token_url");
         assert_eq!(config.instance_url, "https://test_instance_url");
+    }
+
+    #[test]
+    fn test_get_debug_filter() {
+        assert_eq!(get_debug_filter("error"), LevelFilter::Error);
+        assert_eq!(get_debug_filter("warn"), LevelFilter::Warn);
+        assert_eq!(get_debug_filter("debug"), LevelFilter::Debug);
+        assert_eq!(get_debug_filter("info"), LevelFilter::Info);
+        assert_eq!(get_debug_filter("trace"), LevelFilter::Trace);
+        assert_eq!(get_debug_filter("unknown"), LevelFilter::Info);
     }
 }
