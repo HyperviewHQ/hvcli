@@ -13,11 +13,13 @@ csv = "1.2.2"
 dirs = "5.0.1"
 env_logger = "0.10.0"
 log = "0.4.20"
+oauth2 = "4.4.1"
 reqwest = { version = "0.11.19", features = ["json", "native-tls-vendored"] }
 serde = "1.0.185"
 serde_json = "1.0.105"
 serde_with = "3.3.0"
 thiserror = "1.0.47"
+tokio = { version = "1.32.0", features = ["full"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 
 [profile.release]

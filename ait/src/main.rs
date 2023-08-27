@@ -1,13 +1,17 @@
-use color_eyre::eyre::Result;
 use clap::Parser;
-use hyperview::cli::{AppArgs, get_debug_filter};
+use color_eyre::eyre::Result;
+use hyperview::cli::{get_debug_filter, AppArgs};
 use log::info;
 
-use crate::hyperview::{api_constants::ASSET_TYPES, cli::{AppConfig, get_config_path}};
+use crate::hyperview::{
+    api_constants::ASSET_TYPES,
+    cli::{get_config_path, AppConfig}, auth::get_auth_header,
+};
 
 mod hyperview;
 
-fn main() -> Result<()>{
+#[tokio::main]
+async fn main() -> Result<()> {
     let args = AppArgs::parse();
     let debug_level = args.debug_level;
     let level_filter = get_debug_filter(&debug_level);
@@ -16,9 +20,13 @@ fn main() -> Result<()>{
     info!("Starting hyperview asset import tool");
     info!("Startup options:\n|debug_level: {debug_level} |\n");
 
-    let _config: AppConfig = confy::load_path(get_config_path())?;
+    let config: AppConfig = confy::load_path(get_config_path())?;
 
     ASSET_TYPES.iter().for_each(|t| println!("{t}"));
+
+    let token = get_auth_header(&config).await?;
+
+    println!("TOKEN: {}", token);
 
     Ok(())
 }

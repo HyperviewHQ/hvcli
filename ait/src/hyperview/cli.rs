@@ -79,8 +79,7 @@ mod tests {
         )
         .unwrap();
 
-        let config: AppConfig =
-            confy::load_path(tmp_file.path().to_str().unwrap()).unwrap();
+        let config: AppConfig = confy::load_path(tmp_file.path().to_str().unwrap()).unwrap();
         assert_eq!(config.client_id, "test_id");
         assert_eq!(config.client_secret, "test_secret");
         assert_eq!(config.scope, "test_scope");
