@@ -5,7 +5,7 @@ use oauth2::{
     TokenResponse, TokenUrl,
 };
 
-pub async fn get_auth_header(config: &AppConfig) -> Result<String> {
+pub async fn get_auth_header_async(config: &AppConfig) -> Result<String> {
     // create client
     let client = BasicClient::new(
         ClientId::new(config.client_id.clone()),

@@ -5,7 +5,8 @@ use log::info;
 
 use crate::hyperview::{
     api_constants::ASSET_TYPES,
-    cli::{get_config_path, AppConfig}, auth::get_auth_header,
+    auth::get_auth_header_async,
+    cli::{get_config_path, AppConfig},
 };
 
 mod hyperview;
@@ -24,7 +25,7 @@ async fn main() -> Result<()> {
 
     ASSET_TYPES.iter().for_each(|t| println!("{t}"));
 
-    let token = get_auth_header(&config).await?;
+    let token = get_auth_header_async(&config).await?;
 
     println!("TOKEN: {}", token);
 
