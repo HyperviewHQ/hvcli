@@ -1,8 +1,10 @@
 use std::path::MAIN_SEPARATOR_STR;
 
-use clap::Parser;
+use clap::{value_parser, Args, Parser, Subcommand};
 use log::LevelFilter;
 use serde::{Deserialize, Serialize};
+
+use crate::ASSET_TYPES;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -18,8 +20,54 @@ pub struct AppConfig {
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct AppArgs {
-    #[arg(short = 'l', long, help = "Debug level", default_value = "error", value_parser(["error", "warn", "debug", "info", "trace"]))]
+    #[arg(
+        short = 'd',
+        long,
+        help = "Debug level",
+        default_value = "error",
+        value_parser(["error", "warn", "debug", "info", "trace"])
+    )]
     pub debug_level: String,
+
+    #[command(subcommand)]
+    pub command: AppArgsSubcommands,
+}
+
+#[derive(Subcommand)]
+pub enum AppArgsSubcommands {
+    /// List assets for a standard type
+    ListAssets(ListAssetsArgs),
+
+    /// List asset properties
+    ListAssetProperties,
+}
+
+#[derive(Args, Debug)]
+pub struct ListAssetsArgs {
+    #[arg(
+        short = 't',
+        long,
+        help = "Asset type. e.g. Crah",
+        value_parser(ASSET_TYPES)
+    )]
+    pub asset_type: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Offset number (0 -> 99999). e.g. 100", 
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub offset: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 1000). e.g. 100", 
+        default_value = "100", 
+        value_parser(value_parser!(u32).range(1..1001))
+    )]
+    pub limit: u32,
 }
 
 pub fn get_config_path() -> String {
