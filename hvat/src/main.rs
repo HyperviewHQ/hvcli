@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
     let level_filter = get_debug_filter(&debug_level);
     env_logger::builder().filter(None, level_filter).init();
 
-    info!("Starting hyperview asset import tool");
+    info!("Starting Hyperview Asset Tool");
     info!("Startup options: | Debug Level: {debug_level} |");
 
     let config: AppConfig = confy::load_path(get_config_path())?;
@@ -41,7 +41,14 @@ async fn main() -> Result<()> {
                 ("(sort)".to_string(), "+Id".to_string()),
             ];
 
-            let _ = get_asset_list_async(&config, req, auth_header, query).await;
+            if let Ok(asset_list) = get_asset_list_async(&config, req, auth_header, query).await {
+                asset_list.iter().enumerate().for_each(|(n, a)| {
+                    println!("---- [{}] ----\n", n);
+                    println!("{}\n", a);
+                });
+            } else {
+                info!("No assets were returned");
+            };
         }
 
         AppArgsSubcommands::ListAssetProperties => {
