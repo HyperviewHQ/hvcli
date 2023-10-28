@@ -1,12 +1,12 @@
-use std::path::{Path, MAIN_SEPARATOR_STR};
-use anyhow::Result;
 use clap::{value_parser, Args, Parser, Subcommand};
+use color_eyre::Result;
+use csv::Writer;
 use log::{error, LevelFilter};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
-use csv::Writer;
+use std::path::{Path, MAIN_SEPARATOR_STR};
 
-use crate::ASSET_TYPES;
+use crate::{hyperview::app_errors::AppError, ASSET_TYPES};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -57,10 +57,10 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Offset number (0 -> 99999). e.g. 100", 
+        help = "Number of records to skip (0 -> 99999). e.g. 100", 
         default_value = "0", value_parser(value_parser!(u32).range(0..100000))
     )]
-    pub offset: u32,
+    pub skip: u32,
 
     #[arg(
         short,
@@ -70,6 +70,18 @@ pub struct ListAssetsArgs {
         value_parser(value_parser!(u32).range(1..1001))
     )]
     pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Select output type. E.g. csv",
+        default_value = "record",
+        value_parser(["record", "csv"])
+    )]
+    pub output_type: String,
+
+    #[arg(short, long, help = "output filename. E.g. output.csv")]
+    pub filename: Option<String>,
 }
 
 pub fn get_config_path() -> String {
@@ -132,7 +144,8 @@ pub fn handle_output_choice<T: Display + Serialize>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
+    use std::fs::File;
+    use std::io::{BufReader, Read, Write};
     use tempfile::NamedTempFile;
 
     #[test]
@@ -204,5 +217,49 @@ mod tests {
         reader.read_to_string(&mut contents).unwrap();
 
         assert_eq!("1\n2\n3\n4\n5\n", contents);
+    }
+
+    #[test]
+    fn test_handle_output_choice_no_filename() {
+        let output_type = "csv".to_string();
+        let filename = None;
+        let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
+
+        match handle_output_choice(output_type, filename, resp) {
+            Err(e) => assert_eq!(e.to_string(), AppError::NoOutputFilename.to_string()),
+            _ => panic!("Expected Err, but got Ok"),
+        }
+    }
+
+    #[test]
+    fn test_handle_output_choice_file_exists() {
+        let output_type = "csv".to_string();
+        let temp_file = NamedTempFile::new().unwrap();
+        let filename = Some(temp_file.path().to_str().unwrap().to_string());
+        let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
+
+        match handle_output_choice(output_type, filename, resp) {
+            Err(e) => assert_eq!(e.to_string(), AppError::FileExists.to_string()),
+            _ => panic!("Expected Err, but got Ok"),
+        }
+    }
+
+    #[test]
+    fn test_handle_output_choice_write_output() {
+        let output_type = "csv".to_string();
+        let temp_file = NamedTempFile::new().unwrap();
+        let temp_file_path = temp_file.path().to_str().unwrap().to_string();
+        let filename = Some(temp_file_path.clone() + "_new");
+        let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
+
+        let result = handle_output_choice(output_type, filename.clone(), resp);
+        assert!(result.is_ok());
+
+        let mut file = File::open(filename.unwrap()).unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+
+        // Check the contents of the file
+        assert_eq!(contents, "1\n2\n3\n4\n5\n");
     }
 }
