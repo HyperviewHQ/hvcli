@@ -43,11 +43,8 @@ async fn main() -> Result<()> {
                 ("(sort)".to_string(), "+Id".to_string()),
             ];
 
-            if let Ok(resp) = get_asset_list_async(&config, req, auth_header, query).await {
-                handle_output_choice(output_type.clone(), filename.clone(), resp)?;
-            } else {
-                info!("No assets were returned");
-            };
+            let resp = get_asset_list_async(&config, req, auth_header, query).await?;
+            handle_output_choice(output_type.clone(), filename.clone(), resp)?;
         }
 
         AppArgsSubcommands::ListAssetProperties => {
