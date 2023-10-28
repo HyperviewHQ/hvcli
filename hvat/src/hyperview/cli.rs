@@ -1,8 +1,10 @@
-use std::path::MAIN_SEPARATOR_STR;
-
+use std::path::{Path, MAIN_SEPARATOR_STR};
+use anyhow::Result;
 use clap::{value_parser, Args, Parser, Subcommand};
-use log::LevelFilter;
+use log::{error, LevelFilter};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+use csv::Writer;
 
 use crate::ASSET_TYPES;
 
@@ -91,6 +93,42 @@ pub fn get_debug_filter(debug_level: &str) -> LevelFilter {
     }
 }
 
+pub fn write_output<T: Serialize>(filename: String, object_list: Vec<T>) -> Result<()> {
+    let mut writer = Writer::from_path(filename)?;
+
+    for object in object_list {
+        writer.serialize(object)?;
+    }
+
+    Ok(())
+}
+
+pub fn handle_output_choice<T: Display + Serialize>(
+    output_type: String,
+    filename: Option<String>,
+    resp: Vec<T>,
+) -> Result<()> {
+    if output_type == *"csv" {
+        if filename.is_none() {
+            error!("Must provide a filename. exiting ...");
+            return Err(AppError::NoOutputFilename.into());
+        } else if let Some(f) = filename {
+            if Path::new(&f).exists() {
+                error!("Specified file already exists. exiting ...");
+                return Err(AppError::FileExists.into());
+            }
+
+            write_output(f, resp)?;
+        }
+    } else {
+        for (i, s) in resp.iter().enumerate() {
+            println!("---- [{}] ----", i);
+            println!("{}\n", s);
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,5 +182,27 @@ mod tests {
         assert_eq!(get_debug_filter("info"), LevelFilter::Info);
         assert_eq!(get_debug_filter("trace"), LevelFilter::Trace);
         assert_eq!(get_debug_filter("unknown"), LevelFilter::Info);
+    }
+
+    #[test]
+    fn test_write_output() {
+        // Create test data
+        let data = vec![1, 2, 3, 4, 5];
+
+        // Create a temporary file
+        let temp_file = NamedTempFile::new().unwrap();
+        let temp_file_path = temp_file.path().to_str().unwrap().to_string();
+
+        // Call the function with the test data and the temporary file path
+        let result = write_output(temp_file_path.clone(), data);
+        assert!(result.is_ok());
+
+        // Read back the file
+        let file = File::open(temp_file_path).unwrap();
+        let mut reader = BufReader::new(file);
+        let mut contents = String::new();
+        reader.read_to_string(&mut contents).unwrap();
+
+        assert_eq!("1\n2\n3\n4\n5\n", contents);
     }
 }
