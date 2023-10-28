@@ -65,3 +65,47 @@ pub async fn get_asset_list_async(
 
     Ok(asset_list)
 }
+
+pub async fn get_asset_by_id_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+) -> Result<AssetDto> {
+    // format the target URL
+    let target_url = format!("{}{}/{}", config.instance_url, ASSET_API_PREFIX, id);
+    debug!("Request URL: {:?}", target_url);
+
+    let resp = req
+        .get(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    debug!("RAW: {}", serde_json::to_string_pretty(&resp).unwrap());
+
+    let asset = AssetDto {
+        id: resp.get("id").unwrap().to_string(),
+        name: resp.get("name").unwrap().to_string(),
+        asset_lifecycle_state: resp.get("assetLifecycleState").unwrap().to_string(),
+        asset_type_category: resp.get("assetTypeCategory").unwrap().to_string(),
+        asset_type_id: resp.get("assetTypeId").unwrap().to_string(),
+        manufacturer_id: resp.get("manufacturerId").unwrap().to_string(),
+        manufacturer_name: resp.get("manufacturerName").unwrap().to_string(),
+        monitoring_state: resp.get("monitoringState").unwrap().to_string(),
+        parent_id: resp.get("parentId").unwrap().to_string(),
+        parent_name: resp.get("parentName").unwrap().to_string(),
+        product_id: resp.get("productId").unwrap().to_string(),
+        product_name: resp.get("productName").unwrap().to_string(),
+        status: resp.get("status").unwrap().to_string(),
+        path: resp
+            .get("tabDelimitedPath")
+            .unwrap()
+            .to_string()
+            .replace("\\t", "/"),
+    };
+
+    Ok(asset)
+}

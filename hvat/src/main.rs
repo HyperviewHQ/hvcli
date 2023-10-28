@@ -1,12 +1,12 @@
 use clap::Parser;
 use color_eyre::Result;
 use hyperview::cli::{get_debug_filter, AppArgs};
-use log::{info, trace};
+use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
     api_constants::ASSET_TYPES,
-    asset_api::get_asset_list_async,
+    asset_api::{get_asset_list_async, get_asset_by_id_async},
     auth::get_auth_header_async,
     cli::{get_config_path, handle_output_choice, AppArgsSubcommands, AppConfig},
 };
@@ -25,7 +25,6 @@ async fn main() -> Result<()> {
 
     let config: AppConfig = confy::load_path(get_config_path())?;
     let auth_header = get_auth_header_async(&config).await?;
-    trace!("Authorization Header: {}", auth_header);
     let req = Client::new();
 
     match &args.command {
@@ -33,8 +32,8 @@ async fn main() -> Result<()> {
             let asset_type = options.asset_type.clone();
             let skip = options.skip.to_string();
             let limit = options.limit.to_string();
-            let output_type = &options.output_type;
-            let filename = &options.filename;
+            let output_type = options.output_type.clone();
+            let filename = options.filename.clone();
 
             let query = vec![
                 ("assetType".to_string(), asset_type),
@@ -44,9 +43,15 @@ async fn main() -> Result<()> {
             ];
 
             let resp = get_asset_list_async(&config, req, auth_header, query).await?;
-            handle_output_choice(output_type.clone(), filename.clone(), resp)?;
+            handle_output_choice(output_type, filename, resp)?;
         }
 
+        AppArgsSubcommands::ListAssetById(options) => {
+            let id = options.id.clone();
+
+            let resp = get_asset_by_id_async(&config, req, auth_header, id).await?;
+            println!("---- [0] ----\n{}", resp);
+        }
         AppArgsSubcommands::ListAssetProperties => {
             info!("List asset properties branch");
         }
