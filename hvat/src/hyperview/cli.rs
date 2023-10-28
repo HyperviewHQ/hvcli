@@ -35,6 +35,7 @@ pub struct AppArgs {
     pub command: AppArgsSubcommands,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Subcommand)]
 pub enum AppArgsSubcommands {
     /// List assets for a standard type
@@ -262,13 +263,13 @@ mod tests {
         let output_type = "csv".to_string();
         let temp_file = NamedTempFile::new().unwrap();
         let temp_file_path = temp_file.path().to_str().unwrap().to_string();
-        let filename = Some(temp_file_path.clone() + "_new");
+        let filename = temp_file_path.clone() + "_new";
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
-        let result = handle_output_choice(output_type, filename.clone(), resp);
+        let result = handle_output_choice(output_type, Some(filename.clone()), resp);
         assert!(result.is_ok());
 
-        let mut file = File::open(filename.unwrap()).unwrap();
+        let mut file = File::open(filename).unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
 
