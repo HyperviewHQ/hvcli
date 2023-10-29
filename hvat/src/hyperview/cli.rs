@@ -67,6 +67,7 @@ pub fn handle_output_choice<T: Display + Serialize>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::AppConfig;
     use std::fs::File;
     use std::io::{BufReader, Read, Write};
     use tempfile::NamedTempFile;
