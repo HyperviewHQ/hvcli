@@ -248,7 +248,8 @@ mod tests {
                             "discoveryState": "manuallyCreated",
                             "monitoringState": "off",
                             "sensorMonitoringProfileType": "discovered"
-                    }]}).to_string(),
+                    }]})
+                    .to_string(),
                 );
         });
 
