@@ -172,4 +172,102 @@ mod tests {
         assert_eq!(asset.id, format!("\"{}\"", asset_id));
         assert_eq!(asset.name, "\"TestRack\"");
     }
+
+    #[tokio::test]
+    async fn test_get_asset_list_async() {
+        // Arrange
+        let url_path = format!("{}", ASSET_API_PREFIX);
+        let query = vec![
+            ("assetType".to_string(), "RackPdu".to_string()),
+            ("(after)".to_string(), 0.to_string()),
+            ("(limit)".to_string(), 2.to_string()),
+            ("(sort)".to_string(), "+Id".to_string()),
+        ];
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET)
+                .path(url_path)
+                .query_param("assetType", "RackPdu")
+                .query_param("(after)", "0")
+                .query_param("(limit)", "2")
+                .query_param("(sort)", "+Id");
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(
+                    json!({
+                            "_metadata": {
+                            "limit": 2,
+                            "offset": 0,
+                            "total": 182
+                        },
+                        "data": [{
+                            "hasChildren": false,
+                            "locationData": null,
+                            "baseInformationLastUpdated": "2021-10-25T18:17:09.979662+00:00",
+                            "accessState": "full",
+                            "tabDelimitedPath": "All\tEU\tLoc-001\tTestPdu1",
+                            "accessPolicyId": "eea77bbe-c1fb-464e-841c-bce66ae5beb4",
+                            "id": "08e1c24d-6134-4709-99af-3e7e4b3ef161",
+                            "name": "TestPdu1",
+                            "status": "normal",
+                            "assetTypeId": "rackPdu",
+                            "assetTypeCategory": "device",
+                            "parentId": "a23f3ec8-89a4-4caa-95b0-0f6f0a77073f",
+                            "parentName": "Loc-001",
+                            "productId": "0a5efdb2-fd5f-4902-8cdf-0985e50863e8",
+                            "productName": "RPC-28",
+                            "manufacturerId": "8502393d-e8a0-4cb2-970e-d5dda8fca355",
+                            "manufacturerName": "Baytech",
+                            "dimension": {},
+                            "assetLifecycleState": "active",
+                            "discoveryState": "manuallyCreated",
+                            "monitoringState": "off",
+                            "sensorMonitoringProfileType": "discovered"
+                        }, {
+                            "hasChildren": false,
+                            "locationData": null,
+                            "baseInformationLastUpdated": "2021-10-25T18:17:09.979662+00:00",
+                            "accessState": "full",
+                            "tabDelimitedPath": "All\tEU\tLoc-001\tTestPdu2",
+                            "accessPolicyId": "eea77bbe-c1fb-464e-841c-bce66ae5beb4",
+                            "id": "09ba0f43-6ca7-48c6-abc1-a2cb1962f626",
+                            "name": "TestPdu2",
+                            "status": "normal",
+                            "assetTypeId": "rackPdu",
+                            "assetTypeCategory": "device",
+                            "parentId": "a23f3ec8-89a4-4caa-95b0-0f6f0a77073f",
+                            "parentName": "Loc-001",
+                            "productId": "0a5efdb2-fd5f-4902-8cdf-0985e50863e8",
+                            "productName": "RPC-28",
+                            "manufacturerId": "8502393d-e8a0-4cb2-970e-d5dda8fca355",
+                            "manufacturerName": "Baytech",
+                            "dimension": {},
+                            "assetLifecycleState": "active",
+                            "discoveryState": "manuallyCreated",
+                            "monitoringState": "off",
+                            "sensorMonitoringProfileType": "discovered"
+                    }]}).to_string(),
+                );
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        // Act
+        let result = get_asset_list_async(&config, client, auth_header, query).await;
+
+        // Assert
+        m.assert();
+        assert!(result.is_ok());
+        let assets = result.unwrap();
+        assert_eq!(assets.len(), 2);
+        assert_eq!(assets[0].id, "\"08e1c24d-6134-4709-99af-3e7e4b3ef161\"");
+        assert_eq!(assets[1].id, "\"09ba0f43-6ca7-48c6-abc1-a2cb1962f626\"");
+    }
 }
