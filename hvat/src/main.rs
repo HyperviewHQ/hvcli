@@ -6,7 +6,7 @@ use reqwest::Client;
 
 use crate::hyperview::{
     api_constants::ASSET_TYPES,
-    asset_api::{get_asset_list_async, get_asset_by_id_async},
+    asset_api::{get_asset_by_id_async, get_asset_list_async},
     auth::get_auth_header_async,
     cli::{get_config_path, handle_output_choice, AppArgsSubcommands, AppConfig},
 };

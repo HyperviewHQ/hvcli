@@ -1,9 +1,10 @@
-use super::cli::AppConfig;
 use color_eyre::eyre::Result;
 use oauth2::{
     basic::BasicClient, reqwest::async_http_client, AuthUrl, ClientId, ClientSecret, Scope,
     TokenResponse, TokenUrl,
 };
+
+use crate::hyperview::cli::AppConfig;
 
 pub async fn get_auth_header_async(config: &AppConfig) -> Result<String> {
     // create client
