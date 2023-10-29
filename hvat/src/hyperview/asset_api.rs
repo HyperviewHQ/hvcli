@@ -178,7 +178,6 @@ mod tests {
     #[tokio::test]
     async fn test_get_asset_list_async() {
         // Arrange
-        let url_path = format!("{}", ASSET_API_PREFIX);
         let query = vec![
             ("assetType".to_string(), "RackPdu".to_string()),
             ("(after)".to_string(), 0.to_string()),
@@ -189,7 +188,7 @@ mod tests {
         let server = MockServer::start();
         let m = server.mock(|when, then| {
             when.method(GET)
-                .path(url_path)
+                .path(ASSET_API_PREFIX)
                 .query_param("assetType", "RackPdu")
                 .query_param("(after)", "0")
                 .query_param("(limit)", "2")
