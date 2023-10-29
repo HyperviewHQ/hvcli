@@ -114,4 +114,3 @@ pub struct ListAssetPropertiesArgs {
     #[arg(short, long, help = "output filename. E.g. output.csv")]
     pub filename: Option<String>,
 }
-

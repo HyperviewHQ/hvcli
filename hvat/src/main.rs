@@ -1,6 +1,5 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::cli::{get_debug_filter, AppArgs};
 use log::info;
 use reqwest::Client;
 
@@ -8,7 +7,8 @@ use crate::hyperview::{
     api_constants::ASSET_TYPES,
     asset_api::{get_asset_by_id_async, get_asset_list_async},
     auth::get_auth_header_async,
-    cli::{get_config_path, handle_output_choice, AppArgsSubcommands, AppConfig},
+    cli::{get_config_path, get_debug_filter, handle_output_choice},
+    cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
 };
 
 mod hyperview;

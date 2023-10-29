@@ -4,7 +4,7 @@ use oauth2::{
     TokenResponse, TokenUrl,
 };
 
-use crate::hyperview::cli::AppConfig;
+use crate::hyperview::cli_data::AppConfig;
 
 pub async fn get_auth_header_async(config: &AppConfig) -> Result<String> {
     // create client

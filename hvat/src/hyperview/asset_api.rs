@@ -3,7 +3,9 @@ use log::{debug, info};
 use reqwest::{header::AUTHORIZATION, Client};
 use serde_json::Value;
 
-use crate::hyperview::{api_constants::ASSET_API_PREFIX, asset_api_data::AssetDto, cli::AppConfig};
+use crate::hyperview::{
+    api_constants::ASSET_API_PREFIX, asset_api_data::AssetDto, cli_data::AppConfig,
+};
 
 pub async fn get_asset_list_async(
     config: &AppConfig,
