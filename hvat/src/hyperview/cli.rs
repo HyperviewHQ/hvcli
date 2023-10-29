@@ -45,7 +45,7 @@ pub enum AppArgsSubcommands {
     ListAssetById(ByIdArgs),
 
     /// List asset properties
-    ListAssetProperties,
+    ListAssetProperties(ListAssetPropertiesArgs),
 }
 
 #[derive(Args, Debug)]
@@ -96,6 +96,28 @@ pub struct ByIdArgs {
         help = "Primary ID. It must be a valid GUID/UUID, E.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: String,
+}
+
+#[derive(Args, Debug)]
+pub struct ListAssetPropertiesArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, E.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type. E.g. csv",
+        default_value = "record",
+        value_parser(["record", "csv"])
+    )]
+    pub output_type: String,
+
+    #[arg(short, long, help = "output filename. E.g. output.csv")]
+    pub filename: Option<String>,
 }
 
 pub fn get_config_path() -> String {

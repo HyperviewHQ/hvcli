@@ -52,8 +52,8 @@ async fn main() -> Result<()> {
             let resp = get_asset_by_id_async(&config, req, auth_header, id).await?;
             println!("---- [0] ----\n{}", resp);
         }
-        AppArgsSubcommands::ListAssetProperties => {
-            info!("List asset properties branch");
+        AppArgsSubcommands::ListAssetProperties(options) => {
+            info!("List asset properties options: {:#?}", options);
         }
     }
 

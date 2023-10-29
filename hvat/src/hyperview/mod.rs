@@ -4,3 +4,4 @@ pub mod asset_api;
 pub mod asset_api_data;
 pub mod auth;
 pub mod cli;
+pub mod cli_data;
