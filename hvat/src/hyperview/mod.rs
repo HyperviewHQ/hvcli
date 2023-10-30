@@ -3,6 +3,7 @@ pub mod app_errors;
 pub mod asset_api;
 pub mod asset_api_data;
 pub mod asset_properties_api_data;
+pub mod asset_properties_api;
 pub mod auth;
 pub mod cli;
 pub mod cli_data;
