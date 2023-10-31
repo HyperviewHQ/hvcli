@@ -1,4 +1,5 @@
 pub const ASSET_API_PREFIX: &str = "/api/asset/assets";
+pub const ASSET_PROPERTIES_API_PREFIX: &str = "/api/asset/assetProperties";
 
 pub const ASSET_TYPES: [&str; 29] = [
     "BladeEnclosure",

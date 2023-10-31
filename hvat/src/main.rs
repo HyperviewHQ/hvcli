@@ -6,6 +6,7 @@ use reqwest::Client;
 use crate::hyperview::{
     api_constants::ASSET_TYPES,
     asset_api::{get_asset_by_id_async, get_asset_list_async},
+    asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
     cli::{get_config_path, get_debug_filter, handle_output_choice},
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
@@ -53,7 +54,12 @@ async fn main() -> Result<()> {
             println!("---- [0] ----\n{}", resp);
         }
         AppArgsSubcommands::ListAssetProperties(options) => {
-            info!("List asset properties options: {:#?}", options);
+            let id = options.id.clone();
+            let output_type = options.output_type.clone();
+            let filename = options.filename.clone();
+
+            let resp = get_asset_property_list_async(&config, req, auth_header, id).await?;
+            handle_output_choice(output_type, filename, resp)?;
         }
     }
 
