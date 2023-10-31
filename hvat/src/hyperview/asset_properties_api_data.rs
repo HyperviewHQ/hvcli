@@ -2,6 +2,36 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DefaultOnNull};
 use std::fmt;
 
+#[allow(clippy::enum_variant_names)]
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum MultiTypeValue {
+    StringValue(String),
+    FloatValue(f64),
+    IntegerValue(i64),
+    #[default]
+    NullValue,
+}
+
+impl fmt::Display for MultiTypeValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MultiTypeValue::StringValue(s) => {
+                write!(f, "\"{}\"", s)
+            }
+            MultiTypeValue::FloatValue(n) => {
+                write!(f, "{}", n)
+            }
+            MultiTypeValue::IntegerValue(n) => {
+                write!(f, "{}", n)
+            }
+            MultiTypeValue::NullValue => {
+                write!(f, "null")
+            }
+        }
+    }
+}
+
 #[serde_as]
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,8 +40,7 @@ pub struct AssetPropertyDto {
     pub id: String,
     #[serde(alias = "type")]
     pub property_type: String,
-    #[serde_as(deserialize_as = "DefaultOnNull")]
-    pub value: String,
+    pub value: MultiTypeValue,
     #[serde(alias = "dataType")]
     pub data_type: String,
     #[serde(alias = "dataSource")]
@@ -29,12 +58,25 @@ pub struct AssetPropertyDto {
     #[serde_as(deserialize_as = "DefaultOnNull")]
     pub updated_date_time: String,
     #[serde(alias = "minimumValue")]
-    #[serde_as(deserialize_as = "DefaultOnNull")]
-    pub minimum_value: String,
+    pub minimum_value: MultiTypeValue,
 }
 
 impl fmt::Display for AssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?}", self)
+        write!(
+            f,
+            "id: {}\ntype: {}\nvalue: {}\ndata_type: {}\ndata_source: {}\ndisplay_category: {}\nis_editable: {}\nis_inherited: {}\ncreated_date: {}\nupdated_date: {}\nminimum_value: {}",
+            self.id,
+            self.property_type,
+            self.value,
+            self.data_type,
+            self.data_source,
+            self.asset_property_display_category,
+            self.is_editable,
+            self.is_inherited,
+            self.created_date_time,
+            self.updated_date_time,
+            self.minimum_value
+        )
     }
 }
