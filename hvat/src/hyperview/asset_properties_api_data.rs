@@ -3,7 +3,7 @@ use serde_with::{serde_as, DefaultOnNull};
 use std::fmt;
 
 #[allow(clippy::enum_variant_names)]
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MultiTypeValue {
     StringValue(String),
@@ -63,10 +63,17 @@ pub struct AssetPropertyDto {
 
 impl fmt::Display for AssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+
+        let id = if !self.id.is_empty() || (self.value != MultiTypeValue::NullValue) {
+            &self.id
+        } else {
+            "---- UNSET ----"
+        };
+
         write!(
             f,
             "id: {}\ntype: {}\nvalue: {}\ndata_type: {}\ndata_source: {}\ndisplay_category: {}\nis_editable: {}\nis_inherited: {}\ncreated_date: {}\nupdated_date: {}\nminimum_value: {}",
-            self.id,
+            id,
             self.property_type,
             self.value,
             self.data_type,
