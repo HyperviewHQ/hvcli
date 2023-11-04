@@ -40,7 +40,10 @@ pub enum AppArgsSubcommands {
     ListAssetById(ByIdArgs),
 
     /// List asset properties
-    ListAssetProperties(ListAssetPropertiesArgs),
+    ListAssetProperties(ListPropertiesArgs),
+
+    /// List asset custom properties
+    ListAssetCustomProperties(ListPropertiesArgs),
 }
 
 #[derive(Args, Debug)]
@@ -94,7 +97,7 @@ pub struct ByIdArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct ListAssetPropertiesArgs {
+pub struct ListPropertiesArgs {
     #[arg(
         short,
         long,
