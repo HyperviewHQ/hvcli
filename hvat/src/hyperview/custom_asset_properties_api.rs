@@ -4,15 +4,15 @@ use reqwest::{header::AUTHORIZATION, Client};
 
 use crate::hyperview::{
     api_constants::ASSET_CUSTOM_PROPERTIES_API_PREFIX,
-    asset_custom_properties_api_data::AssetCustomPropertyDto, cli_data::AppConfig,
+    custom_asset_properties_api_data::CustomAssetPropertyDto, cli_data::AppConfig,
 };
 
-pub async fn get_asset_custom_property_list_async(
+pub async fn get_custom_asset_property_list_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
     id: String,
-) -> Result<Vec<AssetCustomPropertyDto>> {
+) -> Result<Vec<CustomAssetPropertyDto>> {
     // format the target URL
     let target_url = format!(
         "{}{}/{}",
@@ -25,7 +25,7 @@ pub async fn get_asset_custom_property_list_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
-        .json::<Vec<AssetCustomPropertyDto>>()
+        .json::<Vec<CustomAssetPropertyDto>>()
         .await?;
 
     Ok(resp)
@@ -38,7 +38,7 @@ mod tests {
     use serde_json::json;
 
     #[tokio::test]
-    async fn test_get_asset_custom_property_list_async() {
+    async fn test_get_custom_asset_property_list_async() {
         // Arrange
         let asset_id = "3a6c3022-6140-4e85-a64f-bf868766c4c8".to_string();
         let url_path = format!("{}/{}", ASSET_CUSTOM_PROPERTIES_API_PREFIX, asset_id);
@@ -91,7 +91,7 @@ mod tests {
 
         // Act
         let result =
-            get_asset_custom_property_list_async(&config, client, auth_header, asset_id).await;
+            get_custom_asset_property_list_async(&config, client, auth_header, asset_id).await;
 
         // Assert
         m.assert();

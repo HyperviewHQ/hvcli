@@ -7,7 +7,7 @@ use crate::hyperview::common_types::MultiTypeValue;
 #[serde_as]
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AssetCustomPropertyDto {
+pub struct CustomAssetPropertyDto {
     pub id: String,
     #[serde(alias = "customAssetPropertyKeyId")]
     pub custom_asset_property_key_id: String,
@@ -28,7 +28,7 @@ pub struct AssetCustomPropertyDto {
     pub unit: String,
 }
 
-impl fmt::Display for AssetCustomPropertyDto {
+impl fmt::Display for CustomAssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
             "id: {}\ncustom_asset_property_key_id: {}\ncustom_asset_property_group_id: {}\nvalue: {}\ndata_type: {}\nname: {}\ngroup_name: {}\ndata_source: {}\nupdated_date_time: {}\nunit: {}",
