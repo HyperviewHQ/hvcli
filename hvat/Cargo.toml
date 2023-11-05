@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.75"
 clap = { version = "4.3.23", features = ["derive"] }
 color-eyre = "0.6.2"
 confy = "0.5.1"
@@ -19,13 +18,13 @@ reqwest = { version = "0.11.19", features = ["json", "native-tls-vendored"] }
 serde = "1.0.185"
 serde_json = "1.0.105"
 serde_with = "3.3.0"
-thiserror = "1.0.47"
+thiserror = "1.0.50"
 tokio = { version = "1.32.0", features = ["full"] }
-uuid = { version = "1.4.1", features = ["v4"] }
 
 [profile.release]
 strip = true
 
 [dev-dependencies]
+httpmock = "0.6.8"
 tempfile = "3.8.0"
 
