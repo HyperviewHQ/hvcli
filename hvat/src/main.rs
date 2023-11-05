@@ -63,7 +63,7 @@ async fn main() -> Result<()> {
             handle_output_choice(output_type, filename, resp)?;
         }
 
-        AppArgsSubcommands::ListAssetCustomProperties(options) => {
+        AppArgsSubcommands::ListCustomAssetProperties(options) => {
             let id = options.id.clone();
             let output_type = options.output_type.clone();
             let filename = options.filename.clone();

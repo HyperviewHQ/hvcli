@@ -3,7 +3,7 @@ use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 
 use crate::hyperview::{
-    api_constants::ASSET_CUSTOM_PROPERTIES_API_PREFIX,
+    api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX,
     custom_asset_properties_api_data::CustomAssetPropertyDto, cli_data::AppConfig,
 };
 
@@ -16,7 +16,7 @@ pub async fn get_custom_asset_property_list_async(
     // format the target URL
     let target_url = format!(
         "{}{}/{}",
-        config.instance_url, ASSET_CUSTOM_PROPERTIES_API_PREFIX, id
+        config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, id
     );
     debug!("Request URL: {:?}", target_url);
 
@@ -41,7 +41,7 @@ mod tests {
     async fn test_get_custom_asset_property_list_async() {
         // Arrange
         let asset_id = "3a6c3022-6140-4e85-a64f-bf868766c4c8".to_string();
-        let url_path = format!("{}/{}", ASSET_CUSTOM_PROPERTIES_API_PREFIX, asset_id);
+        let url_path = format!("{}/{}", CUSTOM_ASSET_PROPERTIES_API_PREFIX, asset_id);
 
         let server = MockServer::start();
         let m = server.mock(|when, then| {

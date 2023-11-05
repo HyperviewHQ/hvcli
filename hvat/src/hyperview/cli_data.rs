@@ -42,8 +42,8 @@ pub enum AppArgsSubcommands {
     /// List asset properties
     ListAssetProperties(ListPropertiesArgs),
 
-    /// List asset custom properties
-    ListAssetCustomProperties(ListPropertiesArgs),
+    /// List custom asset properties
+    ListCustomAssetProperties(ListPropertiesArgs),
 }
 
 #[derive(Args, Debug)]
