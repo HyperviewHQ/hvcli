@@ -47,7 +47,6 @@ pub async fn get_asset_list_async(
                 id: a.get("id").unwrap().to_string(),
                 name: a.get("name").unwrap().to_string(),
                 asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
-                asset_type_category: a.get("assetTypeCategory").unwrap().to_string(),
                 asset_type_id: a.get("assetTypeId").unwrap().to_string(),
                 manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
                 manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
@@ -95,7 +94,6 @@ pub async fn get_asset_by_id_async(
         id: resp.get("id").unwrap().to_string(),
         name: resp.get("name").unwrap().to_string(),
         asset_lifecycle_state: resp.get("assetLifecycleState").unwrap().to_string(),
-        asset_type_category: resp.get("assetTypeCategory").unwrap().to_string(),
         asset_type_id: resp.get("assetTypeId").unwrap().to_string(),
         manufacturer_id: resp.get("manufacturerId").unwrap().to_string(),
         manufacturer_name: resp.get("manufacturerName").unwrap().to_string(),
@@ -255,21 +253,21 @@ pub async fn search_assets_async(
             let asset = AssetDto {
                 id: a.get("id").unwrap().to_string(),
                 name: a.get("displayName").unwrap().to_string(),
+                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
                 asset_type_id: a.get("assetType").unwrap().to_string(),
-                //manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                //manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                //monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                //parent_id: a.get("parentId").unwrap().to_string(),
-                //parent_name: a.get("parentName").unwrap().to_string(),
-                //product_id: a.get("productId").unwrap().to_string(),
-                //product_name: a.get("productName").unwrap().to_string(),
-                //status: a.get("status").unwrap().to_string(),
+                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
+                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
+                monitoring_state: a.get("monitoringState").unwrap().to_string(),
+                parent_id: a.get("parentId").unwrap().to_string(),
+                parent_name: a.get("parentDisplayName").unwrap().to_string(),
+                product_id: a.get("productId").unwrap().to_string(),
+                product_name: a.get("productName").unwrap().to_string(),
+                status: a.get("status").unwrap().to_string(),
                 path: a
                     .get("tabDelimitedPath")
                     .unwrap()
                     .to_string()
                     .replace("\\t", "/"),
-                ..Default::default()
             };
 
             asset_list.push(asset);
