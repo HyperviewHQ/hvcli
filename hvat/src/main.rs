@@ -73,8 +73,8 @@ async fn main() -> Result<()> {
             handle_output_choice(output_type, filename, resp)?;
         }
 
-        AppArgsSubcommands::SearchAssets => {
-            let search_string = "labworker??".to_string();
+        AppArgsSubcommands::SearchAssets(options) => {
+            let search_string = options.search_string.clone();
             let filename = Some("test.csv".to_string());
             let output_type = "record".to_string();
 
