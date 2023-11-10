@@ -44,6 +44,9 @@ pub enum AppArgsSubcommands {
 
     /// List custom asset properties
     ListCustomAssetProperties(ListPropertiesArgs),
+
+    /// Search assets
+    SearchAssets,
 }
 
 #[derive(Args, Debug)]

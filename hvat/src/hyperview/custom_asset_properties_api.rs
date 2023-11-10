@@ -3,8 +3,8 @@ use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 
 use crate::hyperview::{
-    api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX,
-    custom_asset_properties_api_data::CustomAssetPropertyDto, cli_data::AppConfig,
+    api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX, cli_data::AppConfig,
+    custom_asset_properties_api_data::CustomAssetPropertyDto,
 };
 
 pub async fn get_custom_asset_property_list_async(

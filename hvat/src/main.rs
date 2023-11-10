@@ -5,12 +5,12 @@ use reqwest::Client;
 
 use crate::hyperview::{
     api_constants::ASSET_TYPES,
-    asset_api::{get_asset_by_id_async, get_asset_list_async},
-    custom_asset_properties_api::get_custom_asset_property_list_async,
+    asset_api::{get_asset_by_id_async, get_asset_list_async, search_assets_async},
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
     cli::{get_config_path, get_debug_filter, handle_output_choice},
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
+    custom_asset_properties_api::get_custom_asset_property_list_async,
 };
 
 mod hyperview;
@@ -54,6 +54,7 @@ async fn main() -> Result<()> {
             let resp = get_asset_by_id_async(&config, req, auth_header, id).await?;
             println!("---- [0] ----\n{}", resp);
         }
+
         AppArgsSubcommands::ListAssetProperties(options) => {
             let id = options.id.clone();
             let output_type = options.output_type.clone();
@@ -69,6 +70,15 @@ async fn main() -> Result<()> {
             let filename = options.filename.clone();
 
             let resp = get_custom_asset_property_list_async(&config, req, auth_header, id).await?;
+            handle_output_choice(output_type, filename, resp)?;
+        }
+
+        AppArgsSubcommands::SearchAssets => {
+            let search_string = String::new();
+            let filename = Some("test.csv".to_string());
+            let output_type = "record".to_string();
+
+            let resp = search_assets_async(&config, req, auth_header, search_string).await?;
             handle_output_choice(output_type, filename, resp)?;
         }
     }

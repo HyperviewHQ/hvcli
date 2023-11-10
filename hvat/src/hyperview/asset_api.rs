@@ -1,10 +1,15 @@
 use color_eyre::Result;
 use log::{debug, info};
-use reqwest::{header::AUTHORIZATION, Client};
-use serde_json::Value;
+use reqwest::{
+    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
+    Client,
+};
+use serde_json::{json, Value};
 
 use crate::hyperview::{
-    api_constants::ASSET_API_PREFIX, asset_api_data::AssetDto, cli_data::AppConfig,
+    api_constants::{ASSET_API_PREFIX, ASSET_SEARCH_API_PREFIX},
+    asset_api_data::AssetDto,
+    cli_data::AppConfig,
 };
 
 pub async fn get_asset_list_async(
@@ -108,6 +113,168 @@ pub async fn get_asset_by_id_async(
     };
 
     Ok(asset)
+}
+
+pub async fn search_assets_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    search_string: String,
+) -> Result<Vec<AssetDto>> {
+    // format the target URL
+    let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
+    debug!("Request URL: {:?}", target_url);
+
+    let search_query = json!({
+      "size": 1000,
+      "from": 0,
+      "query": {
+        "bool": {
+          "should": [
+            {
+              "query_string": {
+                "query": "labworker??",
+                "fields": [
+                  "displayNameLowerCase^5",
+                  "*"
+                ]
+              }
+            },
+            {
+              "nested": {
+                "path": "componentAssets",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "componentAssets.displayName"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "stringCustomProperties.name",
+                      "stringCustomProperties.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "dateTimeCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "dateTimeCustomProperties.name",
+                      "dateTimeCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "numericCustomProperties.name",
+                      "numericCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringSensors",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "stringSensors.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericSensors",
+                "query": {
+                  "query_string": {
+                    "query": "labworker??",
+                    "fields": [
+                      "numericSensors.searchableValue"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "minimum_should_match": 1
+        }
+      }
+    });
+
+    let resp = req
+        .post(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .header(CONTENT_TYPE, "application/json")
+        .header(ACCEPT, "application/json")
+        .json(&search_query)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    if let Some(metadata) = &resp.get("_metadata") {
+        let total = metadata["total"].as_u64().unwrap();
+        let limit = metadata["limit"].as_u64().unwrap();
+        info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    }
+
+    let mut asset_list = Vec::new();
+
+    if let Some(assets) = resp.get("data") {
+        assets.as_array().unwrap().iter().for_each(|a| {
+            debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
+
+            let asset = AssetDto {
+                id: a.get("id").unwrap().to_string(),
+                name: a.get("displayName").unwrap().to_string(),
+                asset_type_id: a.get("assetType").unwrap().to_string(),
+                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
+                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
+                monitoring_state: a.get("monitoringState").unwrap().to_string(),
+                parent_id: a.get("parentId").unwrap().to_string(),
+                parent_name: a.get("parentName").unwrap().to_string(),
+                product_id: a.get("productId").unwrap().to_string(),
+                product_name: a.get("productName").unwrap().to_string(),
+                status: a.get("status").unwrap().to_string(),
+                path: a
+                    .get("tabDelimitedPath")
+                    .unwrap()
+                    .to_string()
+                    .replace("\\t", "/"),
+                ..Default::default()
+            };
+
+            asset_list.push(asset);
+        });
+    };
+
+    Ok(asset_list)
 }
 
 #[cfg(test)]
