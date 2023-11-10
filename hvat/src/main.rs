@@ -74,7 +74,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::SearchAssets => {
-            let search_string = String::new();
+            let search_string = "labworker??".to_string();
             let filename = Some("test.csv".to_string());
             let output_type = "record".to_string();
 

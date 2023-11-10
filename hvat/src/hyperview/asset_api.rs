@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use log::{debug, info};
+use log::{debug, info, trace};
 use reqwest::{
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
@@ -133,7 +133,7 @@ pub async fn search_assets_async(
           "should": [
             {
               "query_string": {
-                "query": "labworker??",
+                "query": format!("{}",search_string),
                 "fields": [
                   "displayNameLowerCase^5",
                   "*"
@@ -145,7 +145,7 @@ pub async fn search_assets_async(
                 "path": "componentAssets",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "componentAssets.displayName"
                     ]
@@ -158,7 +158,7 @@ pub async fn search_assets_async(
                 "path": "stringCustomProperties",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "stringCustomProperties.name",
                       "stringCustomProperties.value"
@@ -172,7 +172,7 @@ pub async fn search_assets_async(
                 "path": "dateTimeCustomProperties",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "dateTimeCustomProperties.name",
                       "dateTimeCustomProperties.searchableValue"
@@ -186,7 +186,7 @@ pub async fn search_assets_async(
                 "path": "numericCustomProperties",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "numericCustomProperties.name",
                       "numericCustomProperties.searchableValue"
@@ -200,7 +200,7 @@ pub async fn search_assets_async(
                 "path": "stringSensors",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "stringSensors.value"
                     ]
@@ -213,7 +213,7 @@ pub async fn search_assets_async(
                 "path": "numericSensors",
                 "query": {
                   "query_string": {
-                    "query": "labworker??",
+                    "query": format!("{}",search_string),
                     "fields": [
                       "numericSensors.searchableValue"
                     ]
@@ -226,6 +226,8 @@ pub async fn search_assets_async(
         }
       }
     });
+
+    trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
     let resp = req
         .post(target_url)
@@ -254,14 +256,14 @@ pub async fn search_assets_async(
                 id: a.get("id").unwrap().to_string(),
                 name: a.get("displayName").unwrap().to_string(),
                 asset_type_id: a.get("assetType").unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                parent_id: a.get("parentId").unwrap().to_string(),
-                parent_name: a.get("parentName").unwrap().to_string(),
-                product_id: a.get("productId").unwrap().to_string(),
-                product_name: a.get("productName").unwrap().to_string(),
-                status: a.get("status").unwrap().to_string(),
+                //manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
+                //manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
+                //monitoring_state: a.get("monitoringState").unwrap().to_string(),
+                //parent_id: a.get("parentId").unwrap().to_string(),
+                //parent_name: a.get("parentName").unwrap().to_string(),
+                //product_id: a.get("productId").unwrap().to_string(),
+                //product_name: a.get("productName").unwrap().to_string(),
+                //status: a.get("status").unwrap().to_string(),
                 path: a
                     .get("tabDelimitedPath")
                     .unwrap()
