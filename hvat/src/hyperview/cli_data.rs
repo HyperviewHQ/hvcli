@@ -46,7 +46,7 @@ pub enum AppArgsSubcommands {
     ListCustomAssetProperties(ListPropertiesArgs),
 
     /// Search assets
-    SearchAssets,
+    SearchAssets(SearchAssetsArgs),
 }
 
 #[derive(Args, Debug)]
@@ -54,7 +54,7 @@ pub struct ListAssetsArgs {
     #[arg(
         short = 't',
         long,
-        help = "Asset type. e.g. Crah",
+        help = "Asset type, e.g. Crah",
         value_parser(ASSET_TYPES)
     )]
     pub asset_type: String,
@@ -62,7 +62,7 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999). e.g. 100", 
+        help = "Number of records to skip (0 -> 99999), e.g. 100", 
         default_value = "0", value_parser(value_parser!(u32).range(0..100000))
     )]
     pub skip: u32,
@@ -70,7 +70,7 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Record limit (1 -> 1000). e.g. 100", 
+        help = "Record limit (1 -> 1000), e.g. 100", 
         default_value = "100", 
         value_parser(value_parser!(u32).range(1..1001))
     )]
@@ -79,13 +79,13 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Output type. E.g. csv",
+        help = "Output type, e.g. csv",
         default_value = "record",
         value_parser(["record", "csv"])
     )]
     pub output_type: String,
 
-    #[arg(short, long, help = "output filename. E.g. output.csv")]
+    #[arg(short, long, help = "output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }
 
@@ -94,7 +94,7 @@ pub struct ByIdArgs {
     #[arg(
         short,
         long,
-        help = "Primary ID. It must be a valid GUID/UUID, E.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+        help = "Primary ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: String,
 }
@@ -104,19 +104,54 @@ pub struct ListPropertiesArgs {
     #[arg(
         short,
         long,
-        help = "Asset ID. It must be a valid GUID/UUID, E.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: String,
 
     #[arg(
         short,
         long,
-        help = "Output type. E.g. csv",
+        help = "Output type, e.g. csv",
         default_value = "record",
         value_parser(["record", "csv"])
     )]
     pub output_type: String,
 
-    #[arg(short, long, help = "output filename. E.g. output.csv")]
+    #[arg(short, long, help = "output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct SearchAssetsArgs {
+    #[arg(short = 't', long, help = "Search string, e.g. chrome")]
+    pub search_string: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 99999), e.g. 100", 
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 1000), e.g. 100", 
+        default_value = "100", 
+        value_parser(value_parser!(u32).range(1..1001))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv",
+        default_value = "record",
+        value_parser(["record", "csv"])
+    )]
+    pub output_type: String,
+
+    #[arg(short, long, help = "output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }
