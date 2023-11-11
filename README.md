@@ -1,7 +1,7 @@
 # Hyperview Asset Tool
 
 > [!WARNING]  
-> This project is still under active development. 
+> This project is under active development. 
 
 Hyperview asset tool (hvat) is a command line program to read and search for data within Hyperview.
 
