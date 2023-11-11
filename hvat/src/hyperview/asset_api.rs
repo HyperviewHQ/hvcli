@@ -118,14 +118,16 @@ pub async fn search_assets_async(
     req: Client,
     auth_header: String,
     search_string: String,
+    limit: u32,
+    skip: u32,
 ) -> Result<Vec<AssetDto>> {
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
 
     let search_query = json!({
-      "size": 1000,
-      "from": 0,
+      "size": limit,
+      "from": skip,
       "query": {
         "bool": {
           "should": [

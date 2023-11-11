@@ -123,11 +123,7 @@ pub struct ListPropertiesArgs {
 
 #[derive(Args, Debug)]
 pub struct SearchAssetsArgs {
-    #[arg(
-        short = 't',
-        long,
-        help = "Search string, e.g. chrome"
-    )]
+    #[arg(short = 't', long, help = "Search string, e.g. chrome")]
     pub search_string: String,
 
     #[arg(
