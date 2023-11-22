@@ -130,6 +130,22 @@ pub async fn search_assets_async(
       "from": skip,
       "query": {
         "bool": {
+          "filter": {
+            "bool": {
+              "must": [
+                {
+                  "match": {
+                    "assetType": "Server"
+                  }
+                },
+                {
+                  "wildcard": {
+                    "tabDelimitedPath": "All\t*"
+                  }
+                }
+              ]
+            }
+          },
           "should": [
             {
               "query_string": {

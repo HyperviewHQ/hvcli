@@ -74,13 +74,13 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
-            let search_string = options.search_string.clone();
+            let search_pattern = options.search_pattern.clone();
             let filename = options.filename.clone();
             let output_type = options.output_type.clone();
             let skip = options.skip;
             let limit = options.limit;
 
-            let resp = search_assets_async(&config, req, auth_header, search_string, limit, skip).await?;
+            let resp = search_assets_async(&config, req, auth_header, search_pattern, limit, skip).await?;
             handle_output_choice(output_type, filename, resp)?;
         }
     }

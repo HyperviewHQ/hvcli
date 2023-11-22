@@ -62,7 +62,7 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999), e.g. 100", 
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
         default_value = "0", value_parser(value_parser!(u32).range(0..100000))
     )]
     pub skip: u32,
@@ -70,8 +70,8 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Record limit (1 -> 1000), e.g. 100", 
-        default_value = "100", 
+        help = "Record limit (1 -> 1000), e.g. 100",
+        default_value = "100",
         value_parser(value_parser!(u32).range(1..1001))
     )]
     pub limit: u32,
@@ -123,13 +123,13 @@ pub struct ListPropertiesArgs {
 
 #[derive(Args, Debug)]
 pub struct SearchAssetsArgs {
-    #[arg(short = 't', long, help = "Search string, e.g. chrome")]
-    pub search_string: String,
+    #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
+    pub search_pattern: String,
 
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999), e.g. 100", 
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
         default_value = "0", value_parser(value_parser!(u32).range(0..100000))
     )]
     pub skip: u32,
@@ -137,8 +137,8 @@ pub struct SearchAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Record limit (1 -> 1000), e.g. 100", 
-        default_value = "100", 
+        help = "Record limit (1 -> 1000), e.g. 100",
+        default_value = "100",
         value_parser(value_parser!(u32).range(1..1001))
     )]
     pub limit: u32,
