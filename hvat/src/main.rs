@@ -79,8 +79,19 @@ async fn main() -> Result<()> {
             let output_type = options.output_type.clone();
             let skip = options.skip;
             let limit = options.limit;
+            let asset_type = options.asset_type.clone();
 
-            let resp = search_assets_async(&config, req, auth_header, search_pattern, limit, skip).await?;
+            let resp = search_assets_async(
+                &config,
+                req,
+                auth_header,
+                search_pattern,
+                limit,
+                skip,
+                asset_type,
+            )
+            .await?;
+
             handle_output_choice(output_type, filename, resp)?;
         }
     }

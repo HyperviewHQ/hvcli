@@ -117,131 +117,16 @@ pub async fn search_assets_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    search_string: String,
+    search_pattern: String,
     limit: u32,
     skip: u32,
+    asset_type: Option<String>,
 ) -> Result<Vec<AssetDto>> {
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
 
-    let search_query = json!({
-      "size": limit,
-      "from": skip,
-      "query": {
-        "bool": {
-          "filter": {
-            "bool": {
-              "must": [
-                {
-                  "match": {
-                    "assetType": "Server"
-                  }
-                },
-                {
-                  "wildcard": {
-                    "tabDelimitedPath": "All\t*"
-                  }
-                }
-              ]
-            }
-          },
-          "should": [
-            {
-              "query_string": {
-                "query": format!("{}",search_string),
-                "fields": [
-                  "displayNameLowerCase^5",
-                  "*"
-                ]
-              }
-            },
-            {
-              "nested": {
-                "path": "componentAssets",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "componentAssets.displayName"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "stringCustomProperties.name",
-                      "stringCustomProperties.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "dateTimeCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "dateTimeCustomProperties.name",
-                      "dateTimeCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "numericCustomProperties.name",
-                      "numericCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "stringSensors.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "numericSensors.searchableValue"
-                    ]
-                  }
-                }
-              }
-            }
-          ],
-          "minimum_should_match": 1
-        }
-      }
-    });
+    let search_query = compose_search_query(search_pattern, limit, skip, asset_type);
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -293,6 +178,138 @@ pub async fn search_assets_async(
     };
 
     Ok(asset_list)
+}
+
+fn compose_search_query(
+    search_pattern: String,
+    limit: u32,
+    skip: u32,
+    asset_type: Option<String>,
+) -> Value {
+    let mut search_query = json!({
+      "size": limit,
+      "from": skip,
+      "query": {
+        "bool": {
+          "should": [
+            {
+              "query_string": {
+                "query": format!("{}",search_pattern),
+                "fields": [
+                  "displayNameLowerCase^5",
+                  "*"
+                ]
+              }
+            },
+            {
+              "nested": {
+                "path": "componentAssets",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "componentAssets.displayName"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "stringCustomProperties.name",
+                      "stringCustomProperties.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "dateTimeCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "dateTimeCustomProperties.name",
+                      "dateTimeCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "numericCustomProperties.name",
+                      "numericCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringSensors",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "stringSensors.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericSensors",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "numericSensors.searchableValue"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "minimum_should_match": 1
+        }
+      }
+    });
+
+    if let Some(t) = asset_type {
+        let filter = json!({
+          "bool": {
+            "must": [
+              {
+                "match": {
+                  "assetType": t
+                }
+              },
+              {
+                "wildcard": {
+                  "tabDelimitedPath": "All\t*"
+                }
+              }
+            ]
+          }
+        });
+
+        search_query["query"]["bool"]["filter"] = filter;
+    }
+
+    search_query
 }
 
 #[cfg(test)]

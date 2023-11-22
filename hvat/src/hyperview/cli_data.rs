@@ -127,6 +127,14 @@ pub struct SearchAssetsArgs {
     pub search_pattern: String,
 
     #[arg(
+        short = 't',
+        long,
+        help = "Optional asset type, e.g. Crah",
+        value_parser(ASSET_TYPES)
+    )]
+    pub asset_type: Option<String>,
+
+    #[arg(
         short,
         long,
         help = "Number of records to skip (0 -> 99999), e.g. 100",
