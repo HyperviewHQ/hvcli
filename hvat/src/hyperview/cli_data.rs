@@ -135,6 +135,13 @@ pub struct SearchAssetsArgs {
     pub asset_type: Option<String>,
 
     #[arg(
+        short = 'c',
+        long,
+        help = "Optional prefix of location path, e.g. \"All/\""
+    )]
+    pub location_path: Option<String>,
+
+    #[arg(
         short,
         long,
         help = "Number of records to skip (0 -> 99999), e.g. 100",

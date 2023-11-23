@@ -121,12 +121,13 @@ pub async fn search_assets_async(
     limit: u32,
     skip: u32,
     asset_type: Option<String>,
+    location_path: Option<String>,
 ) -> Result<Vec<AssetDto>> {
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
 
-    let search_query = compose_search_query(search_pattern, limit, skip, asset_type);
+    let search_query = compose_search_query(search_pattern, limit, skip, asset_type, location_path);
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -185,6 +186,7 @@ fn compose_search_query(
     limit: u32,
     skip: u32,
     asset_type: Option<String>,
+    location_path: Option<String>,
 ) -> Value {
     let mut search_query = json!({
       "size": limit,
@@ -296,7 +298,20 @@ fn compose_search_query(
     if let Some(t) = asset_type {
         let filter = json!({ "match": { "assetType": t } });
 
-        search_query["query"]["bool"]["filter"]["bool"]["must"].as_array_mut().unwrap().push(filter);
+        search_query["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(filter);
+    }
+
+    if let Some(p) = location_path {
+        let prepared_path = format!("{}*",p.replace("/", "\t"));
+        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+
+        search_query["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(path);
     }
 
     search_query

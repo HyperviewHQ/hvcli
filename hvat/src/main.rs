@@ -80,6 +80,7 @@ async fn main() -> Result<()> {
             let skip = options.skip;
             let limit = options.limit;
             let asset_type = options.asset_type.clone();
+            let location_path = options.location_path.clone();
 
             let resp = search_assets_async(
                 &config,
@@ -89,6 +90,7 @@ async fn main() -> Result<()> {
                 limit,
                 skip,
                 asset_type,
+                location_path,
             )
             .await?;
 
