@@ -191,6 +191,11 @@ fn compose_search_query(
       "from": skip,
       "query": {
         "bool": {
+          "filter": {
+            "bool": {
+              "must": []
+            }
+          },
           "should": [
             {
               "query_string": {
@@ -289,24 +294,9 @@ fn compose_search_query(
     });
 
     if let Some(t) = asset_type {
-        let filter = json!({
-          "bool": {
-            "must": [
-              {
-                "match": {
-                  "assetType": t
-                }
-              },
-              {
-                "wildcard": {
-                  "tabDelimitedPath": "All\t*"
-                }
-              }
-            ]
-          }
-        });
+        let filter = json!({ "match": { "assetType": t } });
 
-        search_query["query"]["bool"]["filter"] = filter;
+        search_query["query"]["bool"]["filter"]["bool"]["must"].as_array_mut().unwrap().push(filter);
     }
 
     search_query
