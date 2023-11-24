@@ -121,7 +121,7 @@ pub struct ListPropertiesArgs {
     pub filename: Option<String>,
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
     #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
     pub search_pattern: String,

@@ -12,6 +12,8 @@ use crate::hyperview::{
     cli_data::AppConfig,
 };
 
+use super::cli_data::SearchAssetsArgs;
+
 pub async fn get_asset_list_async(
     config: &AppConfig,
     req: Client,
@@ -117,17 +119,13 @@ pub async fn search_assets_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    search_pattern: String,
-    limit: u32,
-    skip: u32,
-    asset_type: Option<String>,
-    location_path: Option<String>,
+    options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
 
-    let search_query = compose_search_query(search_pattern, limit, skip, asset_type, location_path);
+    let search_query = compose_search_query(options.search_pattern, options.limit, options.skip, options.asset_type, options.location_path);
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
