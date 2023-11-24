@@ -125,7 +125,13 @@ pub async fn search_assets_async(
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
 
-    let search_query = compose_search_query(options.search_pattern, options.limit, options.skip, options.asset_type, options.location_path);
+    let search_query = compose_search_query(
+        options.search_pattern,
+        options.limit,
+        options.skip,
+        options.asset_type,
+        options.location_path,
+    );
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -303,7 +309,7 @@ fn compose_search_query(
     }
 
     if let Some(p) = location_path {
-        let prepared_path = format!("{}*",p.replace('/', "\t"));
+        let prepared_path = format!("{}*", p.replace('/', "\t"));
         let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
@@ -476,5 +482,168 @@ mod tests {
         assert_eq!(assets.len(), 2);
         assert_eq!(assets[0].id, "\"08e1c24d-6134-4709-99af-3e7e4b3ef161\"");
         assert_eq!(assets[1].id, "\"09ba0f43-6ca7-48c6-abc1-a2cb1962f626\"");
+    }
+
+    #[test]
+    fn test_compose_search_query() {
+        let mut query1 = json!({
+          "size": 100,
+          "from": 0,
+          "query": {
+            "bool": {
+              "filter": {
+                "bool": {
+                  "must": []
+                }
+              },
+              "should": [
+                {
+                  "query_string": {
+                    "query": format!("{}","search_pattern"),
+                    "fields": [
+                      "displayNameLowerCase^5",
+                      "*"
+                    ]
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "componentAssets",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "componentAssets.displayName"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "stringCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "stringCustomProperties.name",
+                          "stringCustomProperties.value"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "dateTimeCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "dateTimeCustomProperties.name",
+                          "dateTimeCustomProperties.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "numericCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "numericCustomProperties.name",
+                          "numericCustomProperties.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "stringSensors",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "stringSensors.value"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "numericSensors",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "numericSensors.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          }
+        });
+
+        let mut options = SearchAssetsArgs {
+            search_pattern: "search_pattern".to_string(),
+            asset_type: None,
+            location_path: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: "record".to_string(),
+        };
+
+        assert_eq!(
+            compose_search_query(
+                options.search_pattern.clone(),
+                options.limit,
+                options.skip,
+                options.asset_type,
+                options.location_path
+            ),
+            query1
+        );
+
+        // Test with asset type and location set
+
+        let filter = json!({ "match": { "assetType": "Server" } });
+
+        query1["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(filter);
+
+        let input_path = "All/".to_string();
+        let prepared_path = format!("{}*", input_path.replace('/', "\t"));
+        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+
+        query1["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(path);
+
+        options.location_path = Some("All/".to_string());
+        options.asset_type = Some("Server".to_string());
+
+        assert_eq!(
+            compose_search_query(
+                options.search_pattern.clone(),
+                options.limit,
+                options.skip,
+                options.asset_type,
+                options.location_path
+            ),
+            query1
+        );
     }
 }

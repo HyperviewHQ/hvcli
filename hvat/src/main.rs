@@ -74,13 +74,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
-            let resp = search_assets_async(
-                &config,
-                req,
-                auth_header,
-                options.clone()
-            )
-            .await?;
+            let resp = search_assets_async(&config, req, auth_header, options.clone()).await?;
 
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
