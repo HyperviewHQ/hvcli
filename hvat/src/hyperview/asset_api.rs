@@ -305,7 +305,7 @@ fn compose_search_query(
     }
 
     if let Some(p) = location_path {
-        let prepared_path = format!("{}*",p.replace("/", "\t"));
+        let prepared_path = format!("{}*",p.replace('/', "\t"));
         let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
