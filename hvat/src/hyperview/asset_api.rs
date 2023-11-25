@@ -323,6 +323,8 @@ fn compose_search_query(
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
     use super::*;
     use httpmock::prelude::*;
     use serde_json::json;
@@ -645,5 +647,46 @@ mod tests {
             ),
             query1
         );
+    }
+
+    #[tokio::test]
+    async fn test_search_assets_async() {
+        //Arrange
+        let search_resp1 = fs::read_to_string("test_data/search_resp1.json").expect("Unable to open test data file");
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(POST).path(ASSET_SEARCH_API_PREFIX);
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(search_resp1);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let options = SearchAssetsArgs {
+            search_pattern: "labworker16".to_string(),
+            asset_type: None,
+            location_path: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: "record".to_string(),
+        };
+        // Act
+        let result = search_assets_async(&config, client, auth_header, options).await;
+
+        // Assert
+        m.assert();
+        assert!(result.is_ok());
+        let assets = result.unwrap();
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].name, "\"labworker16\"".to_string());
+        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string())
     }
 }

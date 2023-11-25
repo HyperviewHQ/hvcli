@@ -1,0 +1,3997 @@
+{
+  "_metadata": {
+    "limit": 100,
+    "offset": 0,
+    "total": 1
+  },
+  "data": [
+    {
+      "searchComplexDataFields": null,
+      "id": "0b30049f-b563-4e0f-81b7-f74ef4c175f3",
+      "displayName": "labworker16",
+      "displayNameLowerCase": "labworker16",
+      "status": "Normal",
+      "statusSearchableProperty": "Normal",
+      "createdDateTime": "2021-12-18T03:21:59.218918+00:00",
+      "updatedDateTime": "2023-09-09T23:00:08.709591+00:00",
+      "assetLifecycleState": "Active",
+      "commissionDate": null,
+      "retirementDate": null,
+      "endOfLifeDate": null,
+      "monitoringState": "On",
+      "nameDataSource": "Ssh",
+      "assetTypeDataSource": "Application",
+      "assetType": "Server",
+      "assetTypeSearchableProperty": "Server",
+      "monitoringProfileType": null,
+      "assetAccessPolicyId": "eea77bbe-c1fb-464e-841c-bce66ae5beb4",
+      "assetTrackerMasterModuleSerialNumber": [],
+      "assetTrackerTagSerialNumber": [
+        "9CEB21DB"
+      ],
+      "serialNumber": [
+        "S16229125913903"
+      ],
+      "componentSerialNumber": [
+        "CN0BN9281117YC46K",
+        "S1G0NYAG505197",
+        "S1G0NYAG505202",
+        "50026B7783E405C9",
+        "S1G0NYAF700078",
+        "S1G0NYAF700039",
+        "S1G0NYAF700127",
+        "S1G0NYAF700068"
+      ],
+      "boardSerialNumber": [
+        "NM158S009359"
+      ],
+      "enclosureSerialNumber": [
+        "C1160LE24NA0251"
+      ],
+      "macAddressValue": [
+        "00:25:90:6D:CA:37",
+        "FE:54:00:BB:47:2F",
+        "FE:54:00:F1:13:60",
+        "0C:C4:7A:6E:28:51",
+        "BA:89:D8:13:31:62",
+        "0C:C4:7A:6B:F7:86",
+        "FE:54:00:94:BB:F3",
+        "0C:C4:7A:6B:F7:87"
+      ],
+      "ipAddressValue": [
+        "fe80::b889:d8ff:fe13:3162",
+        "10.57.10.48",
+        "fe80::fc54:ff:fe94:bbf3",
+        "10.57.12.10",
+        "fe80::fc54:ff:fef1:1360",
+        "fe80::fc54:ff:febb:472f",
+        "fe80::ec4:7aff:fe6b:f786"
+      ],
+      "nicDescriptionValue": [],
+      "assetTag": [],
+      "firmwareVersion": [],
+      "hardwareVersion": [],
+      "bayLocation": [],
+      "designValue": [],
+      "ratedCurrent": [],
+      "ratedPower": [],
+      "ratedVoltage": [],
+      "ratedInputVoltage": [],
+      "ratedVa": [],
+      "consumedRackUnits": [
+        1
+      ],
+      "providedRackUnits": [],
+      "weight": [],
+      "smartViewLocationType": [],
+      "smartViewLevelValue": [],
+      "smartViewAccountNumber": [],
+      "smartViewIbx": [],
+      "manufacturerName": "Supermicro",
+      "manufacturerNameSearchableProperty": "Supermicro",
+      "manufacturerId": "e5146b9f-b5c9-426f-b9f2-3cc04dec8848",
+      "productName": "SYS-1018R-WC0R",
+      "productNameSearchableProperty": "SYS-1018R-WC0R",
+      "productId": "e875172f-1bfd-4017-85a8-ff90ebf94322",
+      "parentId": "e827c830-51ea-4478-afb6-a71ff55dc65a",
+      "parentDisplayName": "Rack B5",
+      "parentPath": "All / DC1 / Cage 1 / Rack B5",
+      "tabDelimitedPath": "All\tDC1\tCage 1\tRack B5\tlabworker16",
+      "rackSide": "Front",
+      "rackPosition": "",
+      "rackULocation": 30,
+      "locationDisplayValue": "All / DC1 / Cage 1 / Rack B5 (30 Front)",
+      "locationDisplayValueSearchableProperty": "All / DC1 / Cage 1 / Rack B5 (30 Front)",
+      "stringCustomProperties": [
+        {
+          "name": "Primary User(s)",
+          "value": "None (Availabe for testing)",
+          "lastUpdated": "2021-12-18T03:21:59.218918+00:00"
+        }
+      ],
+      "numericCustomProperties": [],
+      "dateTimeCustomProperties": [],
+      "componentAssets": [
+        {
+          "id": "7a02606f-db62-4976-8c06-9b9878b94c6f",
+          "displayName": "BMC",
+          "assetType": "Nic"
+        },
+        {
+          "id": "ef2f5021-4ebf-4951-905f-3fa91687c99f",
+          "displayName": "eno1",
+          "assetType": "Nic"
+        },
+        {
+          "id": "799b88c9-c15d-4d52-87fa-22e5a5486f91",
+          "displayName": "br0",
+          "assetType": "Nic"
+        },
+        {
+          "id": "0c9d8134-501f-4feb-9352-4fdbebc59bff",
+          "displayName": "vnet3",
+          "assetType": "Nic"
+        },
+        {
+          "id": "1dd704b7-a821-4585-83f5-031292600317",
+          "displayName": "vnet1",
+          "assetType": "Nic"
+        },
+        {
+          "id": "23e02bd2-ce00-4384-bd40-ad807e6f485a",
+          "displayName": "vnet2",
+          "assetType": "Nic"
+        },
+        {
+          "id": "58373c91-ed1c-4285-bcda-d39a26e104b0",
+          "displayName": "eno2",
+          "assetType": "Nic"
+        },
+        {
+          "id": "3dc66ceb-5d85-4e4a-a74a-de5e468a0944",
+          "displayName": "BMC",
+          "assetType": "Nic"
+        },
+        {
+          "id": "0d6f7369-e5cb-4dd4-b801-c120b3fe5624",
+          "displayName": "10.57.10.48",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "77154efe-8e4e-49bd-9584-913412a95cc3",
+          "displayName": "10.57.12.10",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "ea530859-7929-41da-be47-67f328dca079",
+          "displayName": "fe80::b889:d8ff:fe13:3162",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "76f39417-ff04-42ae-83a5-6afdce893a54",
+          "displayName": "fe80::ec4:7aff:fe6b:f786",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "e18c645c-dd91-4575-8f10-0349b3f757e6",
+          "displayName": "fe80::fc54:ff:fef1:1360",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "011b3f2b-fa8b-412f-a876-7dcafdc93512",
+          "displayName": "fe80::fc54:ff:febb:472f",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "bb7336b3-4d4b-476e-a2ac-edc8fd80c52d",
+          "displayName": "fe80::fc54:ff:fe94:bbf3",
+          "assetType": "IpAddress"
+        },
+        {
+          "id": "8a90f8fe-75a8-40fd-82f9-68ea1e3b7781",
+          "displayName": "CPU1",
+          "assetType": "Processor"
+        },
+        {
+          "id": "f9046947-1599-4b70-9c52-c9ab071dbfe2",
+          "displayName": "DIMMA2",
+          "assetType": "Memory"
+        },
+        {
+          "id": "449049a5-97dc-47b5-bbcb-849cf232e5e3",
+          "displayName": "DIMMB1",
+          "assetType": "Memory"
+        },
+        {
+          "id": "a59b7fc6-d5ed-4c50-b68d-00088f2c3772",
+          "displayName": "DIMMB2",
+          "assetType": "Memory"
+        },
+        {
+          "id": "dad8ac0f-9cbe-45c1-b40a-4c3c98f03685",
+          "displayName": "DIMMC2",
+          "assetType": "Memory"
+        },
+        {
+          "id": "8f05faba-a4f2-43b0-bb21-c20814676988",
+          "displayName": "DIMMA1",
+          "assetType": "Memory"
+        },
+        {
+          "id": "325f216c-8328-4e1b-a585-310b2d86a77c",
+          "displayName": "DIMMD2",
+          "assetType": "Memory"
+        },
+        {
+          "id": "0a73f3f4-bbc5-46ca-9618-786421b90f8d",
+          "displayName": "DIMMD1",
+          "assetType": "Memory"
+        },
+        {
+          "id": "82d31f9d-784e-4c9f-b57b-27dcbc76d9f8",
+          "displayName": "DIMMC1",
+          "assetType": "Memory"
+        },
+        {
+          "id": "e82f72f7-4f9f-416b-a505-e7f48fb83209",
+          "displayName": "Debian GNU/Linux 11 (bullseye)",
+          "assetType": "OperatingSystem"
+        },
+        {
+          "id": "44d0e680-8424-4776-bf60-f9d0cc2acd7a",
+          "displayName": "libksba8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6045b96b-a58a-49b3-93c9-0b64014a6b28",
+          "displayName": "libgstreamer-plugins-base1.0-0:amd64 1.18.4-2+deb11u1",
+          "assetType": "Application"
+        },
+        {
+          "id": "73496648-e220-4060-b7b4-8c5742697369",
+          "displayName": "mutt",
+          "assetType": "Application"
+        },
+        {
+          "id": "0a2ae27f-6419-4e96-ba98-e85fd43d3a6c",
+          "displayName": "libgnutls30:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "36014a98-8865-4b21-8b19-431ee04e5cc7",
+          "displayName": "libgnutls-dane0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2ffa91ef-fd39-4a60-ab9e-fe2867a45956",
+          "displayName": "sudo",
+          "assetType": "Application"
+        },
+        {
+          "id": "8f310778-6e59-4868-b81d-7da835a37e78",
+          "displayName": "libnss3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "95f1fc81-3deb-4a4e-bc74-25910cd06a2b",
+          "displayName": "libsnmp-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "c5aea6fb-3b04-4bcb-8da6-3e9cd8b8da05",
+          "displayName": "libsnmp40:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "37f80262-efc2-4dd1-9d6c-490cd26f48af",
+          "displayName": "libgsasl7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "884ecf59-2cbf-4709-a3b8-9434669c527c",
+          "displayName": "gsasl-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "c1dbbf9e-5b13-42ae-b664-8157ffe339ae",
+          "displayName": "gpgv",
+          "assetType": "Application"
+        },
+        {
+          "id": "c21b6621-1cfa-483b-9822-44821176b47e",
+          "displayName": "libssh-4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0a227f3b-7e21-48a9-a734-c8f02abc4cc8",
+          "displayName": "publicsuffix",
+          "assetType": "Application"
+        },
+        {
+          "id": "9e794ef1-cbae-4a72-806f-70466a4811e3",
+          "displayName": "mokutil",
+          "assetType": "Application"
+        },
+        {
+          "id": "f9fe2f9f-a57a-4e9d-8683-dfb930e0a8e4",
+          "displayName": "libpcre2-8-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5aed42df-faf7-4a63-9de2-260fb1a82b59",
+          "displayName": "libtirpc-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "5cf69c65-0a50-49d1-9662-cfef3617f06d",
+          "displayName": "libtirpc-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e10aa0a9-a07f-426f-a061-cbad5d322909",
+          "displayName": "libtirpc3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e63e7098-da01-4b40-8662-80eb426e207a",
+          "displayName": "libintl-xs-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "49e63442-2bf8-47ae-9798-96898e37bb5a",
+          "displayName": "libtiff5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ea07e2d1-a8c5-412f-94a8-a13bdb4b9c0d",
+          "displayName": "zlib1g:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f46e360a-9b02-4b81-ac78-fbaec49dc6de",
+          "displayName": "libxslt1.1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "22e45e58-1545-4720-98eb-d585383c2541",
+          "displayName": "shim-helpers-amd64-signed",
+          "assetType": "Application"
+        },
+        {
+          "id": "23b1c020-eb6a-469c-a5ca-2ab197e39593",
+          "displayName": "libvirt-daemon",
+          "assetType": "Application"
+        },
+        {
+          "id": "3846797b-c3ec-482e-a3e0-1c36da0721f0",
+          "displayName": "libvirt0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "38ed573f-5268-4463-8fc4-5994d34ee06e",
+          "displayName": "isc-dhcp-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "3aa7984a-631a-48c2-8b13-8f7b091f4ed4",
+          "displayName": "libvirt-daemon-system",
+          "assetType": "Application"
+        },
+        {
+          "id": "3f21f244-c3c7-4f6b-853b-42d85404ff14",
+          "displayName": "tzdata",
+          "assetType": "Application"
+        },
+        {
+          "id": "4a61e6a1-e68f-40a7-a258-8d7655ea48f8",
+          "displayName": "grep",
+          "assetType": "Application"
+        },
+        {
+          "id": "5dc49168-52a7-45e4-8b9c-5941a9948f63",
+          "displayName": "libunbound8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6a89bb6e-b73c-45d8-b2f8-57932b9d80a1",
+          "displayName": "zfs-dkms",
+          "assetType": "Application"
+        },
+        {
+          "id": "6cd0b18b-cbd1-4a77-a5ca-311ba304663b",
+          "displayName": "debian-archive-keyring",
+          "assetType": "Application"
+        },
+        {
+          "id": "6e61dfad-1caf-4db1-a434-e3fe027fff55",
+          "displayName": "libvirt-daemon-config-nwfilter",
+          "assetType": "Application"
+        },
+        {
+          "id": "734ed340-f24f-4387-bc04-aaa061ece8ee",
+          "displayName": "libuutil3linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "905a0bac-779c-4d7e-89b4-e1825b3fa437",
+          "displayName": "libvirt-daemon-driver-qemu",
+          "assetType": "Application"
+        },
+        {
+          "id": "97aa4b1e-d145-4962-be6b-3f8a5c7588aa",
+          "displayName": "shim-unsigned",
+          "assetType": "Application"
+        },
+        {
+          "id": "9e9462c7-aa1c-4e9d-802c-54545473e6e1",
+          "displayName": "zfsutils-linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "b14f7f69-be6d-4d22-a95b-1771d5aa2715",
+          "displayName": "libvirt-daemon-system-systemd",
+          "assetType": "Application"
+        },
+        {
+          "id": "b5636c5b-7ad9-4410-88d6-35ccb3b8fd7b",
+          "displayName": "libzfs4linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "b9502f4a-8536-4a29-b95d-851dad7439c5",
+          "displayName": "libnvpair3linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "baa463bd-1763-4573-bbdb-da39b852588e",
+          "displayName": "isc-dhcp-client",
+          "assetType": "Application"
+        },
+        {
+          "id": "c602c004-e86a-423e-b4d8-984207335438",
+          "displayName": "libvirt-clients",
+          "assetType": "Application"
+        },
+        {
+          "id": "cf8e575b-0cc4-4b50-98f3-5f3667631471",
+          "displayName": "needrestart",
+          "assetType": "Application"
+        },
+        {
+          "id": "d7589a69-e219-48a5-a4e6-dd40bd02a3e3",
+          "displayName": "shim-signed-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9f3be2b-e25a-4f6f-8e97-9abf87a48176",
+          "displayName": "shim-signed:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e0ae89c2-113a-40b5-95e7-372f898a18aa",
+          "displayName": "libzpool4linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "e81b87c8-4feb-4c9e-aa4c-d22c89d1af7f",
+          "displayName": "usb.ids",
+          "assetType": "Application"
+        },
+        {
+          "id": "edb4a9ab-2d50-44c4-a4d1-c717ab2476c5",
+          "displayName": "traceroute",
+          "assetType": "Application"
+        },
+        {
+          "id": "f0d788af-c190-4afc-8d73-cd70430928f9",
+          "displayName": "libvirt-daemon-config-network",
+          "assetType": "Application"
+        },
+        {
+          "id": "f519e414-0878-4d50-9aa9-9453f567cb3e",
+          "displayName": "zfs-zed",
+          "assetType": "Application"
+        },
+        {
+          "id": "013f1c86-1c83-40dd-85f1-8e81740f1dc8",
+          "displayName": "nano",
+          "assetType": "Application"
+        },
+        {
+          "id": "0e41fc57-7029-435f-9f3a-b37cf435ab8f",
+          "displayName": "libvirglrenderer1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "84f701c6-98a6-4920-b57d-b008f835176a",
+          "displayName": "libnftables1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c3a68a84-67ff-4b69-90e0-764039e54c32",
+          "displayName": "libtasn1-6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "dca43f8f-6695-417f-855d-27644dc693dd",
+          "displayName": "nftables",
+          "assetType": "Application"
+        },
+        {
+          "id": "f27fe6e3-2ef7-444c-86e7-b03840d08207",
+          "displayName": "python3-nftables",
+          "assetType": "Application"
+        },
+        {
+          "id": "176bc556-1678-43e2-9154-6e0ccc44dc06",
+          "displayName": "linux-headers-5.10.0-24-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "617d5704-9020-45c5-a69a-32f4f64624eb",
+          "displayName": "linux-image-5.10.0-24-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f4925fa0-38e8-409e-b401-b9ba022cbc61",
+          "displayName": "linux-headers-5.10.0-24-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "949be070-3cb3-4a5e-b7e1-450b746b988d",
+          "displayName": "libwebp6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "dafb8a08-3323-4fac-9c0d-c53f652768ca",
+          "displayName": "libpixman-1-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0012d286-74a7-4480-9add-4cbe4b72f749",
+          "displayName": "gpgsm",
+          "assetType": "Application"
+        },
+        {
+          "id": "38c10f4c-586a-4250-b8ba-0161d825136a",
+          "displayName": "gnupg-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "51b86cbd-7229-4466-8d31-e0cd86de14ba",
+          "displayName": "gpg-wks-server",
+          "assetType": "Application"
+        },
+        {
+          "id": "68decfb9-6ab6-4650-a793-9c79877dbf72",
+          "displayName": "gnupg",
+          "assetType": "Application"
+        },
+        {
+          "id": "7d0f8461-a95b-44fa-b7d8-35f552275c79",
+          "displayName": "gpgconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "a4ec673d-5088-42dd-99e1-e77ca3224405",
+          "displayName": "gpg",
+          "assetType": "Application"
+        },
+        {
+          "id": "aee28c44-0f6f-4435-8af7-1d8d17b43b4f",
+          "displayName": "gpg-wks-client",
+          "assetType": "Application"
+        },
+        {
+          "id": "eeeafb2a-72e5-4e34-bbfb-87595313d7c4",
+          "displayName": "gnupg2",
+          "assetType": "Application"
+        },
+        {
+          "id": "16cce2c9-4122-4e96-8761-19ad5ea1d318",
+          "displayName": "libexpat1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "246fde85-fec3-4a2c-9460-060893287f9d",
+          "displayName": "libfile-stripnondeterminism-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "1b0a1100-84ba-48e5-8bdf-7885e009fd1e",
+          "displayName": "libfile-slurper-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b8fbfeaa-cdef-4f13-a940-68288aa77a99",
+          "displayName": "libfile-fcntllock-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "aeebb19b-6bdb-4470-9ef6-5e64b56f1525",
+          "displayName": "libgmp10:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "66169d8f-851e-4280-8eaa-fca2bc7a5023",
+          "displayName": "libfribidi0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "741de182-c30c-4c53-bcc5-e61b07f0cc06",
+          "displayName": "libcryptsetup12:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4d18f3f5-3e36-4793-98a3-95161ed0a993",
+          "displayName": "librtmp1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2119ac69-3d49-4afb-a8d8-4ed742cd4e18",
+          "displayName": "bind9-libs:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2e02673a-cf9e-43aa-8a9e-ce571fdbe0e9",
+          "displayName": "dnsutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "47d60ed2-d6cf-41a4-bba2-ff8e49ba70c9",
+          "displayName": "bind9-host",
+          "assetType": "Application"
+        },
+        {
+          "id": "796e3213-d21b-4758-85a5-2d140564666d",
+          "displayName": "bind9-dnsutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "6ab62c39-f9ea-41cf-8a10-edbd2c5ac30b",
+          "displayName": "libldap-2.4-2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c9e56e33-a337-41e0-8f92-b3c821634507",
+          "displayName": "tasksel-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "d5e81658-d112-4571-a754-ff64b665c3c6",
+          "displayName": "tasksel",
+          "assetType": "Application"
+        },
+        {
+          "id": "5a3bce5c-2925-4b93-8f98-e532a8a15724",
+          "displayName": "task-english",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9191574-8652-4ba4-a5c3-1aacaef26168",
+          "displayName": "sysvinit-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "2ce0133b-9728-47a0-8209-d4975fea3fca",
+          "displayName": "gzip",
+          "assetType": "Application"
+        },
+        {
+          "id": "337ec3a6-b9e7-490f-ad7e-242e2677f622",
+          "displayName": "libctf0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ce4223d-8c09-48f8-bcb4-9c7d5b4aad39",
+          "displayName": "libctf-nobfd0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9c4543a-bc0b-4e8e-868d-6a8980927223",
+          "displayName": "libcrypt1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e189354c-380b-4887-8547-5b5e8aefdd8d",
+          "displayName": "libcrypt-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "63b00285-7a1a-4f07-b60a-198b5a9d0789",
+          "displayName": "libcbor0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "834dc821-2965-4103-bd09-7e9d0e0a1694",
+          "displayName": "libcapstone4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "81252aa6-eb87-4ef1-a5a6-54d05c90a872",
+          "displayName": "libdebhelper-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "c824220f-7623-407a-b550-fa4b5afbd925",
+          "displayName": "libdeflate0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "11ac42ad-f670-4c3d-870d-7c5c56236d5b",
+          "displayName": "libfakeroot:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ecac5aa1-e13c-4516-bc4f-910984dc7c71",
+          "displayName": "libevent-2.1-7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6dcbc10b-5ce9-4826-97ae-bd113660ad4e",
+          "displayName": "libefivar1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2c30b3c9-2b2c-413a-8217-9a1f88a77dca",
+          "displayName": "libedit2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0ff0e51f-2f7d-4acc-a711-8b3934295330",
+          "displayName": "libdw1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9efeef97-d4b9-43f7-87ba-5d83a9fee3f1",
+          "displayName": "libapt-pkg6.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f4babc5d-894d-407f-aecd-b91207c876d2",
+          "displayName": "libappstream4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fd7f84c2-5db0-4207-9108-ca62bffe9be8",
+          "displayName": "libapparmor1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "00c5101d-ea3f-4937-90b3-d7ec582233b5",
+          "displayName": "libaio1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8a158318-a222-4fc6-89d4-154ca5b04ffa",
+          "displayName": "less",
+          "assetType": "Application"
+        },
+        {
+          "id": "c556bd21-cc46-4594-a519-39f2c7f3a60b",
+          "displayName": "laptop-detect",
+          "assetType": "Application"
+        },
+        {
+          "id": "2b463128-ad44-4db4-8bd0-84d7b5de77bb",
+          "displayName": "kmod",
+          "assetType": "Application"
+        },
+        {
+          "id": "938f7500-9186-4ef6-97db-cb66ebcca35c",
+          "displayName": "klibc-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "1adc319f-cea2-4936-a13f-f479159aea3b",
+          "displayName": "kbd",
+          "assetType": "Application"
+        },
+        {
+          "id": "9b5d4ed6-c420-4d2d-b139-d1992340e551",
+          "displayName": "libargon2-1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e8f370e2-3215-42f7-af70-62c51c547fae",
+          "displayName": "libasan6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5a59f11f-bcef-4567-98d8-867efffb5d7b",
+          "displayName": "libasm1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ded121fe-fcb8-4bf6-80f5-b2204988d996",
+          "displayName": "libbz2-1.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "062aa83d-caed-47ad-aa5e-1e763d66db6e",
+          "displayName": "libboost-iostreams1.74.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "86162c47-a7d1-4127-a64a-65aa4dfe89ab",
+          "displayName": "libaudit-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "1d1e0822-3dad-4d88-9f13-8f1932385b42",
+          "displayName": "libattr1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "1e415f47-436f-43f6-89db-87ece95f5e05",
+          "displayName": "libatomic1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "37afaaf7-a707-4154-abb5-962f83d49512",
+          "displayName": "libasound2-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "261cfbcb-e200-4d88-aa34-46010a5957b5",
+          "displayName": "libfdt1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "68e57114-74f2-4e30-a4fc-a4938c775840",
+          "displayName": "libffi7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4e921b98-cb1c-4627-a531-669321852599",
+          "displayName": "libjq1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d25c4614-9f50-42b0-8844-12447152321b",
+          "displayName": "libjpeg62-turbo:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "89694d88-7d5f-4b24-aae1-40052fb5428f",
+          "displayName": "libjbig0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6477b10d-023f-40bb-bbed-63d1b029eb80",
+          "displayName": "libjansson4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2686d818-4970-43ae-b281-1178bad95bda",
+          "displayName": "libipc-system-simple-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "8a5a5e7d-d3b9-4579-b303-861a7fadb16c",
+          "displayName": "libipc-run-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "49140764-67ed-4cd0-a18f-5e0755deb1ea",
+          "displayName": "libio-pty-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b6a104ef-a8c9-4941-ad0e-d1b872e0dcea",
+          "displayName": "libkeyutils1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a5a82a24-846c-44c4-923e-1116a08df535",
+          "displayName": "libkmod2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2f5a2a2f-1d66-4ae1-b7b2-47f042da4f65",
+          "displayName": "libmailutils7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5e6060f1-bc10-4d02-ade1-a6c4b7ad0a56",
+          "displayName": "liblsan0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7a539887-9189-460e-9bda-2fe9ef2ed81b",
+          "displayName": "liblockfile-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "2b166c6f-f45a-4e65-818d-382556331668",
+          "displayName": "libgc1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3009be8f-3b83-425a-9c24-fb35e4a71b63",
+          "displayName": "libgdbm6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "85fd4429-6b87-4df2-a162-cf14b412dcf8",
+          "displayName": "libfstrm0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5f2c6fed-c8af-4482-9c6f-d540c34d4dd5",
+          "displayName": "libfontconfig1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "214a7836-ebab-4137-913b-98d0d12f1108",
+          "displayName": "jq",
+          "assetType": "Application"
+        },
+        {
+          "id": "e37461cc-8a12-4d79-9ecd-a0ab02f2ac6d",
+          "displayName": "libgfapi0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e98ee262-3723-4822-8298-21c5eef75648",
+          "displayName": "libhogweed6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "90c147a4-66ba-4d06-ab0c-7f291bb9c31e",
+          "displayName": "libhd21:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9af2d1d5-9dbe-4afa-a1c7-30ddce0496a7",
+          "displayName": "libgstreamer1.0-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0b55ce04-56af-4dc6-8abf-237fd99591d4",
+          "displayName": "libgpm2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "de06b90b-3e6d-4c10-82d4-8ca600057e93",
+          "displayName": "libgpgme11:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7a227419-dcf8-49d0-8867-162ced9286ed",
+          "displayName": "libgfrpc0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6b0bafa2-d19a-43f3-98d3-89c163e2b6eb",
+          "displayName": "libgpg-error0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3f413a59-f4a1-49b1-af87-7df5aec9ddee",
+          "displayName": "libglib2.0-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "85f51858-a1f9-4d50-a447-5c2e8206e894",
+          "displayName": "libglib2.0-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "133626e8-fe20-4e5c-9465-b72728d07251",
+          "displayName": "ispell",
+          "assetType": "Application"
+        },
+        {
+          "id": "70fc1990-598e-4839-8469-79604abe5193",
+          "displayName": "binutils-common:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "cca667bf-7f94-468c-90cc-8c40058c79cd",
+          "displayName": "autotools-dev",
+          "assetType": "Application"
+        },
+        {
+          "id": "6b2dc9d7-fe6e-4c51-baec-75dcac75059c",
+          "displayName": "autopoint",
+          "assetType": "Application"
+        },
+        {
+          "id": "10cc13c4-7b44-408e-906a-d3ac117293f5",
+          "displayName": "build-essential",
+          "assetType": "Application"
+        },
+        {
+          "id": "d4a12276-efc5-4f49-9f5c-d680450b947f",
+          "displayName": "busybox",
+          "assetType": "Application"
+        },
+        {
+          "id": "e260b0f9-2f52-4e1d-9115-ba7846bed325",
+          "displayName": "bzip2",
+          "assetType": "Application"
+        },
+        {
+          "id": "de7e4093-f6ef-48c7-b6b7-dfdd1b43feaa",
+          "displayName": "ca-certificates",
+          "assetType": "Application"
+        },
+        {
+          "id": "fcad9523-0ba7-471f-bdb7-79f5c318b924",
+          "displayName": "debianutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "93aa6a18-e1bc-4cf3-b655-673298cb1d18",
+          "displayName": "debhelper",
+          "assetType": "Application"
+        },
+        {
+          "id": "b25cc682-df5f-46df-b530-7a03823f7383",
+          "displayName": "debconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "f1512452-5761-46f6-9714-f5261a6db979",
+          "displayName": "dctrl-tools",
+          "assetType": "Application"
+        },
+        {
+          "id": "2cc60352-00ac-4980-91a4-b9f235e294a6",
+          "displayName": "console-setup",
+          "assetType": "Application"
+        },
+        {
+          "id": "7b8d03ee-c8b6-48f6-b22a-96c131788eaf",
+          "displayName": "dash",
+          "assetType": "Application"
+        },
+        {
+          "id": "04c96ee8-0d61-4fd8-a0ec-0b937f190e4a",
+          "displayName": "debsecan",
+          "assetType": "Application"
+        },
+        {
+          "id": "e3b17901-a993-42b9-a933-ab17dd4a1f58",
+          "displayName": "apt-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "57fdeb1b-b7b3-403c-bdfc-a8de3b716652",
+          "displayName": "apt-listchanges",
+          "assetType": "Application"
+        },
+        {
+          "id": "513705a1-01b1-4f60-bc0c-b9ae889c8f94",
+          "displayName": "apt",
+          "assetType": "Application"
+        },
+        {
+          "id": "41911714-16d9-4b69-a48b-4ec051286206",
+          "displayName": "apparmor",
+          "assetType": "Application"
+        },
+        {
+          "id": "0dbeb7a8-a6dc-48f1-bd5a-255a82f8d284",
+          "displayName": "dh-autoreconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "a5016feb-d66f-42ae-91b3-d0794c197c74",
+          "displayName": "dh-strip-nondeterminism",
+          "assetType": "Application"
+        },
+        {
+          "id": "cf20df9c-9e48-446a-9bec-064eef209f42",
+          "displayName": "guile-2.2-libs:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9e0b3e81-a35f-4c62-8e51-a799f774b8cf",
+          "displayName": "hostname",
+          "assetType": "Application"
+        },
+        {
+          "id": "9cd0b5f4-a379-46d1-bff4-9cae251d9cf8",
+          "displayName": "htop",
+          "assetType": "Application"
+        },
+        {
+          "id": "4003b5b6-8bcf-4ca0-a97b-18c89ba455a4",
+          "displayName": "iputils-ping",
+          "assetType": "Application"
+        },
+        {
+          "id": "01c612ec-3982-4f66-8b8c-64555ee0ad84",
+          "displayName": "iptables",
+          "assetType": "Application"
+        },
+        {
+          "id": "4518518f-8832-401e-b912-5e7a8c41f5e1",
+          "displayName": "ipset",
+          "assetType": "Application"
+        },
+        {
+          "id": "af9791d1-221b-4dc4-a258-953ead18990d",
+          "displayName": "iproute2",
+          "assetType": "Application"
+        },
+        {
+          "id": "bb01bdd5-bb13-45d3-a24c-197826c1fae9",
+          "displayName": "intltool-debian",
+          "assetType": "Application"
+        },
+        {
+          "id": "d94ac6c2-9b4a-4d65-87e3-966c3cae0980",
+          "displayName": "init-system-helpers",
+          "assetType": "Application"
+        },
+        {
+          "id": "4b81ba34-97c4-4a63-ac51-8e2bb2f0c192",
+          "displayName": "ienglish-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "cde2219d-e055-43f7-a777-527b324c05d8",
+          "displayName": "ibritish",
+          "assetType": "Application"
+        },
+        {
+          "id": "9d569728-8fb7-4b29-b397-be957a37aad1",
+          "displayName": "hwinfo",
+          "assetType": "Application"
+        },
+        {
+          "id": "06007a9e-4287-4c5f-bfff-19af4698c65c",
+          "displayName": "initramfs-tools-core",
+          "assetType": "Application"
+        },
+        {
+          "id": "c4cca315-5161-47ab-a92d-d080f694ac43",
+          "displayName": "gir1.2-packagekitglib-1.0",
+          "assetType": "Application"
+        },
+        {
+          "id": "3b2b4b31-c471-4323-ba82-6c9652ac04d2",
+          "displayName": "emacsen-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "0418dd14-f15b-4752-8860-748d97aae14f",
+          "displayName": "elfutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "8cefe561-118b-48a0-a5f2-7b1cd9b9dfe1",
+          "displayName": "e2fsprogs",
+          "assetType": "Application"
+        },
+        {
+          "id": "fef840fc-2cfe-468a-af5d-51efe9721645",
+          "displayName": "equivs",
+          "assetType": "Application"
+        },
+        {
+          "id": "d7fddf0f-e5e1-4ec3-aef3-beea7cb604d7",
+          "displayName": "dmsetup",
+          "assetType": "Application"
+        },
+        {
+          "id": "3660d82f-83cf-4e36-a0aa-446bd8cd0f6d",
+          "displayName": "discover",
+          "assetType": "Application"
+        },
+        {
+          "id": "2c254097-4af6-4c52-9cc7-3155f20e6fbd",
+          "displayName": "gir1.2-glib-2.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c519ea0b-2519-4bb7-b446-aa8620a45f39",
+          "displayName": "gettext",
+          "assetType": "Application"
+        },
+        {
+          "id": "c9180f18-1d96-4962-bdd4-9e60e84d7dcf",
+          "displayName": "gcc-10-base:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "601889c1-8673-43d2-878d-45c17a1af3a1",
+          "displayName": "gcc",
+          "assetType": "Application"
+        },
+        {
+          "id": "95513bca-d68a-4786-969e-32eb63fc2034",
+          "displayName": "g++",
+          "assetType": "Application"
+        },
+        {
+          "id": "a24fbe48-8738-4676-98bc-886d92926821",
+          "displayName": "fonts-dejavu-core",
+          "assetType": "Application"
+        },
+        {
+          "id": "06e3fdb2-eea8-4599-ac58-345cd2e23d5b",
+          "displayName": "firewalld",
+          "assetType": "Application"
+        },
+        {
+          "id": "e7993a9a-6f54-4fa4-807b-6e6edcd3cc8b",
+          "displayName": "libmaxminddb0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6077b4f1-3385-4dd6-a5da-36baf0dcaeae",
+          "displayName": "libmnl0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2f09eba7-2853-4fed-8c7b-587e9826b4e5",
+          "displayName": "pci.ids",
+          "assetType": "Application"
+        },
+        {
+          "id": "ae8ba56d-0e6f-4763-b13c-55b384bae394",
+          "displayName": "patch",
+          "assetType": "Application"
+        },
+        {
+          "id": "17c35412-12e9-40f6-b491-daea23411e0f",
+          "displayName": "packagekit",
+          "assetType": "Application"
+        },
+        {
+          "id": "251271c4-f390-46c3-bc51-6a0ffb1ff70b",
+          "displayName": "os-prober",
+          "assetType": "Application"
+        },
+        {
+          "id": "3b6f96d8-e3ee-4aa7-9ba9-ec4737a93eed",
+          "displayName": "netcat-traditional",
+          "assetType": "Application"
+        },
+        {
+          "id": "5ea579f2-203b-4fa4-b180-855b62194cf9",
+          "displayName": "netcat-openbsd",
+          "assetType": "Application"
+        },
+        {
+          "id": "74ea5da8-99de-428c-ba44-0da058b88681",
+          "displayName": "netbase",
+          "assetType": "Application"
+        },
+        {
+          "id": "ad8e9215-5a1a-42d5-9148-92c0ac146b01",
+          "displayName": "pciutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "493775ff-09ec-43dc-80ca-da935070cef6",
+          "displayName": "perl-modules-5.32",
+          "assetType": "Application"
+        },
+        {
+          "id": "edda9756-ce60-4de8-9d57-dbf78799a6f9",
+          "displayName": "python3-dbus",
+          "assetType": "Application"
+        },
+        {
+          "id": "9aa5fcf5-3d40-405a-a4f5-9ebd3f14584e",
+          "displayName": "python3-certifi",
+          "assetType": "Application"
+        },
+        {
+          "id": "f8b8fe00-166c-4e99-91b0-129bc036ba16",
+          "displayName": "python2-minimal",
+          "assetType": "Application"
+        },
+        {
+          "id": "5a61837b-90f5-47a7-8a50-b8e638dfd713",
+          "displayName": "python-apt-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "867d4c86-1b2a-498d-af67-abe2ce9e3384",
+          "displayName": "popularity-contest",
+          "assetType": "Application"
+        },
+        {
+          "id": "d63d45e0-2874-4e37-924f-276b8fb72e76",
+          "displayName": "mysql-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "6eb974a3-f604-4a73-9d92-c714c008ea61",
+          "displayName": "linux-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "8882d9b6-9f88-4845-b681-b28640b10fc5",
+          "displayName": "lsb-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "ba666121-cf22-409d-90eb-f00cbbc9de12",
+          "displayName": "lsb-release",
+          "assetType": "Application"
+        },
+        {
+          "id": "4fa323c2-abf5-4933-8367-3e9f714738d4",
+          "displayName": "moreutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "1a21dee3-6968-4d2d-91f3-136e4c61c055",
+          "displayName": "mime-support",
+          "assetType": "Application"
+        },
+        {
+          "id": "87368b0c-cf18-4dc2-9b7d-7a6c139f0d13",
+          "displayName": "manpages-dev",
+          "assetType": "Application"
+        },
+        {
+          "id": "66602b25-575c-40b0-b2ab-9bda3d887982",
+          "displayName": "man-db",
+          "assetType": "Application"
+        },
+        {
+          "id": "3e902a80-0366-4d15-88c0-3e495e6231d5",
+          "displayName": "mailutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "d742f407-e59b-42d6-a29b-0fb6f4841a4e",
+          "displayName": "mailcap",
+          "assetType": "Application"
+        },
+        {
+          "id": "1106dec2-90fe-41fe-8efd-6cc15f94da00",
+          "displayName": "m4",
+          "assetType": "Application"
+        },
+        {
+          "id": "9b9f1fec-4a6f-478a-a3b4-63919273a1c8",
+          "displayName": "manpages",
+          "assetType": "Application"
+        },
+        {
+          "id": "5bc7948f-bc68-4624-87f0-0d7057957368",
+          "displayName": "libxxhash0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "baa1bb8e-5421-4bd7-ac1e-3cb7e948e3ad",
+          "displayName": "python3-debian",
+          "assetType": "Application"
+        },
+        {
+          "id": "02716419-a8dc-43a4-91c9-b534c1531aca",
+          "displayName": "unattended-upgrades",
+          "assetType": "Application"
+        },
+        {
+          "id": "2556f4b2-3dbb-4452-93c1-270eae6fc0f8",
+          "displayName": "telnet",
+          "assetType": "Application"
+        },
+        {
+          "id": "04cb881d-ad54-4e76-b7db-7ab565a43bba",
+          "displayName": "tar",
+          "assetType": "Application"
+        },
+        {
+          "id": "ac3642b0-7577-4754-850c-9c982ad842ca",
+          "displayName": "usbutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "c3ab0994-b59a-47db-9ce3-5e3276413028",
+          "displayName": "uuid",
+          "assetType": "Application"
+        },
+        {
+          "id": "37c8bc40-abf4-4f65-883f-7c37745db13a",
+          "displayName": "wamerican",
+          "assetType": "Application"
+        },
+        {
+          "id": "09000b1f-b2ab-48c7-8cfa-6f143c39e831",
+          "displayName": "python3-six",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ebbfa03-aece-40f0-abcd-6f5b1fde083c",
+          "displayName": "python3-reportbug",
+          "assetType": "Application"
+        },
+        {
+          "id": "4751763a-7425-45f5-95f5-5327448c5d69",
+          "displayName": "python3-httplib2",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9c87f47-ddff-4242-9061-c663de76eac2",
+          "displayName": "python3-firewall",
+          "assetType": "Application"
+        },
+        {
+          "id": "dc2e24d3-77bf-4b95-95ad-32a075866acd",
+          "displayName": "python3-distutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "14d6682a-e2a8-4366-9dfc-6380b63b7f76",
+          "displayName": "python3-software-properties",
+          "assetType": "Application"
+        },
+        {
+          "id": "0f790da6-5f66-4089-b676-897a80bca779",
+          "displayName": "python3-urllib3",
+          "assetType": "Application"
+        },
+        {
+          "id": "360f76c1-8a2b-48fe-ae15-9935f9843f2a",
+          "displayName": "python3.9",
+          "assetType": "Application"
+        },
+        {
+          "id": "09d7f656-28f4-4e5c-98c0-bfa41faf0771",
+          "displayName": "shared-mime-info",
+          "assetType": "Application"
+        },
+        {
+          "id": "93f08180-f1bd-4616-8d7f-015f14ea0620",
+          "displayName": "sed",
+          "assetType": "Application"
+        },
+        {
+          "id": "0bceea73-5d4e-4d21-8a68-c7a672990f41",
+          "displayName": "runit-helper",
+          "assetType": "Application"
+        },
+        {
+          "id": "2e77cc46-9108-49a8-8e63-c5e28bef7780",
+          "displayName": "reportbug",
+          "assetType": "Application"
+        },
+        {
+          "id": "c23f2d24-533d-419b-8b61-0e3f5516d71b",
+          "displayName": "libxtables12:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a0c8a6b3-e207-4e4a-9a11-0418ca0de299",
+          "displayName": "libproc-processtable-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "d22ad337-97ab-481f-b147-96b3c02a4780",
+          "displayName": "libpopt0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "773a97bf-f66c-46bc-94fc-2770e66370d6",
+          "displayName": "libperlio-utf8-strict-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b911c995-0530-4e81-aff5-f01aff65fc31",
+          "displayName": "libperl5.32:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d475d241-0b07-41f9-a1b5-210398349d68",
+          "displayName": "libparted2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b1afcf51-ae6d-4e70-b3a5-85eb87913190",
+          "displayName": "libpam0g:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c5110de7-294c-47b9-a6dc-477f17f9635c",
+          "displayName": "libprotobuf-c1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5d936601-e4cf-4ef6-a2c4-e09125ca8962",
+          "displayName": "libpython2-stdlib:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a60cf7c0-5d1f-4441-8fe9-5a9294bebed6",
+          "displayName": "libselinux1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "553ec7a8-2990-4956-95f2-a26f362ba095",
+          "displayName": "libreadline8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0308a32b-bb07-4b0c-af6c-384a0ff310d1",
+          "displayName": "librados2",
+          "assetType": "Application"
+        },
+        {
+          "id": "111fc1a7-e093-4598-ab94-840a20c19e4a",
+          "displayName": "libpython3.9:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b3b9d7b9-0141-42e1-ba95-315507779f9a",
+          "displayName": "libpam-runtime",
+          "assetType": "Application"
+        },
+        {
+          "id": "008e2645-6426-4456-a436-1c90d4044eac",
+          "displayName": "libpam-modules-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "2a6a5dcc-e2d4-441e-8fc6-619bb534401f",
+          "displayName": "libnfs13:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "eeb0378e-fd91-4d98-b0fc-160c81d0fba4",
+          "displayName": "libnewt0.52:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "161d4155-058f-4649-9de1-d14d1eb8cd97",
+          "displayName": "libnettle8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0763db3f-a0ee-4c79-82a2-ef79aea250b8",
+          "displayName": "libnetfilter-conntrack3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "70e478e7-b653-4235-80ac-134ab3e40a7c",
+          "displayName": "libnetcf1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5e4eb3be-a07e-4287-ad20-58f72aa240d3",
+          "displayName": "libndctl6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "417e52e5-e14a-4623-ae85-d6eb6586a325",
+          "displayName": "libmpfr6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d6e31a19-8f77-49ae-a719-53f3c2f254f5",
+          "displayName": "libmpdec3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2c62601a-0661-40c2-9bdd-66ae0975a3f6",
+          "displayName": "libmpc3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8226feaa-2437-4539-80f3-28860fc86bb1",
+          "displayName": "libnl-3-200:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d06230da-19d3-42d8-b65c-ff2159a6d1ef",
+          "displayName": "libnl-route-3-200:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9343d6c1-2bae-47a2-8707-5df66c3d289a",
+          "displayName": "libpam-modules:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "92aa9159-76c9-4b69-b72a-cf5533d0ff60",
+          "displayName": "libp11-kit0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9bd41b3-10ea-47fc-bd46-d162a132c1f7",
+          "displayName": "liborc-0.4-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "73787ca3-5cdd-4067-9433-72ca42b19df6",
+          "displayName": "libopus0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "28c6efbd-7552-4c8d-89f8-edccd36dc55f",
+          "displayName": "libopenipmi0",
+          "assetType": "Application"
+        },
+        {
+          "id": "0d81b97e-1c4f-460b-a12a-9c3e868d5ace",
+          "displayName": "libonig5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0ee4947b-cb16-4cca-ae6d-596dd68b4a90",
+          "displayName": "libsemanage-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "d535140a-5071-482c-b00c-e005ba499525",
+          "displayName": "libnsl2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "499d748d-3029-4349-97cc-4362a39eeef7",
+          "displayName": "libnsl-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ce52b8e2-b157-4510-97f2-ed1ccef39141",
+          "displayName": "libnuma1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "30b8a918-d323-433d-82ff-5c07f10a6026",
+          "displayName": "libsemanage1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "60b25911-b76e-4521-802f-076e47e7110d",
+          "displayName": "libsensors5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fa8fcb31-910d-4920-92ce-644c5ffc030f",
+          "displayName": "libuv1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "88968807-8f7b-45ee-9a95-c7a73f50a0c9",
+          "displayName": "libutempter0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "62af1227-e6ed-43c6-a331-96a487ab5e16",
+          "displayName": "libxmuu1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5bbc7da4-2c54-4f22-acc6-666ae1b1f024",
+          "displayName": "libxdmcp6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ca6dc82-5830-4b94-bac5-abd5644b0b75",
+          "displayName": "libxau6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fca879dc-636f-431a-b19c-b3febdea44d9",
+          "displayName": "libx86emu3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9110147-10f0-4fa4-b114-a61bff7818ca",
+          "displayName": "liburing1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7a46489f-ecd1-465c-a892-5320e38bf883",
+          "displayName": "libunistring2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "564c61da-e61c-4630-ac17-d70b580d7f47",
+          "displayName": "libstdc++-10-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ed62106-ecf5-4142-985d-4632ce3fac06",
+          "displayName": "libunwind8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f196ab19-7ecc-4e76-84a1-d39f76538c6c",
+          "displayName": "libsqlite3-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b7b3d67e-f958-4b91-873c-a6ff381c95cb",
+          "displayName": "libspice-server1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3dd3d031-f74b-4048-9376-515fd34259f4",
+          "displayName": "libslirp0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "befab5ee-5855-4ae3-b89f-b28041369efd",
+          "displayName": "libslang2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2a748d1b-5caf-4310-a121-1995603646ac",
+          "displayName": "libsepol1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6bbd2c94-ad12-46ea-8572-0ac0333be6cc",
+          "displayName": "libsys-hostname-long-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "4da1b08a-683e-4c9d-a5ad-13bfe9fffe0a",
+          "displayName": "libuchardet0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b71cc6fe-0902-485c-abf9-a9a9c6aa5ee5",
+          "displayName": "libubsan1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d2542a10-58f8-43e2-8e55-72be9b2ea553",
+          "displayName": "libtext-iconv-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "7b1b955e-ab68-4c9a-bd10-f6b10c264873",
+          "displayName": "libtimedate-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "c76dbb5d-b13b-49a3-8248-b566b6dec86f",
+          "displayName": "vim",
+          "assetType": "Application"
+        },
+        {
+          "id": "3221b9f4-9cd8-428e-9748-574074bf3ede",
+          "displayName": "wget",
+          "assetType": "Application"
+        },
+        {
+          "id": "8f7a3bb5-4c61-4571-9cb7-6d77f9132445",
+          "displayName": "bsdextrautils",
+          "assetType": "Application"
+        },
+        {
+          "id": "ad516f4f-4d91-4a50-8931-693f0c48b97f",
+          "displayName": "util-linux-locales",
+          "assetType": "Application"
+        },
+        {
+          "id": "67cabfa2-ac9a-45b2-8df6-43e9a100eb92",
+          "displayName": "util-linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "c9dc1839-f261-42cf-8ec5-9df3b5e68f90",
+          "displayName": "libsmartcols1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b7a8081e-e421-4efb-8dd9-25cb4a4e7f71",
+          "displayName": "fdisk",
+          "assetType": "Application"
+        },
+        {
+          "id": "cfb565b8-e380-4a39-9d62-9f320371f4f5",
+          "displayName": "libpolkit-agent-1-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e9225398-5973-4b4e-abc1-c36ac0250d0c",
+          "displayName": "lldpd",
+          "assetType": "Application"
+        },
+        {
+          "id": "2d082d62-3d3c-4923-bb52-3765ddb7b2d5",
+          "displayName": "rsyslog",
+          "assetType": "Application"
+        },
+        {
+          "id": "6dc29be7-50b2-42d3-9265-81521e95b82f",
+          "displayName": "exim4-daemon-light",
+          "assetType": "Application"
+        },
+        {
+          "id": "b3aaa758-17f3-4533-b451-232abe1485d3",
+          "displayName": "exim4-config",
+          "assetType": "Application"
+        },
+        {
+          "id": "d6ebf8ac-7c75-4a78-9ad6-99df9e5ca7f9",
+          "displayName": "exim4-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "93e526e7-e872-4b69-9d04-b8fc00d4aaf7",
+          "displayName": "gnupg-l10n",
+          "assetType": "Application"
+        },
+        {
+          "id": "d65f3f22-01be-4a71-b28f-da926598241d",
+          "displayName": "gpg-agent",
+          "assetType": "Application"
+        },
+        {
+          "id": "feaeb934-fce1-4ffe-801b-5ddd09226962",
+          "displayName": "dirmngr",
+          "assetType": "Application"
+        },
+        {
+          "id": "4b330b44-6d51-4954-8560-3c5ecd53d848",
+          "displayName": "libnm0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "66ff0ab4-25b0-4f86-bb08-76197f5f54d0",
+          "displayName": "libintl-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "caf39320-b91f-4f98-8714-19956e30cfc2",
+          "displayName": "libfreetype6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d0bb0d04-56bd-4bf7-baf3-a4a0afb4f45a",
+          "displayName": "bash",
+          "assetType": "Application"
+        },
+        {
+          "id": "d2061411-85dd-49fa-94b0-f293fb03152f",
+          "displayName": "gir1.2-nm-1.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "100c6852-9b30-44c1-89d9-6d352050349d",
+          "displayName": "ipxe-qemu",
+          "assetType": "Application"
+        },
+        {
+          "id": "573775aa-f412-449f-bf9d-57c8c44252a4",
+          "displayName": "libldap-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "6fcae0c6-c65a-4747-a209-5516af1930d6",
+          "displayName": "task-ssh-server",
+          "assetType": "Application"
+        },
+        {
+          "id": "0aea0988-4aec-4f02-8156-000fd39e710b",
+          "displayName": "xz-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "ee271dcf-5994-4425-a0e3-f5f36263f6a0",
+          "displayName": "liblzma5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "904ef4d2-8656-4777-be21-cc87648a857a",
+          "displayName": "libdb5.3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "df339013-9581-4b5a-b6b8-8970c8b2cc8b",
+          "displayName": "libdaxctl1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d640131e-a2cc-4a57-b212-1d3c0a2d1e4a",
+          "displayName": "libcom-err2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7c5d9cf4-51ad-44a2-9046-0112e9e823af",
+          "displayName": "libcc1-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "46e70430-fc85-4eda-9cd2-c8efe1495e25",
+          "displayName": "libcap2-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "9026af4f-46eb-4969-bcae-051e046fdf40",
+          "displayName": "libcap2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8c788ce3-8a7a-4f82-963a-9747be64c89d",
+          "displayName": "libcap-ng0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "48a99158-8d90-45d8-ab3e-301332d97c83",
+          "displayName": "libcacard0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f6553f6f-6fdc-4054-9e41-b50634972558",
+          "displayName": "libdebconfclient0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "466cd28a-5f44-4832-baaf-32ae134c2026",
+          "displayName": "libext2fs2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f3530404-e9e8-4402-b52f-99445c175794",
+          "displayName": "libexecs0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "68eb324b-319d-47e8-8562-e66179f793ee",
+          "displayName": "libestr0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "21d19ca4-8f5a-4b7f-8d75-da7c863c2b68",
+          "displayName": "libepoxy0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "97fe17a7-4579-4e7b-96d3-28f91ae9ba65",
+          "displayName": "libelf1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3703c1cd-ec31-4180-a4d7-74757cf4d6e0",
+          "displayName": "libdrm2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9f6e4716-da22-4a71-a103-aba5a744252f",
+          "displayName": "libdrm-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "53487021-c26e-43c3-87ab-bc68ec819029",
+          "displayName": "libdns-export1110",
+          "assetType": "Application"
+        },
+        {
+          "id": "ea02b4c0-baa3-4658-9f46-b434bd4920fa",
+          "displayName": "libdiscover2",
+          "assetType": "Application"
+        },
+        {
+          "id": "86869758-e76e-45c9-85b2-0c3bd38041b5",
+          "displayName": "libdevmapper1.02.1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "cf397699-c1b3-4c8e-8d4a-7fbd28853cff",
+          "displayName": "libefiboot1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ed2e9faa-7ad9-4174-a845-3c874e5b8bc1",
+          "displayName": "libarchive-zip-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "0da28e5b-0420-4c89-9d47-a408534c7828",
+          "displayName": "libarchive-cpio-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "72601084-9beb-4f66-8f50-4a77e93eaf96",
+          "displayName": "libalgorithm-merge-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "083070ee-d1cf-4fb3-951b-f5f650b75346",
+          "displayName": "libalgorithm-diff-xs-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "534c31a5-34d5-4674-996a-5bd1f5b2bcd8",
+          "displayName": "libalgorithm-diff-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "1b2ce937-3b88-4fe5-9a8d-32c2dc8eef39",
+          "displayName": "libacl1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fa1017e3-6eb7-4b0c-9f6b-18b286fd7f77",
+          "displayName": "keyboard-configuration",
+          "assetType": "Application"
+        },
+        {
+          "id": "decf3474-e802-4977-8a92-1e06d9d69444",
+          "displayName": "libasound2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9551ed42-f805-491b-b964-055125aeae7e",
+          "displayName": "libbrotli1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6838a8b9-0d15-4146-aa98-6bb2aa2006f1",
+          "displayName": "libbpf0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "091459e3-beb0-4e5c-8b46-64d699f55488",
+          "displayName": "libboost-thread1.74.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c6f8cb14-20b7-4c6a-b4d9-ddecbc2c2127",
+          "displayName": "libfastjson4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "74de5381-6fc9-436f-a2f8-24a5cabac115",
+          "displayName": "libbinutils:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b3bb9a0e-ab77-4900-8f48-e37c60b47419",
+          "displayName": "libaugeas0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "56fe3787-18ae-4183-9bef-fe5f2ccf46b8",
+          "displayName": "libaudit1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9e534cdd-15f3-42cb-bc8e-15b74a480609",
+          "displayName": "libassuan0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b3f094bd-398d-4516-9190-e80d42d1b67c",
+          "displayName": "libitm1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c73980db-2fa9-474e-8241-0ef154498ac6",
+          "displayName": "libisl23:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "1b41d822-bc08-41de-a9d6-a0db021e3577",
+          "displayName": "libiscsi7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2449f1f6-9d3f-41a2-9ba0-e4f2c578801b",
+          "displayName": "libisc-export1105:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "359a2f83-a1f1-48e6-9f6b-fa624ebaf285",
+          "displayName": "libipset13:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5835afd8-958c-4916-ae6d-8c670f0b95e5",
+          "displayName": "libip6tc2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e3fb00e1-8878-4acb-b3bd-d25cbfb4d34c",
+          "displayName": "libip4tc2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b756ba0f-98fc-4f8b-9ad7-1c4042e3c92b",
+          "displayName": "libklibc:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0fff6b6a-235e-438e-bab1-f84513488852",
+          "displayName": "libmail-sendmail-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "c9d344cf-1e1a-4f10-b918-aacf5f90e0ed",
+          "displayName": "liblz4-1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ea09714-c458-4f92-8e6c-124b23b019ce",
+          "displayName": "libltdl7:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "94bba676-7f5e-412a-8227-8a3062c903ca",
+          "displayName": "libltdl-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "29435311-8adc-4f53-ba2c-f6f97793b2aa",
+          "displayName": "libidn2-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a9a952d8-31d4-42c9-a5e2-acc39107f1cb",
+          "displayName": "liblocale-gettext-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "5bab434d-bd02-488b-a246-50394dd32ef4",
+          "displayName": "liblmdb0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3b410a87-a51f-4b7d-8471-9a4b023a8919",
+          "displayName": "liblognorm5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6a880d23-2de3-4e61-8b62-4524f26da6cf",
+          "displayName": "libidn11:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ffaf91bc-1fe9-42d7-a853-7883af917304",
+          "displayName": "libicu67:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3650c099-ee75-4ce3-9bee-fe7b1de1460b",
+          "displayName": "libibverbs1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c576054e-8e5e-4824-856f-5fe08bfa1518",
+          "displayName": "libgdbm-compat4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8b74569f-49dc-4251-bf0b-85c34e0ed8ac",
+          "displayName": "libgd3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d0fad600-316c-45cf-96b7-898e9325a908",
+          "displayName": "libgcrypt20:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "cba82789-ee61-45c4-b6e5-4f5991fe5a4a",
+          "displayName": "libgcc-s1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c4c128ac-e208-48d7-9d5d-8fbb8ec4616e",
+          "displayName": "libgcc-10-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "941c6c79-baf9-4d3e-a758-18e5274edb76",
+          "displayName": "libgbm1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e472961c-93f1-4895-a0d0-ecf049f07eed",
+          "displayName": "libfuse2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ff873e4-b471-42e9-b65b-b63fcf4a5323",
+          "displayName": "libfile-which-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "8c96ff35-4a0e-4b1f-9274-110eabd0ea37",
+          "displayName": "libfido2-1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e1a0fbf5-20b8-4dc6-9d02-81a4e990b441",
+          "displayName": "libgfxdr0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "36159843-4e5f-4f80-bd40-54f1e95a9a47",
+          "displayName": "libglusterfs0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "1c673a1d-fa63-4dd5-96d1-f3ea274170f9",
+          "displayName": "libglib2.0-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "c35eaf0f-f80f-49e2-b545-6386fb50ec8b",
+          "displayName": "libgirepository-1.0-1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "970f8497-fa35-43a9-aeb7-61dbe544815a",
+          "displayName": "libgomp1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "256562ba-5bc2-461a-b007-ceb8eb55506a",
+          "displayName": "iso-codes",
+          "assetType": "Application"
+        },
+        {
+          "id": "5c0b2ecd-64a0-40f7-aff1-88e08c29f058",
+          "displayName": "bridge-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "a6105dc0-4e4c-4d03-a319-fe83c3757abc",
+          "displayName": "binutils-x86-64-linux-gnu",
+          "assetType": "Application"
+        },
+        {
+          "id": "d4acec40-ee14-4511-a57d-5fe274fa88bd",
+          "displayName": "binutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "18081805-608a-436f-8422-e9ecb9276385",
+          "displayName": "bash-completion",
+          "assetType": "Application"
+        },
+        {
+          "id": "b4bf5166-a27f-42ac-9a37-a05444eaf10f",
+          "displayName": "base-passwd",
+          "assetType": "Application"
+        },
+        {
+          "id": "ca74d421-4f11-4ce1-bd1e-a76d19876b5e",
+          "displayName": "automake",
+          "assetType": "Application"
+        },
+        {
+          "id": "b7ecbb36-83ae-44bf-838b-7681961b8169",
+          "displayName": "autoconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "c0794295-928c-4186-9061-a452522fd6c5",
+          "displayName": "debian-goodies",
+          "assetType": "Application"
+        },
+        {
+          "id": "2e460caf-a3ef-4c62-bdb6-75cc7f0deeea",
+          "displayName": "debian-faq",
+          "assetType": "Application"
+        },
+        {
+          "id": "96d87215-3e46-4c96-ae90-bf777593a0ea",
+          "displayName": "debconf-i18n",
+          "assetType": "Application"
+        },
+        {
+          "id": "67563769-7e81-4a66-9cf0-342275fd0d89",
+          "displayName": "augeas-lenses",
+          "assetType": "Application"
+        },
+        {
+          "id": "d872baac-bb18-4dc6-9191-551249c4b45e",
+          "displayName": "cron",
+          "assetType": "Application"
+        },
+        {
+          "id": "6bf75ed0-b73a-47dc-b908-71c54ed7a752",
+          "displayName": "cpp-10",
+          "assetType": "Application"
+        },
+        {
+          "id": "30ecbd29-46dd-405b-a618-1df144de53ec",
+          "displayName": "cpp",
+          "assetType": "Application"
+        },
+        {
+          "id": "3a0eb62a-4694-4e46-bf85-6999664b0688",
+          "displayName": "coreutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "bb23a41b-7152-4363-92a7-1c0ac162a82f",
+          "displayName": "console-setup-linux",
+          "assetType": "Application"
+        },
+        {
+          "id": "8d16eefe-7d5e-4c09-8363-597e25a0018c",
+          "displayName": "apt-transport-https",
+          "assetType": "Application"
+        },
+        {
+          "id": "16507732-c099-4c9b-b127-a7e4ed15ac93",
+          "displayName": "dictionaries-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "3c7458b6-c51c-4877-9c66-5a01f9b3972e",
+          "displayName": "groff-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "629dcf68-3b33-437d-87e4-4c35ec333891",
+          "displayName": "ipmitool",
+          "assetType": "Application"
+        },
+        {
+          "id": "6d420937-7d8a-49be-8ac2-ef3054eb4da4",
+          "displayName": "installation-report",
+          "assetType": "Application"
+        },
+        {
+          "id": "569a033d-e064-4586-8915-aa4a197783bb",
+          "displayName": "initramfs-tools",
+          "assetType": "Application"
+        },
+        {
+          "id": "d55d0b43-654c-48f6-a352-f19942526ec9",
+          "displayName": "init",
+          "assetType": "Application"
+        },
+        {
+          "id": "ac3a8f3b-3aec-4bf4-94de-07ff26c215ff",
+          "displayName": "ifupdown",
+          "assetType": "Application"
+        },
+        {
+          "id": "a1b02806-9bad-4300-b683-9d82571f3030",
+          "displayName": "iamerican",
+          "assetType": "Application"
+        },
+        {
+          "id": "fab30612-2871-49c3-bf32-ec29a65d904d",
+          "displayName": "efibootmgr",
+          "assetType": "Application"
+        },
+        {
+          "id": "be714fb6-0008-4d67-9f03-b58d42fa6c0a",
+          "displayName": "dwz",
+          "assetType": "Application"
+        },
+        {
+          "id": "7edde49f-c954-415e-bc2b-94c18e03727f",
+          "displayName": "doc-debian",
+          "assetType": "Application"
+        },
+        {
+          "id": "38a4eb62-15a9-4644-a441-a336508264ec",
+          "displayName": "dmidecode",
+          "assetType": "Application"
+        },
+        {
+          "id": "7485ddb5-553a-4b0d-b866-04625619872e",
+          "displayName": "dkms",
+          "assetType": "Application"
+        },
+        {
+          "id": "a152f777-a1d7-4e1b-820b-a6c536a0b0a8",
+          "displayName": "discover-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "f8ec344b-6cdc-49be-b516-bc77699af4a5",
+          "displayName": "diffutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "9e578570-65c7-4c2b-8cc9-ad4f77e8b7ba",
+          "displayName": "dnsmasq-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "437834f2-2d3f-4325-b3c2-844364b0407d",
+          "displayName": "gettext-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "a3248735-f772-41dd-a038-e911a24d0377",
+          "displayName": "gcc-9-base:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "289ae176-f8e6-4a78-9098-91f6a8f5e680",
+          "displayName": "gcc-10",
+          "assetType": "Application"
+        },
+        {
+          "id": "d46beea8-3aa4-4fe3-9a97-534a1bd6fee3",
+          "displayName": "g++-10",
+          "assetType": "Application"
+        },
+        {
+          "id": "a2938a4d-715f-4297-bbce-b656f3f7175f",
+          "displayName": "fontconfig-config",
+          "assetType": "Application"
+        },
+        {
+          "id": "4c1b9ff8-4718-4a05-8dfd-3e3594ce08b7",
+          "displayName": "firmware-linux-free",
+          "assetType": "Application"
+        },
+        {
+          "id": "9216fc2b-576b-4dec-b017-f9d671d129f1",
+          "displayName": "findutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "0d8844b0-e13b-4753-82a7-4e2869804e1b",
+          "displayName": "fakeroot",
+          "assetType": "Application"
+        },
+        {
+          "id": "c5ae8ed5-ab18-461d-8bb6-c1716afd4c1d",
+          "displayName": "passwd",
+          "assetType": "Application"
+        },
+        {
+          "id": "b8dcb174-bba1-4e50-beca-fb8d8be4e9e6",
+          "displayName": "packagekit-tools",
+          "assetType": "Application"
+        },
+        {
+          "id": "6e961720-f10d-4aa6-aa2c-fd65f8493240",
+          "displayName": "openipmi",
+          "assetType": "Application"
+        },
+        {
+          "id": "b259a890-b7ed-4865-a997-698fdbf2252d",
+          "displayName": "perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "4cc3dd3b-ce8b-4bd7-93b5-b9078454dd9b",
+          "displayName": "python3-chardet",
+          "assetType": "Application"
+        },
+        {
+          "id": "31c66008-fec7-4989-a208-279353949858",
+          "displayName": "python3-apt",
+          "assetType": "Application"
+        },
+        {
+          "id": "544f9c12-2d5e-4083-b6c7-b0b1d5481278",
+          "displayName": "python3",
+          "assetType": "Application"
+        },
+        {
+          "id": "501bd95f-a0a6-4c88-a12b-a46adf28a81c",
+          "displayName": "python2",
+          "assetType": "Application"
+        },
+        {
+          "id": "01a0ffa8-fd1e-43ef-9a04-1ae899d31009",
+          "displayName": "psmisc",
+          "assetType": "Application"
+        },
+        {
+          "id": "d6bc6646-991f-4642-9ff6-509e6c7b2bb2",
+          "displayName": "procps",
+          "assetType": "Application"
+        },
+        {
+          "id": "36b4cbc6-b9ed-4218-b55b-5131b667ecd2",
+          "displayName": "po-debconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "9f9be66a-35ac-4a54-8a7f-d028670e086f",
+          "displayName": "pinentry-curses",
+          "assetType": "Application"
+        },
+        {
+          "id": "6f8e0048-7104-47aa-8e55-1407c51e9670",
+          "displayName": "perl-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "cdfbb469-75eb-43bb-89f8-d8cb76b099df",
+          "displayName": "login",
+          "assetType": "Application"
+        },
+        {
+          "id": "a3c329b7-498f-48f9-a30e-a7eab79d6d20",
+          "displayName": "libzstd1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ad3e59da-69aa-4b17-a9f3-cf608390a110",
+          "displayName": "libmd0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fa6c7b85-3ca3-4f08-ab98-625ba366acb8",
+          "displayName": "libyaml-0-2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "53404080-c5f7-4f24-bce1-53df3894f01b",
+          "displayName": "logsave",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ca342ae-6f89-444c-8640-76cd2ec41381",
+          "displayName": "media-types",
+          "assetType": "Application"
+        },
+        {
+          "id": "93196bf1-1f70-4748-a296-1707d01b837c",
+          "displayName": "mawk",
+          "assetType": "Application"
+        },
+        {
+          "id": "8660ae33-67ed-47c0-8ff8-2811cd48cd7b",
+          "displayName": "python3-debconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "9f54383c-f78f-4824-b2b0-624094c5bfbd",
+          "displayName": "make",
+          "assetType": "Application"
+        },
+        {
+          "id": "408d6fb6-0027-49b2-9d10-1ef6355aa412",
+          "displayName": "mailutils-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "5cf40768-c902-4b12-af84-0f4025501b86",
+          "displayName": "lsof",
+          "assetType": "Application"
+        },
+        {
+          "id": "9a6a8b3a-0376-42d4-a124-c56d9952b61a",
+          "displayName": "lshw",
+          "assetType": "Application"
+        },
+        {
+          "id": "c9427e55-432f-4435-84ab-485ce5b55d74",
+          "displayName": "python3-decorator",
+          "assetType": "Application"
+        },
+        {
+          "id": "a662f74e-76e9-4128-bf51-c94eb6e65fd0",
+          "displayName": "ucf",
+          "assetType": "Application"
+        },
+        {
+          "id": "eea140b6-add1-45a5-b289-84df7b9ecd6a",
+          "displayName": "tmux",
+          "assetType": "Application"
+        },
+        {
+          "id": "c009130d-c0f4-4b79-998c-f7b95b47105f",
+          "displayName": "xkb-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "704e2aa6-7ca1-4245-8c9c-6c13afcd514e",
+          "displayName": "xdg-user-dirs",
+          "assetType": "Application"
+        },
+        {
+          "id": "ddd9e760-e19a-4ac5-af0e-07b8bfbacdfb",
+          "displayName": "xauth",
+          "assetType": "Application"
+        },
+        {
+          "id": "9fff8235-989a-4623-88b3-efc60e220fb8",
+          "displayName": "whiptail",
+          "assetType": "Application"
+        },
+        {
+          "id": "99f62ac9-5cac-4bca-a08f-1b4bb91edbae",
+          "displayName": "software-properties-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "b344b107-9c99-4d0d-8d93-24338c375e1a",
+          "displayName": "python3-slip",
+          "assetType": "Application"
+        },
+        {
+          "id": "3de6282d-d7c8-4c8d-b332-ab84a71c2fa2",
+          "displayName": "python3-selinux",
+          "assetType": "Application"
+        },
+        {
+          "id": "ec980472-3f2b-4195-b2a0-82110d40e83a",
+          "displayName": "python3-requests",
+          "assetType": "Application"
+        },
+        {
+          "id": "cb300e38-7c38-4edb-b167-c72086cc3752",
+          "displayName": "python3-pysimplesoap",
+          "assetType": "Application"
+        },
+        {
+          "id": "314d3a3e-3009-4529-af82-ba979e00cfef",
+          "displayName": "python3-pycurl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b7c9a996-289a-454b-bac0-ecd986719f47",
+          "displayName": "python3-pkg-resources",
+          "assetType": "Application"
+        },
+        {
+          "id": "2b573eb7-6719-49b7-8f9e-9be9528373de",
+          "displayName": "python3-minimal",
+          "assetType": "Application"
+        },
+        {
+          "id": "2d6d19d0-d003-4bec-afe7-c4fb6df9497d",
+          "displayName": "python3-lib2to3",
+          "assetType": "Application"
+        },
+        {
+          "id": "9741a6cd-1fc7-4cb8-92b0-df1f567a0d49",
+          "displayName": "python3-idna",
+          "assetType": "Application"
+        },
+        {
+          "id": "695b2b52-fab3-4ddd-985a-eb7d43eb2a06",
+          "displayName": "python3-gi",
+          "assetType": "Application"
+        },
+        {
+          "id": "4ec0b019-0d68-454b-8de2-63f1857ffa20",
+          "displayName": "python3-distro-info",
+          "assetType": "Application"
+        },
+        {
+          "id": "892a2b8e-775a-48e8-99ba-0db8cb09d9ca",
+          "displayName": "python3-slip-dbus",
+          "assetType": "Application"
+        },
+        {
+          "id": "7967c1e6-75df-45a6-ab09-67d70f92ed65",
+          "displayName": "sensible-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "f1147936-9084-452f-babc-091e5de33b8e",
+          "displayName": "seabios",
+          "assetType": "Application"
+        },
+        {
+          "id": "508bdb91-b8d7-4dbc-9898-0e55a690283e",
+          "displayName": "python3-debianbts",
+          "assetType": "Application"
+        },
+        {
+          "id": "7eb4124b-06ea-41fa-97a3-6195255ae151",
+          "displayName": "readline-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "2084d958-a55b-436b-a396-7490f1beb79d",
+          "displayName": "python3.9-minimal",
+          "assetType": "Application"
+        },
+        {
+          "id": "5f39d7da-3de3-4af8-9328-cb8321346788",
+          "displayName": "resolvconf",
+          "assetType": "Application"
+        },
+        {
+          "id": "681fb7ac-97e4-4a5b-81e2-01bcedd121f0",
+          "displayName": "libpng16-16:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9751300d-423e-4dce-9491-b05b74e10d24",
+          "displayName": "libpmem1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5f7ef548-898e-4fe4-adba-a4ed861c4569",
+          "displayName": "libpipeline1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fda14bd8-e2b4-44a6-ba64-f8458fc810c1",
+          "displayName": "libpcsclite1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e93ed66c-6344-4ad7-ad35-1640e109577e",
+          "displayName": "libpcre3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9242318-2449-4bd5-8f0b-11a7e0372ac5",
+          "displayName": "libpciaccess0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a490e804-fff8-43d8-9570-5f1315210f7a",
+          "displayName": "libpci3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9d2fe031-e80f-4e76-a578-80b2a29cdacc",
+          "displayName": "libpcap0.8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4a829057-6c96-441a-9436-75f922cde5b4",
+          "displayName": "libprocps8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "db413961-2d0e-45ca-8d71-474d205169b8",
+          "displayName": "librdmacm1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "904b33cb-7cf1-4b73-ac74-b1297d350d73",
+          "displayName": "librbd1",
+          "assetType": "Application"
+        },
+        {
+          "id": "224aa9a8-4004-48c9-9320-c98c47f15820",
+          "displayName": "libquadmath0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "26911f2c-5101-4918-af07-11fe64e1053b",
+          "displayName": "libpython3.9-stdlib:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "16e91ed5-cc4d-4d50-be99-ce7e31103484",
+          "displayName": "libpython3.9-minimal:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "90ff2f22-997c-4193-9d29-33fb194abc5b",
+          "displayName": "libpython3-stdlib:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "a50a8321-b1e0-4a27-b2e1-e62f02a90226",
+          "displayName": "libpsl5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "67826086-7272-4638-b778-e2955c7d0b07",
+          "displayName": "libnftnl11:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5a722724-5c44-431c-9b2b-387d58ac7e67",
+          "displayName": "libnfnetlink0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "999c7a0e-b1bb-42b3-92fb-cbfb6eb36eba",
+          "displayName": "libmodule-scandeps-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "3873e111-0cdb-4b1f-b4d5-224470c4d548",
+          "displayName": "libmodule-find-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b7639b1c-bcba-4b54-9a7d-efbf2411a42d",
+          "displayName": "libnghttp2-14:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "004d7185-9911-492a-8b60-44f799ef0a5c",
+          "displayName": "libnl-genl-3-200:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ddcf7706-b349-41a8-8e6e-7fb8664f118c",
+          "displayName": "libpackagekit-glib2-18:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "bfd26342-ac31-4640-9b9c-33d2011357f2",
+          "displayName": "libossp-uuid16:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7e6c6fe2-5838-45db-8fdc-ea0f9edcae62",
+          "displayName": "libntlm0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "24ec45b5-890e-4e56-9a0d-74a4fe8a9030",
+          "displayName": "libnspr4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9c59d043-7ffd-432f-aafc-f0c88e74f272",
+          "displayName": "libnpth0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4dc8991f-d59e-49d0-aba8-e4f1818de4a2",
+          "displayName": "libwayland-server0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c56d82df-4d54-4596-8d99-cf494a0ac18d",
+          "displayName": "libvdeplug2",
+          "assetType": "Application"
+        },
+        {
+          "id": "02a9f353-00b1-46de-82a4-92bd1d1dda4e",
+          "displayName": "libsensors-config",
+          "assetType": "Application"
+        },
+        {
+          "id": "2a5de0ef-38b3-4bb1-b019-37f2426d24f6",
+          "displayName": "libusbredirparser1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c589d5df-3972-4976-898a-85484b961f8f",
+          "displayName": "libusb-1.0-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "312524df-d011-4dec-b949-61d55e3cbd3e",
+          "displayName": "libusb-0.1-4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c15e23d9-f281-45ad-afd9-e2c6ab0f378c",
+          "displayName": "libwrap0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b2a14d9b-44ad-40e7-96bd-bd3ba1968920",
+          "displayName": "libxext6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "60d5b0d0-563b-453d-92c2-ec9f6b38ea95",
+          "displayName": "libxcb1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0d464db0-e1d8-45a2-b223-d0bb94175822",
+          "displayName": "libstemmer0d:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b9764ec4-5974-40cf-b98e-c680ebd38e24",
+          "displayName": "libstdc++6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "16104f8c-baa7-46a4-b0fd-69c812346254",
+          "displayName": "libssh2-1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5956354a-3bb1-44fe-bdc4-3be15ee3d583",
+          "displayName": "libss2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "48bfdedf-b4df-490f-b461-c5fbe5190401",
+          "displayName": "libsort-naturally-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b857ad76-2d29-4bb2-903f-526d23253ace",
+          "displayName": "libsigsegv2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ce669918-0d6a-43ca-8891-06c7db44ac06",
+          "displayName": "libsub-override-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "b2555b49-2020-4189-b166-fbfe3973b301",
+          "displayName": "libtsan0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c83e73be-9b99-4bca-beb0-235c3ebdda5d",
+          "displayName": "libtool",
+          "assetType": "Application"
+        },
+        {
+          "id": "81f6bed7-f153-4596-844d-60ae763d450f",
+          "displayName": "libtokyocabinet9:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "7dedac7e-9871-46d2-8ef0-dabd4716a1ec",
+          "displayName": "libterm-readkey-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "7a18b3af-5b8a-4ae2-b779-5970b713fd01",
+          "displayName": "libtext-charwidth-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "6753b99b-7f13-4868-baf9-4075ebe04f1a",
+          "displayName": "libtime-duration-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "636f7e66-1dda-407d-8a5a-527bc23bde8a",
+          "displayName": "libtext-wrapi18n-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "743924dc-98e9-4fbd-8935-b82fa9256a68",
+          "displayName": "libseccomp2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0c8624b9-e3f7-43da-a546-3f4e1f913108",
+          "displayName": "libfreeipmi17",
+          "assetType": "Application"
+        },
+        {
+          "id": "269f3792-6986-4357-b39d-1be5d41e5fb6",
+          "displayName": "xxd",
+          "assetType": "Application"
+        },
+        {
+          "id": "01a624ca-52be-41b9-b144-e069cd36ea38",
+          "displayName": "libbrlapi0.8:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "326e24b2-1116-4ed1-a0c3-591b22857794",
+          "displayName": "freeipmi-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "85d8f6ff-36b8-40cd-952c-c27feb703b99",
+          "displayName": "vim-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "71fc7898-fd79-4fbe-9c97-c0863fdb0ae2",
+          "displayName": "vim-runtime",
+          "assetType": "Application"
+        },
+        {
+          "id": "d5189f04-30b3-4ca9-8e48-2e7445349a80",
+          "displayName": "vim-tiny",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ac051bd-4c5a-4e41-9a36-2c0e2c3ac719",
+          "displayName": "libsasl2-modules-db:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "86886251-693c-4525-b258-0a2b015628c9",
+          "displayName": "libsasl2-2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8ec83a04-0770-45a6-b6c7-c855a0e64248",
+          "displayName": "libsasl2-modules:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8b46ce25-8cda-4102-9d3c-e1ee78c1c4bc",
+          "displayName": "mount",
+          "assetType": "Application"
+        },
+        {
+          "id": "7872e673-67d8-4b80-918a-f5f453675447",
+          "displayName": "libuuid1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d00c5c1d-1af8-464b-8017-9fd3e4d6e99a",
+          "displayName": "libmount1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "126cd85b-9b4b-493e-9161-8d54418f5108",
+          "displayName": "libfdisk1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4aee76a5-7915-4f76-bf43-1803127cd676",
+          "displayName": "libblkid1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "e8460b04-ae2e-4c51-8ecf-ad762fce19c1",
+          "displayName": "bsdutils",
+          "assetType": "Application"
+        },
+        {
+          "id": "317399ce-863d-436e-b155-da11ed37d94f",
+          "displayName": "policykit-1",
+          "assetType": "Application"
+        },
+        {
+          "id": "e1156990-6f92-40bb-b0cd-5c324241af62",
+          "displayName": "libpolkit-gobject-1-0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "2d572bce-fe74-45b7-a77d-e5788d2a5699",
+          "displayName": "libc-l10n",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ec4fe60-bcf6-48fc-ab02-f2514a6324cc",
+          "displayName": "locales",
+          "assetType": "Application"
+        },
+        {
+          "id": "66fd45e4-e8bb-48bb-8bc3-6b1aaeaa8d2c",
+          "displayName": "libc6-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "73e29de7-9f81-4317-87f5-f81c5f945146",
+          "displayName": "libc-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "9567dcaf-0d6a-45ed-a560-514935239298",
+          "displayName": "libc-dev-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "a3f27cfb-a0de-4b71-93bd-784895876084",
+          "displayName": "libc6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "edfdbff6-555d-4acc-b1a1-214db5b6bd0c",
+          "displayName": "libc-devtools",
+          "assetType": "Application"
+        },
+        {
+          "id": "0e26457e-5928-4a66-be49-9203b7c20739",
+          "displayName": "libx11-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "4b2ac598-32ea-4006-8706-c120f46b197f",
+          "displayName": "libxpm4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "c859850b-2fee-4d5c-b99d-ccb753fed083",
+          "displayName": "libx11-6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "014c7a45-772b-40a0-9768-cb6432a0bd96",
+          "displayName": "libmagic1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b5ad2f76-3f5d-4018-9980-6f40c432e537",
+          "displayName": "libmagic-mgc",
+          "assetType": "Application"
+        },
+        {
+          "id": "d1434298-eb87-4569-9d84-186db920d399",
+          "displayName": "file",
+          "assetType": "Application"
+        },
+        {
+          "id": "1e90b097-f7b9-4477-81ba-08073c13c76c",
+          "displayName": "linux-image-5.10.0-25-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "6d61fd80-f586-444c-bfe5-8558615c4862",
+          "displayName": "linux-headers-5.10.0-25-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "92813944-54a2-4a0d-adfe-721af4f63056",
+          "displayName": "linux-headers-5.10.0-25-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "55236776-cea0-4ac8-b2f0-51dac24df497",
+          "displayName": "libxml2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "039dbaf2-0e4e-4e68-972b-6fe7459d3c86",
+          "displayName": "base-files",
+          "assetType": "Application"
+        },
+        {
+          "id": "04a523b3-7f41-4eb5-8ce7-753caaf14993",
+          "displayName": "libxenhypfs1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "051b365d-7b50-4a14-84b8-e9ef8f25d6ca",
+          "displayName": "python2.7-minimal",
+          "assetType": "Application"
+        },
+        {
+          "id": "0a4a765e-25b8-406f-8fa9-e97d4cacaec1",
+          "displayName": "qemu-utils",
+          "assetType": "Application"
+        },
+        {
+          "id": "0ae2840e-56f1-4447-ab88-179349dad358",
+          "displayName": "libxendevicemodel1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "0b2e2bff-e313-4867-b5e9-59ccfe4a8b6a",
+          "displayName": "cpio",
+          "assetType": "Application"
+        },
+        {
+          "id": "0e758197-ccce-4601-9021-37ec4aa3c469",
+          "displayName": "grub-efi-amd64-signed",
+          "assetType": "Application"
+        },
+        {
+          "id": "15ffadde-9928-4c74-8e4a-bd2b9479f26c",
+          "displayName": "libncursesw6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "19bc1322-8712-48a6-9480-70c395f9cf4b",
+          "displayName": "openssh-server",
+          "assetType": "Application"
+        },
+        {
+          "id": "1aa12744-058d-43fa-94a1-b17f13b2ac71",
+          "displayName": "adduser",
+          "assetType": "Application"
+        },
+        {
+          "id": "1e99d9d1-8a64-47b8-aee1-8c2a53e0bc82",
+          "displayName": "dpkg-dev",
+          "assetType": "Application"
+        },
+        {
+          "id": "1f745ac2-9255-4854-8936-a291dfc839cf",
+          "displayName": "linux-headers-5.10.0-26-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "24ac8ab1-9a6a-4322-936f-b1e49df8dbe8",
+          "displayName": "qemu-system-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "293aecc3-91b7-48df-a2ff-441628beb0d8",
+          "displayName": "krb5-locales",
+          "assetType": "Application"
+        },
+        {
+          "id": "337b4b85-6e7e-46c5-aa91-45fc48849b9d",
+          "displayName": "linux-image-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "36d40186-090d-48e7-8653-73852cc630b7",
+          "displayName": "openssl",
+          "assetType": "Application"
+        },
+        {
+          "id": "38b11463-e989-468c-a99e-ff26997fdde0",
+          "displayName": "libpython2.7-stdlib:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "38b32638-b01a-44bf-8697-c7ddcc58d0dc",
+          "displayName": "libkrb5-3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ad88ebe-8b7c-4c4d-bd21-1281c9d56fa2",
+          "displayName": "libxenstore3.0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ccc1be6-d5fe-47bb-bb68-2dadf3916ca7",
+          "displayName": "libk5crypto3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4cb9f718-9523-443a-8785-3afe1cae6960",
+          "displayName": "libtinfo6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "4ffd72b6-79e7-40a9-aac6-34cbcca7185a",
+          "displayName": "libxengnttab1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5155cd28-b36f-4993-a8c5-4a19ac9dbc01",
+          "displayName": "libxencall1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "53f8c805-5e94-4c87-8ff6-1bb3f0a23b87",
+          "displayName": "linux-libc-dev:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "5c4c96c8-bca1-4d18-8b39-9412b7ea7893",
+          "displayName": "mariadb-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "6ef566ac-8be0-4d09-9cc4-3b7781d90a70",
+          "displayName": "libncurses6:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "70bdcb66-061e-4280-b4dc-93e71d4bc97a",
+          "displayName": "libbsd0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "74f00fe5-1c20-49ee-b204-b928d7765d5e",
+          "displayName": "python2.7",
+          "assetType": "Application"
+        },
+        {
+          "id": "77405d9a-ba8a-438e-a720-00b999ad3bb8",
+          "displayName": "libgssapi-krb5-2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "87e2725a-f591-4b13-8988-ec5c4785209a",
+          "displayName": "libxentoolcore1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "8d3ad25f-f5a5-4b9b-8e93-fe8d044a4d3d",
+          "displayName": "qemu-system-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "90b682d0-c644-4557-8cdc-9ac451343358",
+          "displayName": "ncurses-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "90cf2b38-83ff-4f28-abfd-1f6a8e948729",
+          "displayName": "dbus",
+          "assetType": "Application"
+        },
+        {
+          "id": "92bcd931-efd9-4752-bcaa-f51afaee57a3",
+          "displayName": "grub-efi-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "944159fd-54e5-4910-a729-aac086efbe37",
+          "displayName": "linux-headers-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "97ab0ca8-cf6f-41bf-ae8c-276aca0321cb",
+          "displayName": "libdbus-1-3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9be02810-612d-4486-94df-a7c27135b426",
+          "displayName": "libssl1.1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9be18c1a-9531-403c-b8dc-511eb93f9b2b",
+          "displayName": "libyajl2:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9d8a8ba3-e67b-400e-b1ce-170a3191bb8b",
+          "displayName": "libxenforeignmemory1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9ece58c8-80e5-4386-98eb-0cce1a47271d",
+          "displayName": "linux-image-5.10.0-26-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "9f97548b-6b82-4c41-b38c-9171f22246f7",
+          "displayName": "ncurses-term",
+          "assetType": "Application"
+        },
+        {
+          "id": "a65548cc-139d-46ff-8b6b-95715ceee824",
+          "displayName": "openssh-sftp-server",
+          "assetType": "Application"
+        },
+        {
+          "id": "a7c13fb8-fdac-4a5f-8f38-0e3e53aca9b9",
+          "displayName": "libdpkg-perl",
+          "assetType": "Application"
+        },
+        {
+          "id": "ab09f60e-c16f-49dd-a790-737889e1736f",
+          "displayName": "dpkg",
+          "assetType": "Application"
+        },
+        {
+          "id": "aceb9bb4-8290-41ce-b7aa-5f20bbfc0288",
+          "displayName": "libxenevtchn1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b3dcf0b6-bd17-4ce5-b129-09e85f534d78",
+          "displayName": "libxentoollog1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "b70ababb-b401-44e1-a4c9-dc6fbc5f412e",
+          "displayName": "grub-efi-amd64-bin",
+          "assetType": "Application"
+        },
+        {
+          "id": "bc70768b-20ac-409a-89eb-085c483cd850",
+          "displayName": "ncurses-base",
+          "assetType": "Application"
+        },
+        {
+          "id": "bda17f92-fd44-4dfa-81cf-b1c93b8a15b1",
+          "displayName": "qemu-block-extra",
+          "assetType": "Application"
+        },
+        {
+          "id": "c3262236-18b3-45c7-83e0-3362b9423b31",
+          "displayName": "logrotate",
+          "assetType": "Application"
+        },
+        {
+          "id": "c4f0a8db-b882-4142-b827-3544453a74c4",
+          "displayName": "libxenmisc4.14:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "cff4fbf0-5263-4505-9d0b-a216678d1f8f",
+          "displayName": "openssh-client",
+          "assetType": "Application"
+        },
+        {
+          "id": "d8331568-e820-479e-8ba2-eb0392d7339a",
+          "displayName": "distro-info-data",
+          "assetType": "Application"
+        },
+        {
+          "id": "d9d533a1-e412-4d84-83c8-64a0349bc6ba",
+          "displayName": "linux-headers-5.10.0-26-amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "ddcf3e72-641d-4645-824d-d8ba7527251e",
+          "displayName": "qemu-system-x86",
+          "assetType": "Application"
+        },
+        {
+          "id": "dfdb023f-526f-4c0a-8998-abd5d89395a0",
+          "displayName": "linux-compiler-gcc-10-x86",
+          "assetType": "Application"
+        },
+        {
+          "id": "e184ad55-4a53-494c-9c02-5ebb05c9756c",
+          "displayName": "linux-kbuild-5.10",
+          "assetType": "Application"
+        },
+        {
+          "id": "e2c1648a-26f1-4f5d-8e92-5648697efa8c",
+          "displayName": "grub2-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "e34ba453-3f71-490e-a913-a7e677f7c434",
+          "displayName": "libkrb5support0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f846bb60-7896-4f90-9add-a7aaf0493281",
+          "displayName": "libpython2.7-minimal:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "f883c993-277f-4185-8691-25a6d8919e94",
+          "displayName": "libmariadb3:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "febd8c37-360b-4edf-8eb5-19f72272c668",
+          "displayName": "grub-common",
+          "assetType": "Application"
+        },
+        {
+          "id": "c3d6802d-1c0b-4349-9d73-dfe47d7d1adf",
+          "displayName": "libjson-c5:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "10edf365-f13b-42ba-bdf6-5e622ea49a60",
+          "displayName": "systemd-container",
+          "assetType": "Application"
+        },
+        {
+          "id": "2964062e-f79c-49b4-9d78-a12f963cdb0d",
+          "displayName": "libudev1:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "34318d57-e12c-46d5-959b-6425c6ee23f8",
+          "displayName": "systemd-timesyncd",
+          "assetType": "Application"
+        },
+        {
+          "id": "3ddc75b0-3ccb-4878-839e-9b3c3df84b90",
+          "displayName": "libsystemd0:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "438b57ed-db82-4de0-8a6b-10284c7bd444",
+          "displayName": "udev",
+          "assetType": "Application"
+        },
+        {
+          "id": "8bad31b3-5c85-47db-817b-13f0673d7262",
+          "displayName": "libnss-systemd:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "d38fc2f2-d45a-4453-bd71-577fc5d3a05a",
+          "displayName": "systemd-sysv",
+          "assetType": "Application"
+        },
+        {
+          "id": "e6b1d8c0-660b-446e-9476-c79c89aa7981",
+          "displayName": "systemd",
+          "assetType": "Application"
+        },
+        {
+          "id": "f81ccc82-352d-40b4-a96b-e65e0aee3d73",
+          "displayName": "libpam-systemd:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "00f7c8a8-d740-4a3e-a2da-81600ac611d3",
+          "displayName": "curl",
+          "assetType": "Application"
+        },
+        {
+          "id": "2df38b44-05a8-48ad-9dd5-e04ff0c1c3f9",
+          "displayName": "libcurl3-gnutls:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "fa9576be-8139-4084-b50a-3e81dd95dd31",
+          "displayName": "libcurl4:amd64",
+          "assetType": "Application"
+        },
+        {
+          "id": "09030ecb-af47-4e90-bff7-886e43126f16",
+          "displayName": "nvme0n1",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "17af45dc-13bf-49d0-b805-4abf176d73cd",
+          "displayName": "sdg",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "233cf2fd-c868-4f73-90bc-ed770f806600",
+          "displayName": "sdb",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "33d2f88f-0620-4e23-b4e3-dde29c644b01",
+          "displayName": "sde",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "af60dae6-ec4d-4b55-90e7-e17bb31b0d86",
+          "displayName": "sdf",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "d90b568b-8c36-4062-a90e-91a56cb3086a",
+          "displayName": "sda",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "f3ea5ac9-c5db-4566-8d9c-75bdb6192c52",
+          "displayName": "sdc",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "f8eb67c2-6f51-4757-b0fc-ee2eb8540350",
+          "displayName": "sdd",
+          "assetType": "PhysicalStorage"
+        },
+        {
+          "id": "c8004cac-7fdb-4e7e-b94a-c4c2d2ab8b8c",
+          "displayName": "Port 1",
+          "assetType": "PhysicalPort"
+        }
+      ],
+      "numericSensors": [
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMB2 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 0.888,
+          "searchableValue": "0.888",
+          "name": "CPU1 Vcore",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.518,
+          "searchableValue": "1.518",
+          "name": "1.5V PCH",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMD1 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 7,
+          "searchableValue": "7",
+          "name": "/dev/nvme0n1p2",
+          "sensorTypeId": "726799ea-0e25-e211-8183-001c42e521d8",
+          "sensorType": "physicalPercentUsed",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4500,
+          "searchableValue": "4500",
+          "name": "FAN1",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 5.056,
+          "searchableValue": "5.056",
+          "name": "+5V",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.041,
+          "searchableValue": "1.041",
+          "name": "1.05V PCH",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4300,
+          "searchableValue": "4300",
+          "name": "FAN4",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 8370,
+          "searchableValue": "8370",
+          "name": "Fan4",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 3.216,
+          "searchableValue": "3.216",
+          "name": "+3.3V",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.209,
+          "searchableValue": "1.209",
+          "name": "1.2V BMC",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4400,
+          "searchableValue": "4400",
+          "name": "FAN2",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4.974,
+          "searchableValue": "4.974",
+          "name": "5VCC",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.182,
+          "searchableValue": "1.182",
+          "name": "VDIMMAB",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 25,
+          "searchableValue": "25",
+          "name": "DIMMA1 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 23,
+          "searchableValue": "23",
+          "name": "DIMMC2 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 3.265,
+          "searchableValue": "3.265",
+          "name": "3.3VCC",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 2,
+          "searchableValue": "2",
+          "name": "/dev/nvme0n1p1",
+          "sensorTypeId": "726799ea-0e25-e211-8183-001c42e521d8",
+          "sensorType": "physicalPercentUsed",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 2.879,
+          "searchableValue": "2.879",
+          "name": "VBAT",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.809,
+          "searchableValue": "1.809",
+          "name": "Vcpu",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMB1 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 3,
+          "searchableValue": "3",
+          "name": "cpuLoad",
+          "sensorTypeId": "336799ea-0e25-e211-8183-001c42e521d8",
+          "sensorType": "cpuLoad",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 33,
+          "searchableValue": "33",
+          "name": "memoryUsage",
+          "sensorTypeId": "03ac3fc4-4017-4a3b-a33b-144532d07ee5",
+          "sensorType": "memoryUsage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMC1 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 1.182,
+          "searchableValue": "1.182",
+          "name": "VDIMMCD",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4000,
+          "searchableValue": "4000",
+          "name": "FAN7",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMD2 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 4400,
+          "searchableValue": "4400",
+          "name": "FAN5",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 5.026,
+          "searchableValue": "5.026",
+          "name": "5VSB",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 12,
+          "searchableValue": "12",
+          "name": "12V",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 24,
+          "searchableValue": "24",
+          "name": "DIMMA2 Temp",
+          "sensorTypeId": "52835710-56f9-4311-babb-67b21b423c7d",
+          "sensorType": "temperature",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 3.282,
+          "searchableValue": "3.282",
+          "name": "3.3VSB",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 8370,
+          "searchableValue": "8370",
+          "name": "Fan2",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 8370,
+          "searchableValue": "8370",
+          "name": "Fan3",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": -11.998000000000001,
+          "searchableValue": "-11.998000000000001",
+          "name": "-12V",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 8370,
+          "searchableValue": "8370",
+          "name": "Fan1",
+          "sensorTypeId": "258f4287-560f-44f0-a964-78e5e356d547",
+          "sensorType": "fan",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 3.24,
+          "searchableValue": "3.24",
+          "name": "+3.3VSB",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 5.056,
+          "searchableValue": "5.056",
+          "name": "+5VSB",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 0.888,
+          "searchableValue": "0.888",
+          "name": "CPU2 Vcore",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        },
+        {
+          "value": 12.137,
+          "searchableValue": "12.137",
+          "name": "+12V",
+          "sensorTypeId": "96bab4c9-47d1-4c89-950e-ff2f47ea1c12",
+          "sensorType": "voltage",
+          "linkedRackSide": null,
+          "linkedRackULocation": null,
+          "linkedLocationName": null,
+          "locationDisplayValue": null
+        }
+      ],
+      "stringSensors": []
+    }
+  ]
+}
