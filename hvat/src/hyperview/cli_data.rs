@@ -142,6 +142,20 @@ pub struct SearchAssetsArgs {
     pub location_path: Option<String>,
 
     #[arg(
+        short = 'P',
+        long,
+        help = "Optional property or custom property to filter on, e.g. serialNumer=SN1234567890"
+    )]
+    pub properties: Option<Vec<String>>,
+
+    #[arg(
+        short = 'C',
+        long,
+        help = "Optional property or custom property to filter on, e.g. serialNumer=SN1234567890"
+    )]
+    pub custom_properties: Option<Vec<String>>,
+
+    #[arg(
         short,
         long,
         help = "Number of records to skip (0 -> 99999), e.g. 100",

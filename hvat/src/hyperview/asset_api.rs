@@ -124,6 +124,7 @@ pub async fn search_assets_async(
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
+    debug!("Options: {:#?}", options);
 
     let search_query = compose_search_query(
         options.search_pattern,
@@ -131,6 +132,8 @@ pub async fn search_assets_async(
         options.skip,
         options.asset_type,
         options.location_path,
+        options.properties,
+        options.custom_properties,
     );
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
@@ -191,6 +194,8 @@ fn compose_search_query(
     skip: u32,
     asset_type: Option<String>,
     location_path: Option<String>,
+    properties: Option<Vec<String>>,
+    custom_properties: Option<Vec<String>>,
 ) -> Value {
     let mut search_query = json!({
       "size": limit,
@@ -202,6 +207,7 @@ fn compose_search_query(
               "must": []
             }
           },
+          "must": [],
           "should": [
             {
               "query_string": {
@@ -317,6 +323,78 @@ fn compose_search_query(
             .unwrap()
             .push(path);
     }
+
+    if let Some(props) = properties {
+        let kv: Vec<(String, String)> = props
+            .iter()
+            .filter_map(|x| {
+                let mut s = x.splitn(2, '=');
+                match (s.next(), s.next()) {
+                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
+                    _ => None,
+                }
+            })
+            .collect();
+
+        kv.iter().for_each(|(k, v)| {
+            let subquery = json!({ "match": { k: { "query": v, "lenient": true } } });
+            search_query["query"]["bool"]["must"]
+                .as_array_mut()
+                .unwrap()
+                .push(subquery);
+        });
+    }
+
+    if let Some(props) = custom_properties {
+        let kv: Vec<(String, String)> = props
+            .iter()
+            .filter_map(|x| {
+                let mut s = x.splitn(2, '=');
+                match (s.next(), s.next()) {
+                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
+                    _ => None,
+                }
+            })
+            .collect();
+
+        kv.iter().for_each(|(k, v)| {
+            let subquery = json!({
+              "nested": {
+                "path": "stringCustomProperties",
+                "inner_hits": {},
+                "query": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match": {
+                          "stringCustomProperties.name": k
+                        }
+                      },
+                      {
+                        "match": {
+                          "stringCustomProperties.value": {
+                            "query": v,
+                            "lenient": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            });
+
+            search_query["query"]["bool"]["must"]
+                .as_array_mut()
+                .unwrap()
+                .push(subquery);
+        });
+    }
+
+    trace!(
+        "search_query:t\n{}",
+        serde_json::to_string_pretty(&search_query).unwrap()
+    );
 
     search_query
 }
@@ -599,6 +677,8 @@ mod tests {
             search_pattern: "search_pattern".to_string(),
             asset_type: None,
             location_path: None,
+            properties: None,
+            custom_properties: None,
             limit: 100,
             skip: 0,
             filename: None,
@@ -611,7 +691,9 @@ mod tests {
                 options.limit,
                 options.skip,
                 options.asset_type,
-                options.location_path
+                options.location_path,
+                options.properties.clone(),
+                options.custom_properties.clone(),
             ),
             query1
         );
@@ -643,7 +725,9 @@ mod tests {
                 options.limit,
                 options.skip,
                 options.asset_type,
-                options.location_path
+                options.location_path,
+                options.properties,
+                options.custom_properties,
             ),
             query1
         );
@@ -652,7 +736,8 @@ mod tests {
     #[tokio::test]
     async fn test_search_assets_async() {
         //Arrange
-        let search_resp1 = fs::read_to_string("test_data/search_resp1.json").expect("Unable to open test data file");
+        let search_resp1 = fs::read_to_string("test_data/search_resp1.json")
+            .expect("Unable to open test data file");
         let server = MockServer::start();
         let m = server.mock(|when, then| {
             when.method(POST).path(ASSET_SEARCH_API_PREFIX);
@@ -673,6 +758,8 @@ mod tests {
             search_pattern: "labworker16".to_string(),
             asset_type: None,
             location_path: None,
+            properties: None,
+            custom_properties: None,
             limit: 100,
             skip: 0,
             filename: None,
