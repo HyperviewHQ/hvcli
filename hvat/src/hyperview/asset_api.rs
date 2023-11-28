@@ -576,6 +576,7 @@ mod tests {
                   "must": []
                 }
               },
+              "must": [],
               "should": [
                 {
                   "query_string": {
