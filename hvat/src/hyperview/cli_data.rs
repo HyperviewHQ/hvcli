@@ -123,7 +123,12 @@ pub struct ListPropertiesArgs {
 
 #[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
-    #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
+    #[arg(
+        short = 'p',
+        long,
+        help = "Search pattern or string, e.g. chrome",
+        default_value = "*"
+    )]
     pub search_pattern: String,
 
     #[arg(
@@ -151,7 +156,7 @@ pub struct SearchAssetsArgs {
     #[arg(
         short = 'C',
         long,
-        help = "Optional property or custom property to filter on, e.g. serialNumer=SN1234567890"
+        help = "Optional custom property or custom property to filter on, e.g. serialNumer=SN1234567890"
     )]
     pub custom_properties: Option<Vec<String>>,
 
