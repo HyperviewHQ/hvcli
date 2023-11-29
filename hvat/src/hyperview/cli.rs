@@ -55,6 +55,8 @@ pub fn handle_output_choice<T: Display + Serialize>(
 
             write_output(f, resp)?;
         }
+    } else if output_type == *"json"{
+        println!("{}", serde_json::to_string_pretty(&resp).unwrap().to_string());
     } else {
         for (i, s) in resp.iter().enumerate() {
             println!("---- [{}] ----", i);

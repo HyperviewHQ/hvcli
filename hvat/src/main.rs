@@ -4,7 +4,6 @@ use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
-    api_constants::ASSET_TYPES,
     asset_api::{get_asset_by_id_async, get_asset_list_async, search_assets_async},
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,

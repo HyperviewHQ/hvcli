@@ -1,7 +1,7 @@
 use clap::{value_parser, Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 
-use crate::ASSET_TYPES;
+use crate::hyperview::cli_constants::{ASSET_TYPES, OUTPUT_OPTIONS, DEBUG_LEVELS};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -22,7 +22,7 @@ pub struct AppArgs {
         long,
         help = "Debug level",
         default_value = "error",
-        value_parser(["error", "warn", "debug", "info", "trace"])
+        value_parser(DEBUG_LEVELS)
     )]
     pub debug_level: String,
 
@@ -81,7 +81,7 @@ pub struct ListAssetsArgs {
         long,
         help = "Output type, e.g. csv",
         default_value = "record",
-        value_parser(["record", "csv"])
+        value_parser(OUTPUT_OPTIONS)
     )]
     pub output_type: String,
 
@@ -113,7 +113,7 @@ pub struct ListPropertiesArgs {
         long,
         help = "Output type, e.g. csv",
         default_value = "record",
-        value_parser(["record", "csv"])
+        value_parser(OUTPUT_OPTIONS)
     )]
     pub output_type: String,
 
@@ -182,7 +182,7 @@ pub struct SearchAssetsArgs {
         long,
         help = "Output type, e.g. csv",
         default_value = "record",
-        value_parser(["record", "csv"])
+        value_parser(OUTPUT_OPTIONS)
     )]
     pub output_type: String,
 
