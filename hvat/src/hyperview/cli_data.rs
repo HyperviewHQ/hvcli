@@ -1,7 +1,7 @@
-use clap::{value_parser, Args, Parser, Subcommand};
+use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 
-use crate::hyperview::cli_constants::{ASSET_TYPES, DEBUG_LEVELS, OUTPUT_OPTIONS};
+use crate::hyperview::cli_constants::ASSET_TYPES;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -13,18 +13,28 @@ pub struct AppConfig {
     pub instance_url: String,
 }
 
+#[derive(Debug, ValueEnum, Clone)]
+pub enum OutputOptions {
+    CsvFile,
+    Json,
+    Record,
+}
+
+#[derive(Debug, ValueEnum, Clone)]
+pub enum DebugLevels {
+    Error,
+    Warn,
+    Debug,
+    Info,
+    Trace,
+}
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 #[command(propagate_version = true)]
 pub struct AppArgs {
-    #[arg(
-        short = 'd',
-        long,
-        help = "Debug level",
-        default_value = "error",
-        value_parser(DEBUG_LEVELS)
-    )]
-    pub debug_level: String,
+    #[arg(short = 'd', long, help = "Debug level", default_value = "error")]
+    pub debug_level: DebugLevels,
 
     #[command(subcommand)]
     pub command: AppArgsSubcommands,
@@ -79,11 +89,10 @@ pub struct ListAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Output type, e.g. csv",
-        default_value = "record",
-        value_parser(OUTPUT_OPTIONS)
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
     )]
-    pub output_type: String,
+    pub output_type: OutputOptions,
 
     #[arg(short, long, help = "output filename, e.g. output.csv")]
     pub filename: Option<String>,
@@ -111,11 +120,10 @@ pub struct ListPropertiesArgs {
     #[arg(
         short,
         long,
-        help = "Output type, e.g. csv",
-        default_value = "record",
-        value_parser(OUTPUT_OPTIONS)
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
     )]
-    pub output_type: String,
+    pub output_type: OutputOptions,
 
     #[arg(short, long, help = "output filename, e.g. output.csv")]
     pub filename: Option<String>,
@@ -180,11 +188,10 @@ pub struct SearchAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Output type, e.g. csv",
-        default_value = "record",
-        value_parser(OUTPUT_OPTIONS)
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
     )]
-    pub output_type: String,
+    pub output_type: OutputOptions,
 
     #[arg(short, long, help = "output filename, e.g. output.csv")]
     pub filename: Option<String>,

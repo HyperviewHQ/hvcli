@@ -403,6 +403,8 @@ fn compose_search_query(
 mod tests {
     use std::fs;
 
+    use crate::hyperview::cli_data::OutputOptions;
+
     use super::*;
     use httpmock::prelude::*;
     use serde_json::json;
@@ -683,7 +685,7 @@ mod tests {
             limit: 100,
             skip: 0,
             filename: None,
-            output_type: "record".to_string(),
+            output_type: OutputOptions::Record,
         };
 
         assert_eq!(
@@ -764,7 +766,7 @@ mod tests {
             limit: 100,
             skip: 0,
             filename: None,
-            output_type: "record".to_string(),
+            output_type: OutputOptions::Record,
         };
         // Act
         let result = search_assets_async(&config, client, auth_header, options).await;

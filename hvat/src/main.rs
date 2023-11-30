@@ -18,11 +18,11 @@ mod hyperview;
 async fn main() -> Result<()> {
     let args = AppArgs::parse();
     let debug_level = args.debug_level;
-    let level_filter = get_debug_filter(&debug_level);
+    let level_filter = get_debug_filter(debug_level.clone());
     env_logger::builder().filter(None, level_filter).init();
 
     info!("Starting Hyperview Asset Tool");
-    info!("Startup options: | Debug Level: {debug_level} |");
+    info!("Startup options: | Debug Level: {debug_level:?} |");
 
     let config: AppConfig = confy::load_path(get_config_path())?;
     let auth_header = get_auth_header_async(&config).await?;
