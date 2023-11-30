@@ -1,7 +1,7 @@
+use core::fmt;
+
 use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
-
-use crate::hyperview::cli_constants::ASSET_TYPES;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -18,6 +18,47 @@ pub enum OutputOptions {
     CsvFile,
     Json,
     Record,
+}
+
+#[derive(Debug, ValueEnum, Clone)]
+#[clap(rename_all = "PascalCase")]
+pub enum AssetTypes {
+    BladeEnclosure,
+    BladeNetwork,
+    BladeServer,
+    BladeStorage,
+    Busway,
+    Camera,
+    Chiller,
+    Crac,
+    Crah,
+    Environmental,
+    FireControlPanel,
+    Generator,
+    InRowCooling,
+    KvmSwitch,
+    Location,
+    Monitor,
+    NetworkDevice,
+    NetworkStorage,
+    NodeServer,
+    PatchPanel,
+    PduAndRpp,
+    PowerMeter,
+    Rack,
+    RackPdu,
+    Server,
+    SmallUps,
+    TransferSwitch,
+    Unknown,
+    Ups,
+    VirtualServer,
+}
+
+impl fmt::Display for AssetTypes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Debug, ValueEnum, Clone)]
@@ -61,13 +102,8 @@ pub enum AppArgsSubcommands {
 
 #[derive(Args, Debug)]
 pub struct ListAssetsArgs {
-    #[arg(
-        short = 't',
-        long,
-        help = "Asset type, e.g. Crah",
-        value_parser(ASSET_TYPES)
-    )]
-    pub asset_type: String,
+    #[arg(short = 't', long, help = "Asset type, e.g. Crah")]
+    pub asset_type: AssetTypes,
 
     #[arg(
         short,
@@ -139,13 +175,8 @@ pub struct SearchAssetsArgs {
     )]
     pub search_pattern: String,
 
-    #[arg(
-        short = 't',
-        long,
-        help = "Optional asset type, e.g. Crah",
-        value_parser(ASSET_TYPES)
-    )]
-    pub asset_type: Option<String>,
+    #[arg(short = 't', long, help = "Optional asset type, e.g. Crah")]
+    pub asset_type: Option<AssetTypes>,
 
     #[arg(
         short = 'c',

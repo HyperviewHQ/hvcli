@@ -12,7 +12,7 @@ use crate::hyperview::{
     cli_data::AppConfig,
 };
 
-use super::cli_data::SearchAssetsArgs;
+use super::cli_data::{AssetTypes, SearchAssetsArgs};
 
 pub async fn get_asset_list_async(
     config: &AppConfig,
@@ -192,7 +192,7 @@ fn compose_search_query(
     search_pattern: String,
     limit: u32,
     skip: u32,
-    asset_type: Option<String>,
+    asset_type: Option<AssetTypes>,
     location_path: Option<String>,
     properties: Option<Vec<String>>,
     custom_properties: Option<Vec<String>>,
@@ -306,7 +306,7 @@ fn compose_search_query(
     });
 
     if let Some(t) = asset_type {
-        let filter = json!({ "match": { "assetType": t } });
+        let filter = json!({ "match": { "assetType": t.to_string() } });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()

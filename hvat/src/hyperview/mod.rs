@@ -6,7 +6,6 @@ pub mod asset_properties_api;
 pub mod asset_properties_api_data;
 pub mod auth;
 pub mod cli;
-pub mod cli_constants;
 pub mod cli_data;
 pub mod common_types;
 pub mod custom_asset_properties_api;

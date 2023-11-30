@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
 
     match &args.command {
         AppArgsSubcommands::ListAssets(options) => {
-            let asset_type = options.asset_type.clone();
+            let asset_type = options.asset_type.clone().to_string();
             let skip = options.skip.to_string();
             let limit = options.limit.to_string();
             let output_type = options.output_type.clone();
