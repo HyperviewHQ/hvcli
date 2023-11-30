@@ -1,7 +1,7 @@
 use clap::{value_parser, Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 
-use crate::hyperview::cli_constants::{ASSET_TYPES, OUTPUT_OPTIONS, DEBUG_LEVELS};
+use crate::hyperview::cli_constants::{ASSET_TYPES, DEBUG_LEVELS, OUTPUT_OPTIONS};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {

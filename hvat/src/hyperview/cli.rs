@@ -3,6 +3,8 @@ use csv::Writer;
 use log::{error, LevelFilter};
 use serde::Serialize;
 use std::fmt::Display;
+use std::fs::File;
+use std::io::Write;
 use std::path::{Path, MAIN_SEPARATOR_STR};
 
 use crate::hyperview::app_errors::AppError;
@@ -43,26 +45,49 @@ pub fn handle_output_choice<T: Display + Serialize>(
     filename: Option<String>,
     resp: Vec<T>,
 ) -> Result<()> {
+    let mut outfile = String::new();
+
+    if let Some(f) = filename.clone() {
+        if Path::new(&f).exists() {
+            error!("Specified file already exists. exiting ...");
+            return Err(AppError::FileExists.into());
+        }
+
+        outfile = f;
+    }
+
     if output_type == *"csv" {
         if filename.is_none() {
             error!("Must provide a filename. exiting ...");
             return Err(AppError::NoOutputFilename.into());
-        } else if let Some(f) = filename {
-            if Path::new(&f).exists() {
-                error!("Specified file already exists. exiting ...");
-                return Err(AppError::FileExists.into());
-            }
-
-            write_output(f, resp)?;
         }
-    } else if output_type == *"json"{
-        println!("{}", serde_json::to_string_pretty(&resp).unwrap().to_string());
+
+        write_output(outfile, resp)?;
+    } else if output_type == *"json" {
+        if filename.is_none() {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&resp).unwrap().to_string()
+            );
+            return Ok(());
+        }
+
+        let file_handle = File::create(outfile)?;
+        serde_json::to_writer_pretty(file_handle, &resp)?;
     } else {
+        if filename.is_none() {
+            for (i, s) in resp.iter().enumerate() {
+                println!("---- [{}] ----\n{}\n", i, s);
+            }
+            return Ok(());
+        }
+
+        let mut file_handle = File::create(outfile)?;
         for (i, s) in resp.iter().enumerate() {
-            println!("---- [{}] ----", i);
-            println!("{}\n", s);
+            write!(file_handle, "---- [{}] ----\n{}\n\n", i, s)?;
         }
     }
+
     Ok(())
 }
 

@@ -31,10 +31,6 @@ pub const ASSET_TYPES: [&str; 30] = [
     "virtualserver",
 ];
 
-pub const OUTPUT_OPTIONS: [&str; 3] = [
-    "csv",
-    "record",
-    "json"
-];
+pub const OUTPUT_OPTIONS: [&str; 3] = ["csv", "record", "json"];
 
 pub const DEBUG_LEVELS: [&str; 5] = ["error", "warn", "debug", "info", "trace"];
