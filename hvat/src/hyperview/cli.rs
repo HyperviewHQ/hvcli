@@ -70,10 +70,7 @@ pub fn handle_output_choice<T: Display + Serialize>(
 
         OutputOptions::Json => {
             if filename.is_none() {
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&resp).unwrap().to_string()
-                );
+                println!("{}", serde_json::to_string_pretty(&resp).unwrap());
                 return Ok(());
             }
 
@@ -148,12 +145,11 @@ mod tests {
 
     #[test]
     fn test_get_debug_filter() {
-        assert_eq!(get_debug_filter("error"), LevelFilter::Error);
-        assert_eq!(get_debug_filter("warn"), LevelFilter::Warn);
-        assert_eq!(get_debug_filter("debug"), LevelFilter::Debug);
-        assert_eq!(get_debug_filter("info"), LevelFilter::Info);
-        assert_eq!(get_debug_filter("trace"), LevelFilter::Trace);
-        assert_eq!(get_debug_filter("unknown"), LevelFilter::Info);
+        assert_eq!(get_debug_filter(DebugLevels::Error), LevelFilter::Error);
+        assert_eq!(get_debug_filter(DebugLevels::Warn), LevelFilter::Warn);
+        assert_eq!(get_debug_filter(DebugLevels::Debug), LevelFilter::Debug);
+        assert_eq!(get_debug_filter(DebugLevels::Info), LevelFilter::Info);
+        assert_eq!(get_debug_filter(DebugLevels::Trace), LevelFilter::Trace);
     }
 
     #[test]
