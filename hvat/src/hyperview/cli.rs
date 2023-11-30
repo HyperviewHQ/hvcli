@@ -3,9 +3,13 @@ use csv::Writer;
 use log::{error, LevelFilter};
 use serde::Serialize;
 use std::fmt::Display;
+use std::fs::File;
+use std::io::Write;
 use std::path::{Path, MAIN_SEPARATOR_STR};
 
 use crate::hyperview::app_errors::AppError;
+
+use super::cli_data::{DebugLevels, OutputOptions};
 
 pub fn get_config_path() -> String {
     let home_path = dirs::home_dir().expect("Error: Home directory not found");
@@ -18,13 +22,13 @@ pub fn get_config_path() -> String {
     )
 }
 
-pub fn get_debug_filter(debug_level: &str) -> LevelFilter {
+pub fn get_debug_filter(debug_level: DebugLevels) -> LevelFilter {
     match debug_level {
-        "error" => LevelFilter::Error,
-        "warn" => LevelFilter::Warn,
-        "debug" => LevelFilter::Debug,
-        "trace" => LevelFilter::Trace,
-        _ => LevelFilter::Info,
+        DebugLevels::Error => LevelFilter::Error,
+        DebugLevels::Warn => LevelFilter::Warn,
+        DebugLevels::Debug => LevelFilter::Debug,
+        DebugLevels::Trace => LevelFilter::Trace,
+        DebugLevels::Info => LevelFilter::Info,
     }
 }
 
@@ -39,28 +43,59 @@ pub fn write_output<T: Serialize>(filename: String, object_list: Vec<T>) -> Resu
 }
 
 pub fn handle_output_choice<T: Display + Serialize>(
-    output_type: String,
+    output_type: OutputOptions,
     filename: Option<String>,
     resp: Vec<T>,
 ) -> Result<()> {
-    if output_type == *"csv" {
-        if filename.is_none() {
-            error!("Must provide a filename. exiting ...");
-            return Err(AppError::NoOutputFilename.into());
-        } else if let Some(f) = filename {
-            if Path::new(&f).exists() {
-                error!("Specified file already exists. exiting ...");
-                return Err(AppError::FileExists.into());
+    let mut outfile = String::new();
+
+    if let Some(f) = filename.clone() {
+        if Path::new(&f).exists() {
+            error!("Specified file already exists. exiting ...");
+            return Err(AppError::FileExists.into());
+        }
+
+        outfile = f;
+    }
+
+    match output_type {
+        OutputOptions::CsvFile => {
+            if filename.is_none() {
+                error!("Must provide a filename. exiting ...");
+                return Err(AppError::NoOutputFilename.into());
             }
 
-            write_output(f, resp)?;
+            write_output(outfile, resp)?;
         }
-    } else {
-        for (i, s) in resp.iter().enumerate() {
-            println!("---- [{}] ----", i);
-            println!("{}\n", s);
+
+        OutputOptions::Json => {
+            if filename.is_none() {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&resp).unwrap().to_string()
+                );
+                return Ok(());
+            }
+
+            let file_handle = File::create(outfile)?;
+            serde_json::to_writer_pretty(file_handle, &resp)?;
+        }
+
+        OutputOptions::Record => {
+            if filename.is_none() {
+                for (i, s) in resp.iter().enumerate() {
+                    println!("---- [{}] ----\n{}\n", i, s);
+                }
+                return Ok(());
+            }
+
+            let mut file_handle = File::create(outfile)?;
+            for (i, s) in resp.iter().enumerate() {
+                write!(file_handle, "---- [{}] ----\n{}\n\n", i, s)?;
+            }
         }
     }
+
     Ok(())
 }
 
@@ -145,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_handle_output_choice_no_filename() {
-        let output_type = "csv".to_string();
+        let output_type = OutputOptions::CsvFile;
         let filename = None;
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
@@ -157,7 +192,7 @@ mod tests {
 
     #[test]
     fn test_handle_output_choice_file_exists() {
-        let output_type = "csv".to_string();
+        let output_type = OutputOptions::CsvFile;
         let temp_file = NamedTempFile::new().unwrap();
         let filename = Some(temp_file.path().to_str().unwrap().to_string());
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
@@ -170,7 +205,7 @@ mod tests {
 
     #[test]
     fn test_handle_output_choice_write_output() {
-        let output_type = "csv".to_string();
+        let output_type = OutputOptions::CsvFile;
         let temp_file = NamedTempFile::new().unwrap();
         let temp_file_path = temp_file.path().to_str().unwrap().to_string();
         let filename = temp_file_path.clone() + "_new";

@@ -12,6 +12,8 @@ use crate::hyperview::{
     cli_data::AppConfig,
 };
 
+use super::cli_data::{AssetTypes, SearchAssetsArgs};
+
 pub async fn get_asset_list_async(
     config: &AppConfig,
     req: Client,
@@ -117,115 +119,22 @@ pub async fn search_assets_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    search_string: String,
-    limit: u32,
-    skip: u32,
+    options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
     // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
+    debug!("Options: {:#?}", options);
 
-    let search_query = json!({
-      "size": limit,
-      "from": skip,
-      "query": {
-        "bool": {
-          "should": [
-            {
-              "query_string": {
-                "query": format!("{}",search_string),
-                "fields": [
-                  "displayNameLowerCase^5",
-                  "*"
-                ]
-              }
-            },
-            {
-              "nested": {
-                "path": "componentAssets",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "componentAssets.displayName"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "stringCustomProperties.name",
-                      "stringCustomProperties.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "dateTimeCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "dateTimeCustomProperties.name",
-                      "dateTimeCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "numericCustomProperties.name",
-                      "numericCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "stringSensors.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}",search_string),
-                    "fields": [
-                      "numericSensors.searchableValue"
-                    ]
-                  }
-                }
-              }
-            }
-          ],
-          "minimum_should_match": 1
-        }
-      }
-    });
+    let search_query = compose_search_query(
+        options.search_pattern,
+        options.limit,
+        options.skip,
+        options.asset_type,
+        options.location_path,
+        options.properties,
+        options.custom_properties,
+    );
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -279,8 +188,223 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
+fn compose_search_query(
+    search_pattern: String,
+    limit: u32,
+    skip: u32,
+    asset_type: Option<AssetTypes>,
+    location_path: Option<String>,
+    properties: Option<Vec<String>>,
+    custom_properties: Option<Vec<String>>,
+) -> Value {
+    let mut search_query = json!({
+      "size": limit,
+      "from": skip,
+      "query": {
+        "bool": {
+          "filter": {
+            "bool": {
+              "must": []
+            }
+          },
+          "must": [],
+          "should": [
+            {
+              "query_string": {
+                "query": format!("{}",search_pattern),
+                "fields": [
+                  "displayNameLowerCase^5",
+                  "*"
+                ]
+              }
+            },
+            {
+              "nested": {
+                "path": "componentAssets",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "componentAssets.displayName"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "stringCustomProperties.name",
+                      "stringCustomProperties.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "dateTimeCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "dateTimeCustomProperties.name",
+                      "dateTimeCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericCustomProperties",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "numericCustomProperties.name",
+                      "numericCustomProperties.searchableValue"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "stringSensors",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "stringSensors.value"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "nested": {
+                "path": "numericSensors",
+                "query": {
+                  "query_string": {
+                    "query": format!("{}",search_pattern),
+                    "fields": [
+                      "numericSensors.searchableValue"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "minimum_should_match": 1
+        }
+      }
+    });
+
+    if let Some(t) = asset_type {
+        let filter = json!({ "match": { "assetType": t.to_string() } });
+
+        search_query["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(filter);
+    }
+
+    if let Some(p) = location_path {
+        let prepared_path = format!("{}*", p.replace('/', "\t"));
+        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+
+        search_query["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(path);
+    }
+
+    if let Some(props) = properties {
+        let kv: Vec<(String, String)> = props
+            .iter()
+            .filter_map(|x| {
+                let mut s = x.splitn(2, '=');
+                match (s.next(), s.next()) {
+                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
+                    _ => None,
+                }
+            })
+            .collect();
+
+        kv.iter().for_each(|(k, v)| {
+            let subquery = json!({ "match": { k: { "query": v, "lenient": true } } });
+            search_query["query"]["bool"]["must"]
+                .as_array_mut()
+                .unwrap()
+                .push(subquery);
+        });
+    }
+
+    if let Some(props) = custom_properties {
+        let kv: Vec<(String, String)> = props
+            .iter()
+            .filter_map(|x| {
+                let mut s = x.splitn(2, '=');
+                match (s.next(), s.next()) {
+                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
+                    _ => None,
+                }
+            })
+            .collect();
+
+        kv.iter().for_each(|(k, v)| {
+            let subquery = json!({
+              "nested": {
+                "path": "stringCustomProperties",
+                "inner_hits": {},
+                "query": {
+                  "bool": {
+                    "must": [
+                      {
+                        "match": {
+                          "stringCustomProperties.name": k
+                        }
+                      },
+                      {
+                        "match": {
+                          "stringCustomProperties.value": {
+                            "query": v,
+                            "lenient": true
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            });
+
+            search_query["query"]["bool"]["must"]
+                .as_array_mut()
+                .unwrap()
+                .push(subquery);
+        });
+    }
+
+    trace!(
+        "search_query:t\n{}",
+        serde_json::to_string_pretty(&search_query).unwrap()
+    );
+
+    search_query
+}
+
 #[cfg(test)]
 mod tests {
+    use std::fs;
+
+    use crate::hyperview::cli_data::OutputOptions;
+
     use super::*;
     use httpmock::prelude::*;
     use serde_json::json;
@@ -440,5 +564,219 @@ mod tests {
         assert_eq!(assets.len(), 2);
         assert_eq!(assets[0].id, "\"08e1c24d-6134-4709-99af-3e7e4b3ef161\"");
         assert_eq!(assets[1].id, "\"09ba0f43-6ca7-48c6-abc1-a2cb1962f626\"");
+    }
+
+    #[test]
+    fn test_compose_search_query() {
+        let mut query1 = json!({
+          "size": 100,
+          "from": 0,
+          "query": {
+            "bool": {
+              "filter": {
+                "bool": {
+                  "must": []
+                }
+              },
+              "must": [],
+              "should": [
+                {
+                  "query_string": {
+                    "query": format!("{}","search_pattern"),
+                    "fields": [
+                      "displayNameLowerCase^5",
+                      "*"
+                    ]
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "componentAssets",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "componentAssets.displayName"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "stringCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "stringCustomProperties.name",
+                          "stringCustomProperties.value"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "dateTimeCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "dateTimeCustomProperties.name",
+                          "dateTimeCustomProperties.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "numericCustomProperties",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "numericCustomProperties.name",
+                          "numericCustomProperties.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "stringSensors",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "stringSensors.value"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "nested": {
+                    "path": "numericSensors",
+                    "query": {
+                      "query_string": {
+                        "query": format!("{}","search_pattern"),
+                        "fields": [
+                          "numericSensors.searchableValue"
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              "minimum_should_match": 1
+            }
+          }
+        });
+
+        let mut options = SearchAssetsArgs {
+            search_pattern: "search_pattern".to_string(),
+            asset_type: None,
+            location_path: None,
+            properties: None,
+            custom_properties: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: OutputOptions::Record,
+        };
+
+        assert_eq!(
+            compose_search_query(
+                options.search_pattern.clone(),
+                options.limit,
+                options.skip,
+                options.asset_type,
+                options.location_path,
+                options.properties.clone(),
+                options.custom_properties.clone(),
+            ),
+            query1
+        );
+
+        // Test with asset type and location set
+
+        let filter = json!({ "match": { "assetType": "Server" } });
+
+        query1["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(filter);
+
+        let input_path = "All/".to_string();
+        let prepared_path = format!("{}*", input_path.replace('/', "\t"));
+        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+
+        query1["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(path);
+
+        options.location_path = Some("All/".to_string());
+        options.asset_type = Some("Server".to_string());
+
+        assert_eq!(
+            compose_search_query(
+                options.search_pattern.clone(),
+                options.limit,
+                options.skip,
+                options.asset_type,
+                options.location_path,
+                options.properties,
+                options.custom_properties,
+            ),
+            query1
+        );
+    }
+
+    #[tokio::test]
+    async fn test_search_assets_async() {
+        //Arrange
+        let search_resp1 = fs::read_to_string("test_data/search_resp1.json")
+            .expect("Unable to open test data file");
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(POST).path(ASSET_SEARCH_API_PREFIX);
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .body(search_resp1);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let options = SearchAssetsArgs {
+            search_pattern: "labworker16".to_string(),
+            asset_type: None,
+            location_path: None,
+            properties: None,
+            custom_properties: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: OutputOptions::Record,
+        };
+        // Act
+        let result = search_assets_async(&config, client, auth_header, options).await;
+
+        // Assert
+        m.assert();
+        assert!(result.is_ok());
+        let assets = result.unwrap();
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].name, "\"labworker16\"".to_string());
+        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string())
     }
 }
