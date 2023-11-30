@@ -720,7 +720,7 @@ mod tests {
             .push(path);
 
         options.location_path = Some("All/".to_string());
-        options.asset_type = Some("Server".to_string());
+        options.asset_type = Some(AssetTypes::Server);
 
         assert_eq!(
             compose_search_query(
