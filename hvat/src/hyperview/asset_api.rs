@@ -78,9 +78,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(
-    options: SearchAssetsArgs
-) -> Value {
+fn compose_search_query(options: SearchAssetsArgs) -> Value {
     let mut search_query = json!({
       "size": options.limit,
       "from": options.skip,
@@ -283,6 +281,22 @@ fn compose_search_query(
             .push(subquery);
     }
 
+    if let Some(manufacturer) = options.manufacturer {
+        let subquery = json!({ "match": { "manufacturerNameSearchableProperty": { "query": manufacturer, "lenient": true } } });
+        search_query["query"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(subquery);
+    }
+
+    if let Some(product) = options.product {
+        let subquery = json!({ "match": { "productNameSearchableProperty": { "query": product, "lenient": true } } });
+        search_query["query"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(subquery);
+    }
+
     trace!(
         "search_query:t\n{}",
         serde_json::to_string_pretty(&search_query).unwrap()
@@ -298,7 +312,7 @@ mod tests {
     use serde_json::json;
     use std::fs;
 
-    use crate::hyperview::cli_data::{OutputOptions, AssetTypes};
+    use crate::hyperview::cli_data::{AssetTypes, OutputOptions};
 
     #[test]
     fn test_compose_search_query() {
@@ -417,16 +431,15 @@ mod tests {
             properties: None,
             custom_properties: None,
             id: None,
+            manufacturer: None,
+            product: None,
             limit: 100,
             skip: 0,
             filename: None,
             output_type: OutputOptions::Record,
         };
 
-        assert_eq!(
-            compose_search_query(options.clone()),
-            query1
-        );
+        assert_eq!(compose_search_query(options.clone()), query1);
 
         // Test with asset type and location set
 
@@ -449,10 +462,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(
-            compose_search_query(options),
-            query1
-        );
+        assert_eq!(compose_search_query(options), query1);
     }
 
     #[tokio::test]
@@ -483,6 +493,8 @@ mod tests {
             properties: None,
             custom_properties: None,
             id: None,
+            manufacturer: None,
+            product: None,
             limit: 100,
             skip: 0,
             filename: None,

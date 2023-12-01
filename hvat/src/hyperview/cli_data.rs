@@ -157,6 +157,12 @@ pub struct SearchAssetsArgs {
     )]
     pub id: Option<String>,
 
+    #[arg(short = 'M', long, help = "Manufacturer name, e.g. dell")]
+    pub manufacturer: Option<String>,
+
+    #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
+    pub product: Option<String>,
+
     #[arg(
         short,
         long,
