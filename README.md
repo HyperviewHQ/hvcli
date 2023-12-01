@@ -22,11 +22,11 @@ instance_url = 'https://example.hyperviewhq.com'
 # Usage
 
 ```console
+A command line interface to interact with asset data stored in Hyperview
+
 Usage: hvat [OPTIONS] <COMMAND>
 
 Commands:
-  list-assets                   List assets for a standard type
-  list-asset-by-id              List a specific asset id
   list-asset-properties         List asset properties
   list-custom-asset-properties  List custom asset properties
   search-assets                 Search assets
