@@ -26,12 +26,14 @@ pub struct AssetDto {
     pub product_name: String,
     pub status: String,
     pub path: String,
+    #[serde(alias = "serialNumber")]
+    pub serial_number: String,
 }
 
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
-            "id: {}\nname: {}\nasset_lifecycle_state: {}\nasset_type_id: {}\nmanufacturer_id: {}\nmanufacturer_name: {}\nmonitoring_state: {}\nparent_id: {}\nparent_name: {}\nproduct_id: {}\nproduct_name: {}\nstatus: {}\npath: {}",
+            "id: {}\nname: {}\nasset_lifecycle_state: {}\nasset_type_id: {}\nmanufacturer_id: {}\nmanufacturer_name: {}\nmonitoring_state: {}\nparent_id: {}\nparent_name: {}\nproduct_id: {}\nproduct_name: {}\nstatus: {}\npath: {}\nserial_number: {}",
             self.id,
             self.name,
             self.asset_lifecycle_state,
@@ -44,7 +46,8 @@ impl fmt::Display for AssetDto {
             self.product_id,
             self.product_name,
             self.status,
-            self.path
+            self.path,
+            self.serial_number
         )
     }
 }
