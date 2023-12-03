@@ -38,7 +38,11 @@ Options:
   -p, --search-pattern <SEARCH_PATTERN>
           Search pattern or string, e.g. chrome [default: *]
   -t, --asset-type <ASSET_TYPE>
-          Optional asset type, e.g. Crah [possible values: BladeEnclosure, BladeNetwork, BladeServer, BladeStorage, Busway, Camera, Chiller, Crac, Crah, Environmental, FireControlPanel, Generator, InRowCooling, KvmSwitch, Location, Monitor, NetworkDevice, NetworkStorage, NodeServer, PatchPanel, PduAndRpp, PowerMeter, Rack, RackPdu, Server, SmallUps, TransferSwitch, Unknown, Ups, VirtualServer]
+          Optional asset type, e.g. Crah [possible values: BladeEnclosure, BladeNetwork,
+          BladeServer, BladeStorage, Busway, Camera, Chiller, Crac, Crah, Environmental,
+          FireControlPanel, Generator, InRowCooling, KvmSwitch, Location, Monitor,
+          NetworkDevice, NetworkStorage, NodeServer, PatchPanel, PduAndRpp, PowerMeter,
+          Rack, RackPdu, Server, SmallUps, TransferSwitch, Unknown, Ups, VirtualServer]
   -c, --location-path <LOCATION_PATH>
           Optional prefix of location path, e.g. "All/"
   -P, --properties <PROPERTIES>
