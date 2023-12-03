@@ -19,7 +19,8 @@ Commands:
   help                          Print this message or the help of the given subcommand(s)
 
 Options:
-  -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn, debug, info, trace]
+  -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn,
+         debug, info, trace]
   -h, --help                       Print help
   -V, --version                    Print version
 ```
