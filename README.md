@@ -72,7 +72,77 @@ Options:
 
 All commands allow the user to set to output to `record`, `json` or `csv-file`. Most commands give the user the ability to provide an output file. Where applicable, users can limit the output records and the number of records to skip. 
 
-## Example
+## Examples
+
+### Search by property (JSON output)
+
+```console
+hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
+[
+  {
+    "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
+    "name": "\"UpsExample\"",
+    "assetLifecycleState": "\"Active\"",
+    "assetTypeId": "\"Ups\"",
+    "manufacturerId": "\"cd85e92d-869c-470a-a3ba-df8b2b7196e3\"",
+    "manufacturerName": "\"Liebert\"",
+    "monitoringState": "\"On\"",
+    "parentId": "\"9a877a93-1f21-4895-a078-5c67f531ea0b\"",
+    "parentName": "\"Simulated SNMP Devices\"",
+    "productId": "\"aedbd4b9-06ae-4768-ba4a-64847b60d334\"",
+    "productName": "\"eXM\"",
+    "status": "\"Normal\"",
+    "path": "\"All/Simulated SNMP Devices/UpsExample\"",
+    "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
+  }
+]
+
+```
+
+### Search by text pattern (record output)
+
+```console
+hvat search-assets -p "UpsExampl*"
+---- [0] ----
+id: "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb"
+name: "UpsExample"
+asset_lifecycle_state: "Active"
+asset_type_id: "Ups"
+manufacturer_id: "cd85e92d-869c-470a-a3ba-df8b2b7196e3"
+manufacturer_name: "Liebert"
+monitoring_state: "On"
+parent_id: "9a877a93-1f21-4895-a078-5c67f531ea0b"
+parent_name: "Simulated SNMP Devices"
+product_id: "aedbd4b9-06ae-4768-ba4a-64847b60d334"
+product_name: "eXM"
+status: "Normal"
+path: "All/Simulated SNMP Devices/UpsExample"
+serial_number: ["SERIALNUMBEREXAMPLE1234"]
+```
+
+### Combination search (JSON output)
+
+```console
+hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
+[
+  {
+    "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
+    "name": "\"UpsExample\"",
+    "assetLifecycleState": "\"Active\"",
+    "assetTypeId": "\"Ups\"",
+    "manufacturerId": "\"cd85e92d-869c-470a-a3ba-df8b2b7196e3\"",
+    "manufacturerName": "\"Liebert\"",
+    "monitoringState": "\"On\"",
+    "parentId": "\"9a877a93-1f21-4895-a078-5c67f531ea0b\"",
+    "parentName": "\"Simulated SNMP Devices\"",
+    "productId": "\"aedbd4b9-06ae-4768-ba4a-64847b60d334\"",
+    "productName": "\"eXM\"",
+    "status": "\"Normal\"",
+    "path": "\"All/Simulated SNMP Devices/UpsExample\"",
+    "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
+  }
+]
+```
 
 # Configuration
 A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`
