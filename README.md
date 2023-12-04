@@ -7,6 +7,8 @@ Hyperview asset tool (hvat) is a command line program to read and search for dat
 
 # Usage
 
+To use this tool simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/asset_tool/releases) section.
+
 ```console
 A command line interface to interact with asset data stored in Hyperview
 
