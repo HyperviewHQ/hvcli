@@ -10,13 +10,13 @@ description = "A command line interface to interact with asset data stored in Hy
 [dependencies]
 clap = { version = "4.3.23", features = ["derive"] }
 color-eyre = "0.6.2"
-confy = "0.5.1"
+confy = "0.6.1"
 csv = "1.2.2"
 dirs = "5.0.1"
-env_logger = "0.10.0"
+env_logger = "0.11.3"
 log = "0.4.20"
 oauth2 = "4.4.1"
-reqwest = { version = "0.11.19", features = ["json", "native-tls-vendored"] }
+reqwest = { version = "0.12.4", features = ["json", "native-tls-vendored"] }
 serde = "1.0.185"
 serde_json = "1.0.105"
 serde_with = "3.3.0"
@@ -27,6 +27,6 @@ tokio = { version = "1.32.0", features = ["full"] }
 strip = true
 
 [dev-dependencies]
-httpmock = "0.6.8"
+httpmock = "0.7.0"
 tempfile = "3.8.0"
 
