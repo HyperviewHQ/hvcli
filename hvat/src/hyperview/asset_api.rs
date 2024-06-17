@@ -12,6 +12,29 @@ use crate::hyperview::{
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
+use super::api_constants::ASSET_ASSETS_API_PREFIX;
+
+pub async fn get_raw_asset_by_id_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+) -> Result<Value> {
+    // format the target URL
+    let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
+    debug!("Request URL: {:?}", target_url);
+
+    let resp = req
+        .get(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    Ok(resp)
+}
+
 pub async fn search_assets_async(
     config: &AppConfig,
     req: Client,
