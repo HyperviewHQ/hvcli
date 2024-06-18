@@ -5,9 +5,11 @@ use reqwest::{
     Client,
 };
 use serde_json::{json, Value};
+use uuid::Uuid;
 
 use crate::hyperview::{
     api_constants::ASSET_SEARCH_API_PREFIX,
+    app_errors::AppError,
     asset_api_data::AssetDto,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
@@ -21,6 +23,10 @@ pub async fn get_raw_asset_by_id_async(
     id: String,
 ) -> Result<Value> {
     // format the target URL
+    if !Uuid::parse_str(&id).is_ok() {
+        return Err(AppError::InvalidId.into());
+    }
+
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
     debug!("Request URL: {:?}", target_url);
 
