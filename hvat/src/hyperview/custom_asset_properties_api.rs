@@ -14,7 +14,7 @@ pub async fn get_custom_asset_property_list_async(
     auth_header: String,
     id: String,
 ) -> Result<Vec<CustomAssetPropertyDto>> {
-    if !Uuid::parse_str(&id).is_ok() {
+    if Uuid::parse_str(&id).is_err() {
         return Err(AppError::InvalidId.into());
     }
 

@@ -22,7 +22,7 @@ pub async fn get_raw_asset_by_id_async(
     auth_header: String,
     id: String,
 ) -> Result<Value> {
-    if !Uuid::parse_str(&id).is_ok() {
+    if Uuid::parse_str(&id).is_err() {
         return Err(AppError::InvalidId.into());
     }
 
@@ -301,7 +301,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     }
 
     if let Some(id_guid) = options.id {
-        if !Uuid::parse_str(&id_guid).is_ok() {
+        if Uuid::parse_str(&id_guid).is_err() {
             return Err(AppError::InvalidId.into());
         }
 
