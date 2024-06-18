@@ -16,7 +16,7 @@ use crate::hyperview::{
 
 use super::api_constants::ASSET_ASSETS_API_PREFIX;
 
-pub async fn get_raw_asset_by_id_async(
+async fn get_raw_asset_by_id_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -38,6 +38,53 @@ pub async fn get_raw_asset_by_id_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn update_asset_by_id_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+    new_name: String,
+) -> Result<()> {
+    if Uuid::parse_str(&id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+
+    let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
+    debug!("Request URL: {:?}", target_url);
+
+    let mut asset_value =
+        get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), id.clone()).await?;
+
+    debug!(
+        "returned asset value: {}",
+        serde_json::to_string_pretty(&asset_value)?
+    );
+
+    match asset_value.get_mut("name") {
+        Some(name) => {
+            debug!(
+                "Old name: {}, new name: {}",
+                serde_json::to_string_pretty(name)?,
+                new_name
+            );
+
+            if let Value::String(name_string) = name {
+                *name_string = new_name;
+            }
+            let _resp = req
+                .put(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&asset_value)
+                .send()
+                .await?;
+
+            Ok(())
+        }
+
+        None => Err(AppError::AssetNotFound.into()),
+    }
 }
 
 pub async fn search_assets_async(

@@ -1,6 +1,6 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_api::get_raw_asset_by_id_async;
+use hyperview::asset_api::update_asset_by_id_async;
 use log::info;
 use reqwest::Client;
 
@@ -55,9 +55,14 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetName(options) => {
-            let resp =
-                get_raw_asset_by_id_async(&config, req, auth_header, options.id.clone()).await?;
-            println!("{}", serde_json::to_string_pretty(&resp)?);
+            update_asset_by_id_async(
+                &config,
+                req,
+                auth_header,
+                options.id.clone(),
+                options.new_name.clone(),
+            )
+            .await?;
         }
     }
 
