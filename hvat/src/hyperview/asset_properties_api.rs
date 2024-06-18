@@ -1,10 +1,11 @@
 use color_eyre::eyre::Result;
 use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
+use uuid::Uuid;
 
 use crate::hyperview::{
-    api_constants::ASSET_PROPERTIES_API_PREFIX, asset_properties_api_data::AssetPropertyDto,
-    cli_data::AppConfig,
+    api_constants::ASSET_PROPERTIES_API_PREFIX, app_errors::AppError,
+    asset_properties_api_data::AssetPropertyDto, cli_data::AppConfig,
 };
 
 pub async fn get_asset_property_list_async(
@@ -13,7 +14,10 @@ pub async fn get_asset_property_list_async(
     auth_header: String,
     id: String,
 ) -> Result<Vec<AssetPropertyDto>> {
-    // format the target URL
+    if !Uuid::parse_str(&id).is_ok() {
+        return Err(AppError::InvalidId.into());
+    }
+
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id

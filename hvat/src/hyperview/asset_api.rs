@@ -22,7 +22,6 @@ pub async fn get_raw_asset_by_id_async(
     auth_header: String,
     id: String,
 ) -> Result<Value> {
-    // format the target URL
     if !Uuid::parse_str(&id).is_ok() {
         return Err(AppError::InvalidId.into());
     }
@@ -47,12 +46,11 @@ pub async fn search_assets_async(
     auth_header: String,
     options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
-    // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
     debug!("Options: {:#?}", options);
 
-    let search_query = compose_search_query(options);
+    let search_query = compose_search_query(options)?;
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -107,7 +105,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> Value {
+fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     let mut search_query = json!({
       "size": options.limit,
       "from": options.skip,
@@ -303,6 +301,10 @@ fn compose_search_query(options: SearchAssetsArgs) -> Value {
     }
 
     if let Some(id_guid) = options.id {
+        if !Uuid::parse_str(&id_guid).is_ok() {
+            return Err(AppError::InvalidId.into());
+        }
+
         let subquery = json!({ "match": { "id": { "query": id_guid, "lenient": true } } });
         search_query["query"]["bool"]["must"]
             .as_array_mut()
@@ -331,7 +333,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Value {
         serde_json::to_string_pretty(&search_query).unwrap()
     );
 
-    search_query
+    Ok(search_query)
 }
 
 #[cfg(test)]
@@ -468,7 +470,7 @@ mod tests {
             output_type: OutputOptions::Record,
         };
 
-        assert_eq!(compose_search_query(options.clone()), query1);
+        assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
 
         // Test with asset type and location set
 
@@ -491,7 +493,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(compose_search_query(options), query1);
+        assert_eq!(compose_search_query(options).unwrap(), query1);
     }
 
     #[tokio::test]
