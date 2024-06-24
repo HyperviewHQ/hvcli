@@ -1,4 +1,4 @@
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Ok, Result};
 use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
@@ -33,6 +33,22 @@ pub async fn get_asset_property_list_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn get_named_asset_property_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+    property_type: String,
+) -> Result<Vec<AssetPropertyDto>> {
+    let property_list = get_asset_property_list_async(config, req, auth_header, id)
+        .await?
+        .into_iter()
+        .filter(|p| p.property_type == property_type)
+        .collect::<Vec<AssetPropertyDto>>();
+
+    Ok(property_list)
 }
 
 #[cfg(test)]

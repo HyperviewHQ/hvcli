@@ -28,11 +28,12 @@ pub struct AssetDto {
     pub path: String,
     #[serde(alias = "serialNumber")]
     pub serial_number: String,
+    pub property: Option<String>,
 }
 
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
+        let mut asset_record = format!(
             "id: {}\nname: {}\nasset_lifecycle_state: {}\nasset_type_id: {}\nmanufacturer_id: {}\nmanufacturer_name: {}\nmonitoring_state: {}\nparent_id: {}\nparent_name: {}\nproduct_id: {}\nproduct_name: {}\nstatus: {}\npath: {}\nserial_number: {}",
             self.id,
             self.name,
@@ -48,6 +49,12 @@ impl fmt::Display for AssetDto {
             self.status,
             self.path,
             self.serial_number
-        )
+        );
+
+        if let Some(property) = &self.property {
+            asset_record = format!("{}\nproperty: {}", asset_record, property);
+        };
+
+        write!(f, "{}", asset_record)
     }
 }

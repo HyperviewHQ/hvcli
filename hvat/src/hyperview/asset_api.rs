@@ -143,6 +143,7 @@ pub async fn search_assets_async(
                     .to_string()
                     .replace("\\t", "/"),
                 serial_number: a.get("serialNumber").unwrap().to_string(),
+                property: None,
             };
 
             asset_list.push(asset);
