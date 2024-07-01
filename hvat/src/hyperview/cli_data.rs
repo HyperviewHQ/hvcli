@@ -183,6 +183,9 @@ pub struct SearchAssetsArgs {
     #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
     pub product: Option<String>,
 
+    #[arg(short = 'U', long, help = "Show property in output, e.g. dnsName")]
+    pub show_property: Option<String>,
+
     #[arg(
         short,
         long,

@@ -11,6 +11,7 @@ use crate::hyperview::{
     api_constants::ASSET_SEARCH_API_PREFIX,
     app_errors::AppError,
     asset_api_data::AssetDto,
+    asset_properties_api::get_named_asset_property_async,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
@@ -97,13 +98,13 @@ pub async fn search_assets_async(
     debug!("Request URL: {:?}", target_url);
     debug!("Options: {:#?}", options);
 
-    let search_query = compose_search_query(options)?;
+    let search_query = compose_search_query(options.clone())?;
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
     let resp = req
         .post(target_url)
-        .header(AUTHORIZATION, auth_header)
+        .header(AUTHORIZATION, auth_header.clone())
         .header(CONTENT_TYPE, "application/json")
         .header(ACCEPT, "application/json")
         .json(&search_query)
@@ -116,6 +117,12 @@ pub async fn search_assets_async(
         let total = metadata["total"].as_u64().unwrap();
         let limit = metadata["limit"].as_u64().unwrap();
         info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    }
+
+    let mut property_type = String::new();
+
+    if let Some(pt) = options.show_property {
+        property_type = pt;
     }
 
     let mut asset_list = Vec::new();
@@ -149,6 +156,27 @@ pub async fn search_assets_async(
             asset_list.push(asset);
         });
     };
+
+    if !property_type.is_empty() {
+        for i in 0..asset_list.len() {
+            let props = get_named_asset_property_async(
+                config,
+                req.clone(),
+                auth_header.clone(),
+                asset_list[i].id.clone().replace('"', ""),
+                property_type.clone(),
+            )
+            .await?;
+
+            let prop_values: String = props.iter().fold(String::new(), |mut a, v| {
+                let v = format!("{} ", v.value);
+                a.push_str(&v);
+                a
+            });
+
+            asset_list[i].property = Some(prop_values);
+        }
+    }
 
     Ok(asset_list)
 }
