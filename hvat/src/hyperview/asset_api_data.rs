@@ -58,3 +58,9 @@ impl fmt::Display for AssetDto {
         write!(f, "{}", asset_record)
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateAssetNameRecord {
+    pub asset_id: String,
+    pub new_name: String,
+}

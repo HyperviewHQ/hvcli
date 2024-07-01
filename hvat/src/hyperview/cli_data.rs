@@ -96,6 +96,15 @@ pub enum AppArgsSubcommands {
 
     /// Update asset name
     UpdateAssetName(UpdateAssetNameArgs),
+
+    /// Update asset name
+    BulkUpdateAssetName(BulkUpdateAssetNameArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct BulkUpdateAssetNameArgs {
+    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    pub filename: String,
 }
 
 #[derive(Args, Debug)]
@@ -132,7 +141,7 @@ pub struct ListPropertiesArgs {
     )]
     pub output_type: OutputOptions,
 
-    #[arg(short, long, help = "output filename, e.g. output.csv")]
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }
 
@@ -211,6 +220,6 @@ pub struct SearchAssetsArgs {
     )]
     pub output_type: OutputOptions,
 
-    #[arg(short, long, help = "output filename, e.g. output.csv")]
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }

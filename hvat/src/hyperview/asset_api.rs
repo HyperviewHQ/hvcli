@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use log::{debug, info, trace};
+use log::{debug, error, info, trace};
 use reqwest::{
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
@@ -15,7 +15,7 @@ use crate::hyperview::{
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
-use super::api_constants::ASSET_ASSETS_API_PREFIX;
+use super::{api_constants::ASSET_ASSETS_API_PREFIX, asset_api_data::UpdateAssetNameRecord};
 
 async fn get_raw_asset_by_id_async(
     config: &AppConfig,
@@ -59,7 +59,7 @@ pub async fn update_asset_by_id_async(
         get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), id.clone()).await?;
 
     debug!(
-        "returned asset value: {}",
+        "Returned asset value: {}",
         serde_json::to_string_pretty(&asset_value)?
     );
 
@@ -86,6 +86,38 @@ pub async fn update_asset_by_id_async(
 
         None => Err(AppError::AssetNotFound.into()),
     }
+}
+
+pub async fn bulk_update_assets_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
+        debug!(
+            "Updating asset id: {} with new name: {}",
+            record.asset_id, record.new_name
+        );
+
+        let id = record.asset_id.trim().replace('"', "");
+        let new_name = record.new_name.trim().replace('"', "");
+
+        if Uuid::parse_str(&id).is_err() {
+            error!("Invalid asset id detected while parsing: {}", id);
+            continue;
+        }
+
+        if new_name.is_empty() {
+            error!("New name can't be empty for asset id: {}", id);
+            continue;
+        }
+
+        update_asset_by_id_async(config, req.clone(), auth_header.clone(), id, new_name).await?;
+    }
+
+    Ok(())
 }
 
 pub async fn search_assets_async(
