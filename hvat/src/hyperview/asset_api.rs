@@ -158,12 +158,12 @@ pub async fn search_assets_async(
     };
 
     if !property_type.is_empty() {
-        for i in 0..asset_list.len() {
+        for a in &mut asset_list {
             let props = get_named_asset_property_async(
                 config,
                 req.clone(),
                 auth_header.clone(),
-                asset_list[i].id.clone().replace('"', ""),
+                a.id.clone().replace('"', ""),
                 property_type.clone(),
             )
             .await?;
@@ -174,7 +174,7 @@ pub async fn search_assets_async(
                 a
             });
 
-            asset_list[i].property = Some(prop_values);
+            a.property = Some(prop_values);
         }
     }
 
@@ -544,6 +544,7 @@ mod tests {
             skip: 0,
             filename: None,
             output_type: OutputOptions::Record,
+            show_property: None,
         };
 
         assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
@@ -606,6 +607,7 @@ mod tests {
             skip: 0,
             filename: None,
             output_type: OutputOptions::Record,
+            show_property: None,
         };
         // Act
         let result = search_assets_async(&config, client, auth_header, options).await;
