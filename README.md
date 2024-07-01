@@ -49,7 +49,7 @@ Commands:
   list-custom-asset-properties  List custom asset properties
   search-assets                 Search assets
   update-asset-name             Update asset name
-  bulk-update-asset-name        Update asset name
+  bulk-update-asset-name        Bulk update asset name
   help                          Print this message or the help of the given subcommand(s)
 
 Options:

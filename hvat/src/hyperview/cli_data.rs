@@ -97,7 +97,7 @@ pub enum AppArgsSubcommands {
     /// Update asset name
     UpdateAssetName(UpdateAssetNameArgs),
 
-    /// Update asset name
+    /// Bulk update asset name
     BulkUpdateAssetName(BulkUpdateAssetNameArgs),
 }
 
