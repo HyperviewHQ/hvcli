@@ -1,16 +1,124 @@
 use color_eyre::Result;
-use log::{debug, info, trace};
+use log::{debug, error, info, trace};
 use reqwest::{
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
 };
 use serde_json::{json, Value};
+use uuid::Uuid;
 
 use crate::hyperview::{
     api_constants::ASSET_SEARCH_API_PREFIX,
+    app_errors::AppError,
     asset_api_data::AssetDto,
+    asset_properties_api::get_named_asset_property_async,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
+
+use super::{api_constants::ASSET_ASSETS_API_PREFIX, asset_api_data::UpdateAssetNameRecord};
+
+async fn get_raw_asset_by_id_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+) -> Result<Value> {
+    if Uuid::parse_str(&id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+
+    let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
+    debug!("Request URL: {:?}", target_url);
+
+    let resp = req
+        .get(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    Ok(resp)
+}
+
+pub async fn update_asset_by_id_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+    new_name: String,
+) -> Result<()> {
+    if Uuid::parse_str(&id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+
+    let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
+    debug!("Request URL: {:?}", target_url);
+
+    let mut asset_value =
+        get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), id.clone()).await?;
+
+    debug!(
+        "Returned asset value: {}",
+        serde_json::to_string_pretty(&asset_value)?
+    );
+
+    match asset_value.get_mut("name") {
+        Some(name) => {
+            debug!(
+                "Old name: {}, new name: {}",
+                serde_json::to_string_pretty(name)?,
+                new_name
+            );
+
+            if let Value::String(name_string) = name {
+                *name_string = new_name;
+            }
+            let _resp = req
+                .put(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&asset_value)
+                .send()
+                .await?;
+
+            Ok(())
+        }
+
+        None => Err(AppError::AssetNotFound.into()),
+    }
+}
+
+pub async fn bulk_update_assets_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
+        debug!(
+            "Updating asset id: {} with new name: {}",
+            record.asset_id, record.new_name
+        );
+
+        let id = record.asset_id.trim().replace('"', "");
+        let new_name = record.new_name.trim().replace('"', "");
+
+        if Uuid::parse_str(&id).is_err() {
+            error!("Invalid asset id detected while parsing: {}", id);
+            continue;
+        }
+
+        if new_name.is_empty() {
+            error!("New name can't be empty for asset id: {}", id);
+            continue;
+        }
+
+        update_asset_by_id_async(config, req.clone(), auth_header.clone(), id, new_name).await?;
+    }
+
+    Ok(())
+}
 
 pub async fn search_assets_async(
     config: &AppConfig,
@@ -18,18 +126,17 @@ pub async fn search_assets_async(
     auth_header: String,
     options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
-    // format the target URL
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {:?}", target_url);
     debug!("Options: {:#?}", options);
 
-    let search_query = compose_search_query(options);
+    let search_query = compose_search_query(options.clone())?;
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
     let resp = req
         .post(target_url)
-        .header(AUTHORIZATION, auth_header)
+        .header(AUTHORIZATION, auth_header.clone())
         .header(CONTENT_TYPE, "application/json")
         .header(ACCEPT, "application/json")
         .json(&search_query)
@@ -42,6 +149,12 @@ pub async fn search_assets_async(
         let total = metadata["total"].as_u64().unwrap();
         let limit = metadata["limit"].as_u64().unwrap();
         info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    }
+
+    let mut property_type = String::new();
+
+    if let Some(pt) = options.show_property {
+        property_type = pt;
     }
 
     let mut asset_list = Vec::new();
@@ -69,16 +182,38 @@ pub async fn search_assets_async(
                     .to_string()
                     .replace("\\t", "/"),
                 serial_number: a.get("serialNumber").unwrap().to_string(),
+                property: None,
             };
 
             asset_list.push(asset);
         });
     };
 
+    if !property_type.is_empty() {
+        for a in &mut asset_list {
+            let props = get_named_asset_property_async(
+                config,
+                req.clone(),
+                auth_header.clone(),
+                a.id.clone().replace('"', ""),
+                property_type.clone(),
+            )
+            .await?;
+
+            let prop_values: String = props.iter().fold(String::new(), |mut a, v| {
+                let v = format!("{} ", v.value);
+                a.push_str(&v);
+                a
+            });
+
+            a.property = Some(prop_values);
+        }
+    }
+
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> Value {
+fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     let mut search_query = json!({
       "size": options.limit,
       "from": options.skip,
@@ -274,6 +409,10 @@ fn compose_search_query(options: SearchAssetsArgs) -> Value {
     }
 
     if let Some(id_guid) = options.id {
+        if Uuid::parse_str(&id_guid).is_err() {
+            return Err(AppError::InvalidId.into());
+        }
+
         let subquery = json!({ "match": { "id": { "query": id_guid, "lenient": true } } });
         search_query["query"]["bool"]["must"]
             .as_array_mut()
@@ -302,7 +441,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Value {
         serde_json::to_string_pretty(&search_query).unwrap()
     );
 
-    search_query
+    Ok(search_query)
 }
 
 #[cfg(test)]
@@ -437,9 +576,10 @@ mod tests {
             skip: 0,
             filename: None,
             output_type: OutputOptions::Record,
+            show_property: None,
         };
 
-        assert_eq!(compose_search_query(options.clone()), query1);
+        assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
 
         // Test with asset type and location set
 
@@ -462,7 +602,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(compose_search_query(options), query1);
+        assert_eq!(compose_search_query(options).unwrap(), query1);
     }
 
     #[tokio::test]
@@ -499,6 +639,7 @@ mod tests {
             skip: 0,
             filename: None,
             output_type: OutputOptions::Record,
+            show_property: None,
         };
         // Act
         let result = search_assets_async(&config, client, auth_header, options).await;

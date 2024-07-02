@@ -93,6 +93,35 @@ pub enum AppArgsSubcommands {
     /// Search assets
     #[clap(alias = "list-assets")]
     SearchAssets(SearchAssetsArgs),
+
+    /// Update asset name
+    UpdateAssetName(UpdateAssetNameArgs),
+
+    /// Bulk update asset name
+    BulkUpdateAssetName(BulkUpdateAssetNameArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct BulkUpdateAssetNameArgs {
+    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    pub filename: String,
+}
+
+#[derive(Args, Debug)]
+pub struct UpdateAssetNameArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: String,
+
+    #[arg(
+        short = 'n',
+        long,
+        help = "New Name. It must be a string value, e.g. \"Main_Generator\""
+    )]
+    pub new_name: String,
 }
 
 #[derive(Args, Debug)]
@@ -112,7 +141,7 @@ pub struct ListPropertiesArgs {
     )]
     pub output_type: OutputOptions,
 
-    #[arg(short, long, help = "output filename, e.g. output.csv")]
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }
 
@@ -163,6 +192,9 @@ pub struct SearchAssetsArgs {
     #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
     pub product: Option<String>,
 
+    #[arg(short = 'U', long, help = "Show property in output, e.g. dnsName")]
+    pub show_property: Option<String>,
+
     #[arg(
         short,
         long,
@@ -188,6 +220,6 @@ pub struct SearchAssetsArgs {
     )]
     pub output_type: OutputOptions,
 
-    #[arg(short, long, help = "output filename, e.g. output.csv")]
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
 }

@@ -1,10 +1,11 @@
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Ok, Result};
 use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
+use uuid::Uuid;
 
 use crate::hyperview::{
-    api_constants::ASSET_PROPERTIES_API_PREFIX, asset_properties_api_data::AssetPropertyDto,
-    cli_data::AppConfig,
+    api_constants::ASSET_PROPERTIES_API_PREFIX, app_errors::AppError,
+    asset_properties_api_data::AssetPropertyDto, cli_data::AppConfig,
 };
 
 pub async fn get_asset_property_list_async(
@@ -13,7 +14,10 @@ pub async fn get_asset_property_list_async(
     auth_header: String,
     id: String,
 ) -> Result<Vec<AssetPropertyDto>> {
-    // format the target URL
+    if Uuid::parse_str(&id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
@@ -29,6 +33,22 @@ pub async fn get_asset_property_list_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn get_named_asset_property_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+    property_type: String,
+) -> Result<Vec<AssetPropertyDto>> {
+    let property_list = get_asset_property_list_async(config, req, auth_header, id)
+        .await?
+        .into_iter()
+        .filter(|p| p.property_type == property_type)
+        .collect::<Vec<AssetPropertyDto>>();
+
+    Ok(property_list)
 }
 
 #[cfg(test)]
