@@ -323,7 +323,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     });
 
     if let Some(t) = options.asset_type {
-        let filter = json!({ "match": { "assetType": t.to_string() } });
+        let filter = json!({ "match": { "assetType": { "query": t.to_string() }} });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
