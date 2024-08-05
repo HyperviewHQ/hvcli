@@ -384,7 +384,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
                     "must": [
                       {
                         "match": {
-                          "stringCustomProperties.name": k
+                          "stringCustomProperties.name": { "query": k }
                         }
                       },
                       {
