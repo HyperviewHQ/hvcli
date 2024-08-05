@@ -583,7 +583,7 @@ mod tests {
 
         // Test with asset type and location set
 
-        let filter = json!({ "match": { "assetType": "Server" } });
+        let filter = json!({ "match": { "assetType": { "query": "Server" } } });
 
         query1["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
