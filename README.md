@@ -50,6 +50,8 @@ Commands:
   search-assets                 Search assets
   update-asset-name             Update asset name
   bulk-update-asset-name        Bulk update asset name
+  update-asset-location         Update asset location
+  bulk-update-asset-location    Bulk Update asset location
   help                          Print this message or the help of the given subcommand(s)
 
 Options:
@@ -65,7 +67,9 @@ Options:
 - `search-assets` is the main entry point for the application and it provides various methods to search for
 assets in Hyperview.
 - `update-asset-name` will update the name of a single asset.
-- `bulk-update-asset-name` will update multiple assets using a CSV input file.
+- `bulk-update-asset-name` will update multiple assets using a CSV input file. Example input is in the example_input folder.
+- `update-asset-location` will update the location of a single asset.
+- `bulk-update-asset-location` will update multiple assets using a CSV input file. Example input is in the example_input folder.
 
 Use `--help` to explore the various options available within each sub command.
 
