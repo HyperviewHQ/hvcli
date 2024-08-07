@@ -127,7 +127,7 @@ pub enum AppArgsSubcommands {
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 }
 
-#[derive(Args, Debug)]
+#[derive(Args, Debug, Clone)]
 pub struct UpdateAssetLocationArgs {
     #[arg(
         short,

@@ -74,17 +74,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetLocation(options) => {
-            update_asset_location_async(
-                &config,
-                req,
-                auth_header,
-                options.id.clone(),
-                options.new_location_id.clone(),
-                options.rack_position.clone(),
-                options.rack_side.clone(),
-                options.rack_u_location.clone(),
-            )
-            .await?;
+            update_asset_location_async(&config, req, auth_header, options.clone()).await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetLocation(options) => {

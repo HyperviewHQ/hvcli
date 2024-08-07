@@ -12,36 +12,37 @@ use crate::hyperview::{
     app_errors::AppError,
     asset_api_data::{AssetDto, AssetLocationDTO, UpdateAssetNameRecord},
     asset_properties_api::get_named_asset_property_async,
-    cli_data::{AppConfig, RackPosition, RackSide, SearchAssetsArgs},
+    cli_data::{AppConfig, SearchAssetsArgs},
 };
 
-use super::asset_api_data::UpdateAssetLocationRecord;
+use super::{asset_api_data::UpdateAssetLocationRecord, cli_data::UpdateAssetLocationArgs};
 
 pub async fn update_asset_location_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    id: String,
-    new_location_id: String,
-    rack_position: Option<RackPosition>,
-    rack_side: Option<RackSide>,
-    rack_u_location: Option<usize>,
+    update_location_data: UpdateAssetLocationArgs,
 ) -> Result<()> {
-    if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
+    if Uuid::parse_str(&update_location_data.id).is_err()
+        || Uuid::parse_str(&update_location_data.new_location_id).is_err()
+    {
         return Err(AppError::InvalidId.into());
     }
 
     let target_url = format!(
         "{}{}/{}?id={}",
-        config.instance_url, ASSET_LOCATION_API_PREFIX, id, id
+        config.instance_url,
+        ASSET_LOCATION_API_PREFIX,
+        update_location_data.id,
+        update_location_data.id
     );
     debug!("Request URL: {:?}", target_url);
 
     let asset_location_dto = AssetLocationDTO {
-        parent_id: new_location_id,
-        rack_position,
-        rack_side,
-        rack_u_location,
+        parent_id: update_location_data.new_location_id,
+        rack_position: update_location_data.rack_position,
+        rack_side: update_location_data.rack_side,
+        rack_u_location: update_location_data.rack_u_location,
     };
 
     debug!(
@@ -83,19 +84,26 @@ pub async fn bulk_update_asset_location_async(
         let new_location_id = record.new_location_id.trim().replace('"', "");
 
         if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
-            error!("Invalid asset id detected while parsing: {}", id);
+            error!(
+                "Invalid asset or location id detected while parsing: {} and {}",
+                id, new_location_id
+            );
             continue;
         }
+
+        let update_location_data = UpdateAssetLocationArgs {
+            id,
+            new_location_id,
+            rack_position: record.rack_position,
+            rack_side: record.rack_side,
+            rack_u_location: record.rack_u_location,
+        };
 
         update_asset_location_async(
             config,
             req.clone(),
             auth_header.clone(),
-            id,
-            new_location_id,
-            record.rack_position,
-            record.rack_side,
-            record.rack_u_location,
+            update_location_data,
         )
         .await?;
     }
