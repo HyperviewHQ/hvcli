@@ -61,7 +61,7 @@ impl fmt::Display for AssetTypes {
     }
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Serialize, Deserialize)]
 #[clap(rename_all = "PascalCase")]
 pub enum RackSide {
     Front,
@@ -69,7 +69,7 @@ pub enum RackSide {
     Unknown,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Serialize, Deserialize)]
 #[clap(rename_all = "PascalCase")]
 pub enum RackPosition {
     Left,

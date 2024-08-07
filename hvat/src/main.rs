@@ -6,7 +6,7 @@ use reqwest::Client;
 use crate::hyperview::{
     asset_api::{
         bulk_update_asset_name_async, search_assets_async, update_asset_name_by_id_async,
-        update_asset_parent_id_non_rack,
+        update_asset_parent_id,
     },
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
@@ -73,12 +73,15 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetLocation(options) => {
-            update_asset_parent_id_non_rack(
+            update_asset_parent_id(
                 &config,
                 req,
                 auth_header,
                 options.id.clone(),
                 options.new_location_id.clone(),
+                options.rack_position.clone(),
+                options.rack_side.clone(),
+                options.rack_u_location.clone(),
             )
             .await?;
         }

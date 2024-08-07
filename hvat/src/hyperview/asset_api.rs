@@ -10,33 +10,49 @@ use uuid::Uuid;
 use crate::hyperview::{
     api_constants::{ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_SEARCH_API_PREFIX},
     app_errors::AppError,
-    asset_api_data::{AssetDto, UpdateAssetNameRecord},
+    asset_api_data::{AssetDto, AssetLocationDTO, UpdateAssetNameRecord},
     asset_properties_api::get_named_asset_property_async,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
-pub async fn update_asset_parent_id_non_rack(
+use super::cli_data::{RackPosition, RackSide};
+
+pub async fn update_asset_parent_id(
     config: &AppConfig,
     req: Client,
     auth_header: String,
     id: String,
     new_location_id: String,
+    rack_position: Option<RackPosition>,
+    rack_side: Option<RackSide>,
+    rack_u_location: Option<usize>,
 ) -> Result<()> {
     if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
         return Err(AppError::InvalidId.into());
     }
+
     let target_url = format!(
         "{}{}/{}?id={}",
         config.instance_url, ASSET_LOCATION_API_PREFIX, id, id
     );
     debug!("Request URL: {:?}", target_url);
 
-    let payload = json!({ "parentId": new_location_id.to_string() });
+    let asset_location_dto = AssetLocationDTO {
+        parent_id: new_location_id,
+        rack_position,
+        rack_side,
+        rack_u_location,
+    };
+
+    debug!(
+        "New location payload: {}",
+        serde_json::to_string_pretty(&asset_location_dto)?
+    );
 
     let resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
-        .json(&payload)
+        .json(&asset_location_dto)
         .send()
         .await?
         .json::<Value>()
