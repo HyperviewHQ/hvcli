@@ -12,12 +12,12 @@ use crate::hyperview::{
     app_errors::AppError,
     asset_api_data::{AssetDto, AssetLocationDTO, UpdateAssetNameRecord},
     asset_properties_api::get_named_asset_property_async,
-    cli_data::{AppConfig, SearchAssetsArgs},
+    cli_data::{AppConfig, RackPosition, RackSide, SearchAssetsArgs},
 };
 
-use super::cli_data::{RackPosition, RackSide};
+use super::asset_api_data::UpdateAssetLocationRecord;
 
-pub async fn update_asset_parent_id(
+pub async fn update_asset_location_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -62,6 +62,43 @@ pub async fn update_asset_parent_id(
         "Update location return: {}",
         serde_json::to_string_pretty(&resp)?
     );
+
+    Ok(())
+}
+
+pub async fn bulk_update_asset_location_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
+        debug!(
+            "Updating asset id: {} with new location: {}",
+            record.asset_id, record.new_location_id
+        );
+
+        let id = record.asset_id.trim().replace('"', "");
+        let new_location_id = record.new_location_id.trim().replace('"', "");
+
+        if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
+            error!("Invalid asset id detected while parsing: {}", id);
+            continue;
+        }
+
+        update_asset_location_async(
+            config,
+            req.clone(),
+            auth_header.clone(),
+            id,
+            new_location_id,
+            record.rack_position,
+            record.rack_side,
+            record.rack_u_location,
+        )
+        .await?;
+    }
 
     Ok(())
 }

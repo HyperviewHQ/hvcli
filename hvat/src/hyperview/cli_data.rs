@@ -122,6 +122,9 @@ pub enum AppArgsSubcommands {
 
     /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
+
+    /// Bulk Update asset location
+    BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 }
 
 #[derive(Args, Debug)]
@@ -163,7 +166,7 @@ pub struct UpdateAssetLocationArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct BulkUpdateAssetNameArgs {
+pub struct BulkUpdateAssetLocationArgs {
     #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
     pub filename: String,
 }
@@ -183,6 +186,12 @@ pub struct UpdateAssetNameArgs {
         help = "New Name. It must be a string value, e.g. \"Main_Generator\""
     )]
     pub new_name: String,
+}
+
+#[derive(Args, Debug)]
+pub struct BulkUpdateAssetNameArgs {
+    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    pub filename: String,
 }
 
 #[derive(Args, Debug)]

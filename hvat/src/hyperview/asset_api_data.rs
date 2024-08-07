@@ -78,3 +78,12 @@ pub struct AssetLocationDTO {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rack_u_location: Option<usize>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateAssetLocationRecord {
+    pub asset_id: String,
+    pub new_location_id: String,
+    pub rack_position: Option<RackPosition>,
+    pub rack_side: Option<RackSide>,
+    pub rack_u_location: Option<usize>,
+}

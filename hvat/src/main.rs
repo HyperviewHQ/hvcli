@@ -1,12 +1,13 @@
 use clap::Parser;
 use color_eyre::Result;
+use hyperview::asset_api::bulk_update_asset_location_async;
 use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
     asset_api::{
-        bulk_update_asset_name_async, search_assets_async, update_asset_name_by_id_async,
-        update_asset_parent_id,
+        bulk_update_asset_name_async, search_assets_async, update_asset_location_async,
+        update_asset_name_by_id_async,
     },
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
@@ -73,7 +74,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetLocation(options) => {
-            update_asset_parent_id(
+            update_asset_location_async(
                 &config,
                 req,
                 auth_header,
@@ -84,6 +85,11 @@ async fn main() -> Result<()> {
                 options.rack_u_location.clone(),
             )
             .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetLocation(options) => {
+            bulk_update_asset_location_async(&config, req, auth_header, options.filename.clone())
+                .await?;
         }
     }
 
