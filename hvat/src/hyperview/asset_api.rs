@@ -8,14 +8,47 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::hyperview::{
-    api_constants::ASSET_SEARCH_API_PREFIX,
+    api_constants::{ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_SEARCH_API_PREFIX},
     app_errors::AppError,
-    asset_api_data::AssetDto,
+    asset_api_data::{AssetDto, UpdateAssetNameRecord},
     asset_properties_api::get_named_asset_property_async,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
-use super::{api_constants::ASSET_ASSETS_API_PREFIX, asset_api_data::UpdateAssetNameRecord};
+pub async fn update_asset_parent_id_non_rack(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    id: String,
+    new_location_id: String,
+) -> Result<()> {
+    if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+    let target_url = format!(
+        "{}{}/{}?id={}",
+        config.instance_url, ASSET_LOCATION_API_PREFIX, id, id
+    );
+    debug!("Request URL: {:?}", target_url);
+
+    let payload = json!({ "parentId": new_location_id.to_string() });
+
+    let resp = req
+        .put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&payload)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    debug!(
+        "Update location return: {}",
+        serde_json::to_string_pretty(&resp)?
+    );
+
+    Ok(())
+}
 
 async fn get_raw_asset_by_id_async(
     config: &AppConfig,
@@ -41,7 +74,7 @@ async fn get_raw_asset_by_id_async(
     Ok(resp)
 }
 
-pub async fn update_asset_by_id_async(
+pub async fn update_asset_name_by_id_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -74,6 +107,7 @@ pub async fn update_asset_by_id_async(
             if let Value::String(name_string) = name {
                 *name_string = new_name;
             }
+
             let _resp = req
                 .put(target_url)
                 .header(AUTHORIZATION, auth_header)
@@ -88,7 +122,7 @@ pub async fn update_asset_by_id_async(
     }
 }
 
-pub async fn bulk_update_assets_async(
+pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -114,7 +148,8 @@ pub async fn bulk_update_assets_async(
             continue;
         }
 
-        update_asset_by_id_async(config, req.clone(), auth_header.clone(), id, new_name).await?;
+        update_asset_name_by_id_async(config, req.clone(), auth_header.clone(), id, new_name)
+            .await?;
     }
 
     Ok(())

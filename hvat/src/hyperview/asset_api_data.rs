@@ -64,3 +64,12 @@ pub struct UpdateAssetNameRecord {
     pub asset_id: String,
     pub new_name: String,
 }
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetLocationDTO {
+    parent_id: String,
+    rack_position: Option<String>,
+    rack_side: Option<String>,
+    rack_u_location: Option<usize>,
+}

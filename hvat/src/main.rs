@@ -1,11 +1,13 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_api::{bulk_update_assets_async, update_asset_by_id_async};
 use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
-    asset_api::search_assets_async,
+    asset_api::{
+        bulk_update_asset_name_async, search_assets_async, update_asset_name_by_id_async,
+        update_asset_parent_id_non_rack,
+    },
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
     cli::{get_config_path, get_debug_filter, handle_output_choice},
@@ -55,7 +57,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetName(options) => {
-            update_asset_by_id_async(
+            update_asset_name_by_id_async(
                 &config,
                 req,
                 auth_header,
@@ -66,7 +68,19 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::BulkUpdateAssetName(options) => {
-            bulk_update_assets_async(&config, req, auth_header, options.filename.clone()).await?;
+            bulk_update_asset_name_async(&config, req, auth_header, options.filename.clone())
+                .await?;
+        }
+
+        AppArgsSubcommands::UpdateAssetLocation(options) => {
+            update_asset_parent_id_non_rack(
+                &config,
+                req,
+                auth_header,
+                options.id.clone(),
+                options.new_location_id.clone(),
+            )
+            .await?;
         }
     }
 

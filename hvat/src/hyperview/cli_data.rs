@@ -99,6 +99,28 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset name
     BulkUpdateAssetName(BulkUpdateAssetNameArgs),
+
+    /// Update asset location (For non-rack based placement)
+    UpdateAssetLocation(UpdateAssetLocationArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct UpdateAssetLocationArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: String,
+
+    #[arg(
+        short = 'n',
+        long,
+        help = "New location ID. It must be a valid GUID/UUID, e.g. 68713cf3-2f5b-45b3-97a3-592e70537c4d"
+    )]
+    pub new_location_id: String,
+
+    pub rack_side: Option<String>,
 }
 
 #[derive(Args, Debug)]
