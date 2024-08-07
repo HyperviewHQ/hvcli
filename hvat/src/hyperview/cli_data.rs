@@ -62,6 +62,26 @@ impl fmt::Display for AssetTypes {
 }
 
 #[derive(Debug, ValueEnum, Clone)]
+#[clap(rename_all = "PascalCase")]
+pub enum RackSide {
+    Front,
+    Rear,
+    Unknown,
+}
+
+#[derive(Debug, ValueEnum, Clone)]
+#[clap(rename_all = "PascalCase")]
+pub enum RackPosition {
+    Left,
+    Right,
+    Top,
+    Bottom,
+    Above,
+    Below,
+    Unknown,
+}
+
+#[derive(Debug, ValueEnum, Clone)]
 pub enum DebugLevels {
     Error,
     Warn,
@@ -100,7 +120,7 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset name
     BulkUpdateAssetName(BulkUpdateAssetNameArgs),
 
-    /// Update asset location (For non-rack based placement)
+    /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
 }
 
@@ -120,7 +140,26 @@ pub struct UpdateAssetLocationArgs {
     )]
     pub new_location_id: String,
 
-    pub rack_side: Option<String>,
+    #[arg(
+        short = 'p',
+        long,
+        help = "Optional rack position attribute for zero-u rack mounted assets. e.g. Front"
+    )]
+    pub rack_position: Option<RackPosition>,
+
+    #[arg(
+        short = 's',
+        long,
+        help = "Optional rack side attribute for rack mounted and zero-u assets. e.g. Front"
+    )]
+    pub rack_side: Option<RackSide>,
+
+    #[arg(
+        short = 'u',
+        long,
+        help = "Optional rack unit elevation attribute for rack mounted assets. e.g. Front"
+    )]
+    pub rack_u_location: Option<usize>,
 }
 
 #[derive(Args, Debug)]
