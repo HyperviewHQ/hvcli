@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use super::cli_data::{RackPosition, RackSide};
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetDto {
@@ -63,4 +65,25 @@ impl fmt::Display for AssetDto {
 pub struct UpdateAssetNameRecord {
     pub asset_id: String,
     pub new_name: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetLocationDTO {
+    pub parent_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rack_position: Option<RackPosition>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rack_side: Option<RackSide>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rack_u_location: Option<usize>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateAssetLocationRecord {
+    pub asset_id: String,
+    pub new_location_id: String,
+    pub rack_position: Option<RackPosition>,
+    pub rack_side: Option<RackSide>,
+    pub rack_u_location: Option<usize>,
 }

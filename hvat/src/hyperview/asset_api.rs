@@ -8,14 +8,108 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::hyperview::{
-    api_constants::ASSET_SEARCH_API_PREFIX,
+    api_constants::{ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_SEARCH_API_PREFIX},
     app_errors::AppError,
-    asset_api_data::AssetDto,
+    asset_api_data::{AssetDto, AssetLocationDTO, UpdateAssetNameRecord},
     asset_properties_api::get_named_asset_property_async,
     cli_data::{AppConfig, SearchAssetsArgs},
 };
 
-use super::{api_constants::ASSET_ASSETS_API_PREFIX, asset_api_data::UpdateAssetNameRecord};
+use super::{asset_api_data::UpdateAssetLocationRecord, cli_data::UpdateAssetLocationArgs};
+
+pub async fn update_asset_location_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    update_location_data: UpdateAssetLocationArgs,
+) -> Result<()> {
+    if Uuid::parse_str(&update_location_data.id).is_err()
+        || Uuid::parse_str(&update_location_data.new_location_id).is_err()
+    {
+        return Err(AppError::InvalidId.into());
+    }
+
+    let target_url = format!(
+        "{}{}/{}?id={}",
+        config.instance_url,
+        ASSET_LOCATION_API_PREFIX,
+        update_location_data.id,
+        update_location_data.id
+    );
+    debug!("Request URL: {:?}", target_url);
+
+    let asset_location_dto = AssetLocationDTO {
+        parent_id: update_location_data.new_location_id,
+        rack_position: update_location_data.rack_position,
+        rack_side: update_location_data.rack_side,
+        rack_u_location: update_location_data.rack_u_location,
+    };
+
+    debug!(
+        "New location payload: {}",
+        serde_json::to_string_pretty(&asset_location_dto)?
+    );
+
+    let resp = req
+        .put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&asset_location_dto)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    debug!(
+        "Update location return: {}",
+        serde_json::to_string_pretty(&resp)?
+    );
+
+    Ok(())
+}
+
+pub async fn bulk_update_asset_location_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
+        debug!(
+            "Updating asset id: {} with new location: {}",
+            record.asset_id, record.new_location_id
+        );
+
+        let id = record.asset_id.trim().replace('"', "");
+        let new_location_id = record.new_location_id.trim().replace('"', "");
+
+        if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
+            error!(
+                "Invalid asset or location id detected while parsing: {} and {}",
+                id, new_location_id
+            );
+            continue;
+        }
+
+        let update_location_data = UpdateAssetLocationArgs {
+            id,
+            new_location_id,
+            rack_position: record.rack_position,
+            rack_side: record.rack_side,
+            rack_u_location: record.rack_u_location,
+        };
+
+        update_asset_location_async(
+            config,
+            req.clone(),
+            auth_header.clone(),
+            update_location_data,
+        )
+        .await?;
+    }
+
+    Ok(())
+}
 
 async fn get_raw_asset_by_id_async(
     config: &AppConfig,
@@ -41,7 +135,7 @@ async fn get_raw_asset_by_id_async(
     Ok(resp)
 }
 
-pub async fn update_asset_by_id_async(
+pub async fn update_asset_name_by_id_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -74,6 +168,7 @@ pub async fn update_asset_by_id_async(
             if let Value::String(name_string) = name {
                 *name_string = new_name;
             }
+
             let _resp = req
                 .put(target_url)
                 .header(AUTHORIZATION, auth_header)
@@ -88,7 +183,7 @@ pub async fn update_asset_by_id_async(
     }
 }
 
-pub async fn bulk_update_assets_async(
+pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
@@ -114,7 +209,8 @@ pub async fn bulk_update_assets_async(
             continue;
         }
 
-        update_asset_by_id_async(config, req.clone(), auth_header.clone(), id, new_name).await?;
+        update_asset_name_by_id_async(config, req.clone(), auth_header.clone(), id, new_name)
+            .await?;
     }
 
     Ok(())
@@ -323,7 +419,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     });
 
     if let Some(t) = options.asset_type {
-        let filter = json!({ "match": { "assetType": t.to_string() } });
+        let filter = json!({ "match": { "assetType": { "query": t.to_string() }} });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
@@ -384,7 +480,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
                     "must": [
                       {
                         "match": {
-                          "stringCustomProperties.name": k
+                          "stringCustomProperties.name": { "query": k }
                         }
                       },
                       {
@@ -583,7 +679,7 @@ mod tests {
 
         // Test with asset type and location set
 
-        let filter = json!({ "match": { "assetType": "Server" } });
+        let filter = json!({ "match": { "assetType": { "query": "Server" } } });
 
         query1["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
