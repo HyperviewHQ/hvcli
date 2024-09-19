@@ -1,7 +1,7 @@
-use core::fmt;
-
 use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
+use core::fmt;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -123,8 +123,21 @@ pub enum AppArgsSubcommands {
     /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
 
-    /// Bulk Update asset location
+    /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
+
+    /// List asset ports
+    ListAssetPorts(ListAssetPortsArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListAssetPortsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
 }
 
 #[derive(Args, Debug, Clone)]
