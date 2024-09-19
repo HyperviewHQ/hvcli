@@ -87,3 +87,36 @@ pub struct UpdateAssetLocationRecord {
     pub rack_side: Option<RackSide>,
     pub rack_u_location: Option<usize>,
 }
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetPortDto {
+    pub id: String,
+    pub name: String,
+    #[serde(alias = "parentId")]
+    pub parent_id: String,
+    #[serde(alias = "portNumber")]
+    pub port_number: i64,
+    #[serde(alias = "portSide")]
+    pub port_side: String,
+    #[serde(alias = "portTypeValueId")]
+    pub port_type_value_id: Option<String>,
+}
+
+impl fmt::Display for AssetPortDto {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut asset_port_record = format!(
+            "id: {}\nname: {}\nparent_id: {}\nport_number: {}\nport_side: {}",
+            self.id, self.name, self.parent_id, self.port_number, self.port_side
+        );
+
+        if let Some(port_type_value_id) = &self.port_type_value_id {
+            asset_port_record = format!(
+                "{}\nport_type_value_id: {}",
+                asset_port_record, port_type_value_id
+            );
+        };
+
+        write!(f, "{}", asset_port_record)
+    }
+}

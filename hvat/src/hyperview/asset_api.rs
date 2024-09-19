@@ -8,14 +8,73 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::hyperview::{
-    api_constants::{ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_SEARCH_API_PREFIX},
+    api_constants::{
+        ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
+        ASSET_SEARCH_API_PREFIX,
+    },
     app_errors::AppError,
-    asset_api_data::{AssetDto, AssetLocationDTO, UpdateAssetNameRecord},
+    asset_api_data::{
+        AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
+    },
     asset_properties_api::get_named_asset_property_async,
-    cli_data::{AppConfig, SearchAssetsArgs},
+    cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
 };
 
-use super::{asset_api_data::UpdateAssetLocationRecord, cli_data::UpdateAssetLocationArgs};
+pub async fn list_asset_ports_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    list_asset_ports_args: ListAssetPortsArgs,
+) -> Result<Vec<AssetPortDto>> {
+    if Uuid::parse_str(&list_asset_ports_args.id).is_err() {
+        return Err(AppError::InvalidId.into());
+    }
+
+    let target_url = format!(
+        "{}{}/detailed/{}",
+        config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
+    );
+
+    debug!("Request URL: {}", target_url);
+
+    let resp = req
+        .get(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await?
+        .json::<Vec<Value>>()
+        .await?;
+
+    let mut asset_ports = Vec::new();
+
+    resp.into_iter().for_each(|v| {
+        let mut port = AssetPortDto {
+            ..Default::default()
+        };
+        if let Some(id) = v["id"].as_str() {
+            port.id = id.to_string();
+        };
+        if let Some(name) = v["name"].as_str() {
+            port.name = name.to_string();
+        };
+        if let Some(parent_id) = v["parentId"].as_str() {
+            port.parent_id = parent_id.to_string();
+        };
+        if let Some(port_number) = v["portNumber"].as_i64() {
+            port.port_number = port_number;
+        };
+        if let Some(port_side) = v["portSide"].as_str() {
+            port.port_side = port_side.to_string();
+        };
+        if let Some(port_type_value_id) = v["portTypeValueId"].as_str() {
+            port.port_type_value_id = Some(port_type_value_id.to_string());
+        };
+
+        asset_ports.push(port);
+    });
+
+    Ok(asset_ports)
+}
 
 pub async fn update_asset_location_async(
     config: &AppConfig,
@@ -36,7 +95,8 @@ pub async fn update_asset_location_async(
         update_location_data.id,
         update_location_data.id
     );
-    debug!("Request URL: {:?}", target_url);
+
+    debug!("Request URL: {}", target_url);
 
     let asset_location_dto = AssetLocationDTO {
         parent_id: update_location_data.new_location_id,
@@ -122,7 +182,7 @@ async fn get_raw_asset_by_id_async(
     }
 
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {}", target_url);
 
     let resp = req
         .get(target_url)
@@ -147,7 +207,7 @@ pub async fn update_asset_name_by_id_async(
     }
 
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {}", target_url);
 
     let mut asset_value =
         get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), id.clone()).await?;
@@ -223,7 +283,7 @@ pub async fn search_assets_async(
     options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {}", target_url);
     debug!("Options: {:#?}", options);
 
     let search_query = compose_search_query(options.clone())?;

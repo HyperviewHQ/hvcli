@@ -1,5 +1,6 @@
 use clap::Parser;
 use color_eyre::Result;
+use hyperview::asset_api::list_asset_ports_async;
 use log::info;
 use reqwest::Client;
 
@@ -82,7 +83,9 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::ListAssetPorts(options) => {
-            info!("{:#?}", options);
+            let resp = list_asset_ports_async(&config, req, auth_header, options.clone()).await?;
+
+            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
     }
 
