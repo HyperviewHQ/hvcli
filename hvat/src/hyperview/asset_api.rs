@@ -28,38 +28,59 @@ pub async fn bulk_update_patch_panel_ports_async(
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
-        debug!(
-            "Updating asset id: {} with new location: {}",
-            record.asset_id, record.new_location_id
-        );
+        debug!("Updating port id: {}", record.id);
 
-        let id = record.asset_id.trim().replace('"', "");
-        let new_location_id = record.new_location_id.trim().replace('"', "");
+        let id = record.id.trim().replace('"', "");
 
-        if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
-            error!(
-                "Invalid asset or location id detected while parsing: {} and {}",
-                id, new_location_id
-            );
+        if Uuid::parse_str(&id).is_err() {
+            error!("Invalid port id detected while parsing: {}", id);
             continue;
         }
 
-        let update_location_data = UpdateAssetLocationArgs {
-            id,
-            new_location_id,
-            rack_position: record.rack_position,
-            rack_side: record.rack_side,
-            rack_u_location: record.rack_u_location,
-        };
+        let target_url = format!(
+            "{}{}/patchPanel/{}",
+            config.instance_url,
+            ASSET_PORTS_API_PREFIX,
+            id.clone()
+        );
+        debug!("Request URL: {}", target_url);
 
-        update_asset_location_async(
-            config,
-            req.clone(),
-            auth_header.clone(),
-            update_location_data,
-        )
-        .await?;
+        let payload = json!({
+          "id": id,
+          "name": record.name,
+          "parentId": record.parent_id,
+          "portNumber": record.port_number,
+          "connectorTypeValueId": record.connector_type_value_id,
+          "portSideValueId": record.port_side_value_id,
+        });
+
+        debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+
+        update_port_async(&req, &auth_header, target_url, payload).await?;
     }
+
+    Ok(())
+}
+
+async fn update_port_async(
+    req: &Client,
+    auth_header: &String,
+    target_url: String,
+    payload: Value,
+) -> Result<()> {
+    let resp = req
+        .put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&payload)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    debug!(
+        "Update port return: {}",
+        serde_json::to_string_pretty(&resp)?
+    );
 
     Ok(())
 }
@@ -108,16 +129,16 @@ pub async fn list_asset_ports_async(
             port.port_number = port_number;
         };
         if let Some(port_side) = v["portSide"].as_str() {
-            port.port_side = port_side.to_string();
+            port.port_side = Some(port_side.to_string());
         };
         if let Some(port_side_value_id) = v["portSideValueId"].as_str() {
-            port.port_side_value_id = port_side_value_id.to_string();
+            port.port_side_value_id = Some(port_side_value_id.to_string());
         };
         if let Some(connector_type_value_id) = v["connectorTypeValueId"].as_str() {
-            port.connector_type_value_id = connector_type_value_id.to_string();
+            port.connector_type_value_id = Some(connector_type_value_id.to_string());
         };
         if let Some(port_type_value_id) = v["portTypeValueId"].as_str() {
-            port.port_type_value_id = port_type_value_id.to_string();
+            port.port_type_value_id = Some(port_type_value_id.to_string());
         };
 
         asset_ports.push(port);

@@ -35,7 +35,7 @@ pub struct AssetDto {
 
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut asset_record = format!(
+        let asset_record = format!(
             r#"
 id                    : {}
 name                  : {}
@@ -51,6 +51,7 @@ product_name          : {}
 status                : {}
 path                  : {}
 serial_number         : {}
+property              : {}
 "#,
             self.id,
             self.name,
@@ -65,12 +66,9 @@ serial_number         : {}
             self.product_name,
             self.status,
             self.path,
-            self.serial_number
+            self.serial_number,
+            self.property.clone().unwrap_or_default()
         );
-
-        if let Some(property) = &self.property {
-            asset_record = format!("{}property              : {}", asset_record, property);
-        };
 
         write!(f, "{}", asset_record)
     }
@@ -113,13 +111,13 @@ pub struct AssetPortDto {
     #[serde(alias = "portNumber")]
     pub port_number: i64,
     #[serde(alias = "portSide")]
-    pub port_side: String,
+    pub port_side: Option<String>,
     #[serde(alias = "portSideValueId")]
-    pub port_side_value_id: String,
+    pub port_side_value_id: Option<String>,
     #[serde(alias = "connectorTypeValueId")]
-    pub connector_type_value_id: String,
+    pub connector_type_value_id: Option<String>,
     #[serde(alias = "portTypeValueId")]
-    pub port_type_value_id: String,
+    pub port_type_value_id: Option<String>,
 }
 
 impl fmt::Display for AssetPortDto {
@@ -139,10 +137,10 @@ port_type_value_id: {}
             self.name,
             self.parent_id,
             self.port_number,
-            self.port_side,
-            self.port_side_value_id,
-            self.connector_type_value_id,
-            self.port_type_value_id
+            self.port_side.clone().unwrap_or_default(),
+            self.port_side_value_id.clone().unwrap_or_default(),
+            self.connector_type_value_id.clone().unwrap_or_default(),
+            self.port_type_value_id.clone().unwrap_or_default()
         );
 
         write!(f, "{}", asset_port_record)

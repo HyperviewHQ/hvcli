@@ -134,13 +134,6 @@ pub enum AppArgsSubcommands {
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdatePatchPanelPortsArgs {
-    #[arg(
-        short,
-        long,
-        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
-    )]
-    pub id: String,
-
     #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
     pub filename: String,
 }

@@ -1,6 +1,6 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_api::list_asset_ports_async;
+use hyperview::asset_api::{bulk_update_patch_panel_ports_async, list_asset_ports_async};
 use log::info;
 use reqwest::Client;
 
@@ -89,7 +89,13 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
-            info!("{:#?}", options);
+            bulk_update_patch_panel_ports_async(
+                &config,
+                req,
+                auth_header,
+                options.filename.clone(),
+            )
+            .await?;
         }
     }
 
