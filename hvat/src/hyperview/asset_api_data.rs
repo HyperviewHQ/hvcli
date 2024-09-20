@@ -36,7 +36,22 @@ pub struct AssetDto {
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut asset_record = format!(
-            "id: {}\nname: {}\nasset_lifecycle_state: {}\nasset_type_id: {}\nmanufacturer_id: {}\nmanufacturer_name: {}\nmonitoring_state: {}\nparent_id: {}\nparent_name: {}\nproduct_id: {}\nproduct_name: {}\nstatus: {}\npath: {}\nserial_number: {}",
+            r#"
+id                    : {}
+name                  : {}
+asset_lifecycle_state : {}
+asset_type_id         : {}
+manufacturer_id       : {}
+manufacturer_name     : {}
+monitoring_state      : {}
+parent_id             : {}
+parent_name           : {}
+product_id            : {}
+product_name          : {}
+status                : {}
+path                  : {}
+serial_number         : {}
+"#,
             self.id,
             self.name,
             self.asset_lifecycle_state,
@@ -54,7 +69,7 @@ impl fmt::Display for AssetDto {
         );
 
         if let Some(property) = &self.property {
-            asset_record = format!("{}\nproperty: {}", asset_record, property);
+            asset_record = format!("{}property              : {}", asset_record, property);
         };
 
         write!(f, "{}", asset_record)
@@ -99,23 +114,36 @@ pub struct AssetPortDto {
     pub port_number: i64,
     #[serde(alias = "portSide")]
     pub port_side: String,
+    #[serde(alias = "portSideValueId")]
+    pub port_side_value_id: String,
+    #[serde(alias = "connectorTypeValueId")]
+    pub connector_type_value_id: String,
     #[serde(alias = "portTypeValueId")]
-    pub port_type_value_id: Option<String>,
+    pub port_type_value_id: String,
 }
 
 impl fmt::Display for AssetPortDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut asset_port_record = format!(
-            "id: {}\nname: {}\nparent_id: {}\nport_number: {}\nport_side: {}",
-            self.id, self.name, self.parent_id, self.port_number, self.port_side
+        let asset_port_record = format!(
+            r#"
+id: {}
+name: {}
+parent_id: {}
+port_number: {}
+port_side: {}
+port_side_value_id: {}
+connector_type_value_id: {}
+port_type_value_id: {}
+"#,
+            self.id,
+            self.name,
+            self.parent_id,
+            self.port_number,
+            self.port_side,
+            self.port_side_value_id,
+            self.connector_type_value_id,
+            self.port_type_value_id
         );
-
-        if let Some(port_type_value_id) = &self.port_type_value_id {
-            asset_port_record = format!(
-                "{}\nport_type_value_id: {}",
-                asset_port_record, port_type_value_id
-            );
-        };
 
         write!(f, "{}", asset_port_record)
     }

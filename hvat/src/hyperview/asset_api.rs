@@ -66,8 +66,14 @@ pub async fn list_asset_ports_async(
         if let Some(port_side) = v["portSide"].as_str() {
             port.port_side = port_side.to_string();
         };
+        if let Some(port_side_value_id) = v["portSideValueId"].as_str() {
+            port.port_side_value_id = port_side_value_id.to_string();
+        };
+        if let Some(connector_type_value_id) = v["connectorTypeValueId"].as_str() {
+            port.connector_type_value_id = connector_type_value_id.to_string();
+        };
         if let Some(port_type_value_id) = v["portTypeValueId"].as_str() {
-            port.port_type_value_id = Some(port_type_value_id.to_string());
+            port.port_type_value_id = port_type_value_id.to_string();
         };
 
         asset_ports.push(port);
