@@ -20,6 +20,50 @@ use crate::hyperview::{
     cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
 };
 
+pub async fn bulk_update_patch_panel_ports_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
+        debug!(
+            "Updating asset id: {} with new location: {}",
+            record.asset_id, record.new_location_id
+        );
+
+        let id = record.asset_id.trim().replace('"', "");
+        let new_location_id = record.new_location_id.trim().replace('"', "");
+
+        if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
+            error!(
+                "Invalid asset or location id detected while parsing: {} and {}",
+                id, new_location_id
+            );
+            continue;
+        }
+
+        let update_location_data = UpdateAssetLocationArgs {
+            id,
+            new_location_id,
+            rack_position: record.rack_position,
+            rack_side: record.rack_side,
+            rack_u_location: record.rack_u_location,
+        };
+
+        update_asset_location_async(
+            config,
+            req.clone(),
+            auth_header.clone(),
+            update_location_data,
+        )
+        .await?;
+    }
+
+    Ok(())
+}
+
 pub async fn list_asset_ports_async(
     config: &AppConfig,
     req: Client,

@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
 
-        AppArgsSubcommands::BulkUpdateAssetPortName(options) => {
+        AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
             info!("{:#?}", options);
         }
     }

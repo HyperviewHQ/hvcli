@@ -129,11 +129,11 @@ pub enum AppArgsSubcommands {
     ListAssetPorts(ListAssetPortsArgs),
 
     /// Bulk update asset port names
-    BulkUpdateAssetPortName(BulkUpdateAssetPortNameArgs),
+    BulkUpdatePatchPanelPorts(BulkUpdatePatchPanelPortsArgs),
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct BulkUpdateAssetPortNameArgs {
+pub struct BulkUpdatePatchPanelPortsArgs {
     #[arg(
         short,
         long,
