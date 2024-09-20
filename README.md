@@ -45,14 +45,17 @@ A command line interface to interact with asset data stored in Hyperview
 Usage: hvat [OPTIONS] <COMMAND>
 
 Commands:
-  list-asset-properties         List asset properties
-  list-custom-asset-properties  List custom asset properties
-  search-assets                 Search assets
-  update-asset-name             Update asset name
-  bulk-update-asset-name        Bulk update asset name
-  update-asset-location         Update asset location
-  bulk-update-asset-location    Bulk Update asset location
-  help                          Print this message or the help of the given subcommand(s)
+  list-asset-properties          List asset properties
+  list-custom-asset-properties   List custom asset properties
+  search-assets                  Search assets
+  update-asset-name              Update asset name
+  bulk-update-asset-name         Bulk update asset name
+  update-asset-location          Update asset location
+  bulk-update-asset-location     Bulk update asset location
+  list-asset-ports               List asset ports
+  bulk-update-patch-panel-ports  Bulk update patch panel port names
+  bulk-update-asset-ports        Bulk update asset port names
+  help                           Print this message or the help of the given subcommand(s)
 
 Options:
   -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn, debug, info, trace]
@@ -70,6 +73,9 @@ assets in Hyperview.
 - `bulk-update-asset-name` will update multiple assets using a CSV input file. Example input is in the example_input folder.
 - `update-asset-location` will update the location of a single asset.
 - `bulk-update-asset-location` will update multiple assets using a CSV input file. Example input is in the example_input folder.
+- `list-asset-ports` will List asset ports.
+- `bulk-update-patch-panel-ports`  will bulk update *patch panel* port names using a CSV input file. Example input is in the example_input folder.
+- `bulk-update-asset-ports` will bulk update *other asset* port names, E.g. a network switch. Example input is in the example_input folder.
 
 Use `--help` to explore the various options available within each sub command.
 

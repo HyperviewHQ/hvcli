@@ -35,8 +35,24 @@ pub struct AssetDto {
 
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut asset_record = format!(
-            "id: {}\nname: {}\nasset_lifecycle_state: {}\nasset_type_id: {}\nmanufacturer_id: {}\nmanufacturer_name: {}\nmonitoring_state: {}\nparent_id: {}\nparent_name: {}\nproduct_id: {}\nproduct_name: {}\nstatus: {}\npath: {}\nserial_number: {}",
+        let asset_record = format!(
+            r#"
+id                    : {}
+name                  : {}
+asset_lifecycle_state : {}
+asset_type_id         : {}
+manufacturer_id       : {}
+manufacturer_name     : {}
+monitoring_state      : {}
+parent_id             : {}
+parent_name           : {}
+product_id            : {}
+product_name          : {}
+status                : {}
+path                  : {}
+serial_number         : {}
+property              : {}
+"#,
             self.id,
             self.name,
             self.asset_lifecycle_state,
@@ -50,12 +66,9 @@ impl fmt::Display for AssetDto {
             self.product_name,
             self.status,
             self.path,
-            self.serial_number
+            self.serial_number,
+            self.property.clone().unwrap_or_default()
         );
-
-        if let Some(property) = &self.property {
-            asset_record = format!("{}\nproperty: {}", asset_record, property);
-        };
 
         write!(f, "{}", asset_record)
     }
@@ -86,4 +99,50 @@ pub struct UpdateAssetLocationRecord {
     pub rack_position: Option<RackPosition>,
     pub rack_side: Option<RackSide>,
     pub rack_u_location: Option<usize>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetPortDto {
+    pub id: String,
+    pub name: String,
+    #[serde(alias = "parentId")]
+    pub parent_id: String,
+    #[serde(alias = "portNumber")]
+    pub port_number: i64,
+    #[serde(alias = "portSide")]
+    pub port_side: Option<String>,
+    #[serde(alias = "portSideValueId")]
+    pub port_side_value_id: Option<String>,
+    #[serde(alias = "connectorTypeValueId")]
+    pub connector_type_value_id: Option<String>,
+    #[serde(alias = "portTypeValueId")]
+    pub port_type_value_id: Option<String>,
+}
+
+impl fmt::Display for AssetPortDto {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let asset_port_record = format!(
+            r#"
+id: {}
+name: {}
+parent_id: {}
+port_number: {}
+port_side: {}
+port_side_value_id: {}
+connector_type_value_id: {}
+port_type_value_id: {}
+"#,
+            self.id,
+            self.name,
+            self.parent_id,
+            self.port_number,
+            self.port_side.clone().unwrap_or_default(),
+            self.port_side_value_id.clone().unwrap_or_default(),
+            self.connector_type_value_id.clone().unwrap_or_default(),
+            self.port_type_value_id.clone().unwrap_or_default()
+        );
+
+        write!(f, "{}", asset_port_record)
+    }
 }

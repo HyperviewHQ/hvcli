@@ -1,13 +1,13 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_api::bulk_update_asset_location_async;
+use hyperview::asset_api::{bulk_update_ports_async, list_asset_ports_async};
 use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
     asset_api::{
-        bulk_update_asset_name_async, search_assets_async, update_asset_location_async,
-        update_asset_name_by_id_async,
+        bulk_update_asset_location_async, bulk_update_asset_name_async, search_assets_async,
+        update_asset_location_async, update_asset_name_by_id_async,
     },
     asset_properties_api::get_asset_property_list_async,
     auth::get_auth_header_async,
@@ -79,6 +79,22 @@ async fn main() -> Result<()> {
 
         AppArgsSubcommands::BulkUpdateAssetLocation(options) => {
             bulk_update_asset_location_async(&config, req, auth_header, options.filename.clone())
+                .await?;
+        }
+
+        AppArgsSubcommands::ListAssetPorts(options) => {
+            let resp = list_asset_ports_async(&config, req, auth_header, options.clone()).await?;
+
+            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
+        }
+
+        AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
+            bulk_update_ports_async(&config, req, auth_header, options.filename.clone(), true)
+                .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetPorts(options) => {
+            bulk_update_ports_async(&config, req, auth_header, options.filename.clone(), false)
                 .await?;
         }
     }

@@ -1,7 +1,6 @@
-use core::fmt;
-
 use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -123,8 +122,44 @@ pub enum AppArgsSubcommands {
     /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
 
-    /// Bulk Update asset location
+    /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
+
+    /// List asset ports
+    ListAssetPorts(ListAssetPortsArgs),
+
+    /// Bulk update patch panel port names
+    BulkUpdatePatchPanelPorts(BulkUpdatePortsArgs),
+
+    /// Bulk update asset port names
+    BulkUpdateAssetPorts(BulkUpdatePortsArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdatePortsArgs {
+    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListAssetPortsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
 }
 
 #[derive(Args, Debug, Clone)]
