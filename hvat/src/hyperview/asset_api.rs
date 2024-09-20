@@ -20,11 +20,12 @@ use crate::hyperview::{
     cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
 };
 
-pub async fn bulk_update_patch_panel_ports_async(
+pub async fn bulk_update_ports_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
     filename: String,
+    is_patchpanel: bool,
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
@@ -37,26 +38,47 @@ pub async fn bulk_update_patch_panel_ports_async(
             continue;
         }
 
-        let target_url = format!(
-            "{}{}/patchPanel/{}",
-            config.instance_url,
-            ASSET_PORTS_API_PREFIX,
-            id.clone()
-        );
-        debug!("Request URL: {}", target_url);
+        if is_patchpanel {
+            let target_url = format!(
+                "{}{}/patchPanel/{}",
+                config.instance_url,
+                ASSET_PORTS_API_PREFIX,
+                id.clone()
+            );
+            debug!("Request URL: {}", target_url);
 
-        let payload = json!({
-          "id": id,
-          "name": record.name,
-          "parentId": record.parent_id,
-          "portNumber": record.port_number,
-          "connectorTypeValueId": record.connector_type_value_id,
-          "portSideValueId": record.port_side_value_id,
-        });
+            let payload = json!({
+              "id": id,
+              "name": record.name,
+              "parentId": record.parent_id,
+              "portNumber": record.port_number,
+              "connectorTypeValueId": record.connector_type_value_id,
+              "portSideValueId": record.port_side_value_id,
+            });
+            debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+            update_port_async(&req, &auth_header, target_url, payload).await?;
+        } else {
+            let target_url = format!(
+                "{}{}/{}",
+                config.instance_url,
+                ASSET_PORTS_API_PREFIX,
+                id.clone()
+            );
+            debug!("Request URL: {}", target_url);
 
-        update_port_async(&req, &auth_header, target_url, payload).await?;
+            let payload = json!({
+              "id": id,
+              "name": record.name,
+              "parentId": record.parent_id,
+              "portNumber": record.port_number,
+              "portTypeValueId": record.port_type_value_id
+            });
+
+            debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+
+            update_port_async(&req, &auth_header, target_url, payload).await?;
+        }
     }
 
     Ok(())

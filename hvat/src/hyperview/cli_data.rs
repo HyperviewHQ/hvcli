@@ -128,12 +128,15 @@ pub enum AppArgsSubcommands {
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
+    /// Bulk update patch panel port names
+    BulkUpdatePatchPanelPorts(BulkUpdatePortsArgs),
+
     /// Bulk update asset port names
-    BulkUpdatePatchPanelPorts(BulkUpdatePatchPanelPortsArgs),
+    BulkUpdateAssetPorts(BulkUpdatePortsArgs),
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct BulkUpdatePatchPanelPortsArgs {
+pub struct BulkUpdatePortsArgs {
     #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
     pub filename: String,
 }
