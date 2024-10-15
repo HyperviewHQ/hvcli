@@ -97,6 +97,10 @@ async fn main() -> Result<()> {
             bulk_update_ports_async(&config, req, auth_header, options.filename.clone(), false)
                 .await?;
         }
+
+        AppArgsSubcommands::ListUnacknowledgedAlarms(options) => {
+            info!("{:#?}", options);
+        }
     }
 
     Ok(())

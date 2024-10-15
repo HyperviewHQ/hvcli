@@ -133,6 +133,23 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset port names
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
+
+    /// List unacknowledged alarm events
+    ListUnacknowledgedAlarms(ListUnacknowledgedAlarmsArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListUnacknowledgedAlarmsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
 }
 
 #[derive(Args, Debug, Clone)]
