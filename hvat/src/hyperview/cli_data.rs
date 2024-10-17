@@ -136,6 +136,15 @@ pub enum AppArgsSubcommands {
 
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
+
+    /// Acknowledge or close alarm events
+    ManageAlarms(ManageAlarmArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ManageAlarmArgs {
+    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    pub filename: String,
 }
 
 #[derive(Debug, ValueEnum, Clone, Copy)]

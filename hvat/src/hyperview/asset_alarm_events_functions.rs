@@ -7,9 +7,15 @@ use reqwest::{
 use serde_json::{Map, Value};
 
 use crate::hyperview::{
-    api_constants::ASSET_ALARM_EVENT_LIST_API_PREFIX, asset_alarm_events_data::AlarmListResponse,
-    cli_data::AlarmEventFilterOption, cli_data::AppConfig,
+    api_constants::{
+        ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX, ASSET_ALARM_EVENT_LIST_API_PREFIX,
+        BULK_ACTION_BATCH_SIZE,
+    },
+    asset_alarm_events_data::AlarmListResponse,
+    cli_data::{AlarmEventFilterOption, AppConfig},
 };
+
+use super::asset_alarm_events_data::AlarmEventDto;
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,
@@ -63,4 +69,49 @@ pub async fn list_alarm_events_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn manage_asset_alarm_events_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    filename: String,
+) -> Result<()> {
+    let target_url = format!(
+        "{}{}",
+        config.instance_url, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX
+    );
+    debug!("Request URL: {}", target_url);
+
+    let mut reader = csv::Reader::from_path(filename)?;
+    let mut work = Vec::new();
+
+    while let Some(Ok(record)) = reader.deserialize::<AlarmEventDto>().next() {
+        work.push(record.id);
+    }
+
+    let mut work_batches: Vec<Vec<String>> = Vec::new();
+    work_batches.push(Vec::new());
+    let mut work_queue_index = 0;
+
+    work.into_iter().enumerate().for_each(|(e, id)| {
+        if e > 0 {
+            if (e % BULK_ACTION_BATCH_SIZE) == 0 {
+                work_batches.push(Vec::new());
+                work_queue_index += 1;
+            }
+        }
+        work_batches[work_queue_index].push(id);
+    });
+
+    for batch in work_batches {
+        let _resp = &req
+            .put(&target_url)
+            .header(AUTHORIZATION, &auth_header)
+            .json(&batch)
+            .send()
+            .await?;
+    }
+
+    Ok(())
 }

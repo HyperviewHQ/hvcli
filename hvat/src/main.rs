@@ -1,5 +1,6 @@
 use clap::Parser;
 use color_eyre::Result;
+use hyperview::asset_alarm_events_functions::manage_asset_alarm_events_async;
 use log::info;
 use reqwest::Client;
 
@@ -115,6 +116,11 @@ async fn main() -> Result<()> {
                 options.filename.clone(),
                 resp.data,
             )?;
+        }
+
+        AppArgsSubcommands::ManageAlarms(options) => {
+            manage_asset_alarm_events_async(&config, req, auth_header, options.filename.clone())
+                .await?;
         }
     }
 
