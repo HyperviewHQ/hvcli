@@ -8,7 +8,7 @@ use serde_json::{Map, Value};
 
 use crate::hyperview::{api_constants::ASSET_ALARM_EVENT_LIST_API_PREFIX, cli_data::AppConfig};
 
-use super::asset_alarm_events_data::AlarmListResponse;
+use super::asset_alarm_events_data::{AlarmEventFilterOption, AlarmListResponse};
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,
@@ -16,6 +16,7 @@ pub async fn list_alarm_events_async(
     auth_header: String,
     skip: u32,
     limit: u32,
+    alarm_filter_option: AlarmEventFilterOption,
 ) -> Result<AlarmListResponse> {
     let target_url = format!(
         "{}{}",
@@ -27,10 +28,22 @@ pub async fn list_alarm_events_async(
 
     query_params.insert("skip".to_string(), Value::Number(skip.into()));
     query_params.insert("take".to_string(), Value::Number(limit.into()));
-    query_params.insert(
-        "filter".to_string(),
-        Value::String("[\"acknowledgementState\", \"=\", \"unacknowledged\"]".to_string()),
-    );
+
+    match alarm_filter_option {
+        AlarmEventFilterOption::Unacknowledged => {
+            query_params.insert(
+                "filter".to_string(),
+                Value::String("[\"acknowledgementState\", \"=\", \"unacknowledged\"]".to_string()),
+            );
+        }
+
+        AlarmEventFilterOption::Active => {
+            query_params.insert(
+                "filter".to_string(),
+                Value::String("[\"isActive\", \"=\", true]".to_string()),
+            );
+        }
+    }
 
     debug!(
         "Query parameters: {}",

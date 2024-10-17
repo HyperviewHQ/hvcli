@@ -95,3 +95,8 @@ pub struct AlarmListResponse {
     #[serde(alias = "totalCount")]
     total_count: i64,
 }
+
+pub enum AlarmEventFilterOption {
+    Unacknowledged,
+    Active,
+}

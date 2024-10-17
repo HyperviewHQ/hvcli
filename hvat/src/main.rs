@@ -1,6 +1,9 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_alarm_events_functions::list_alarm_events_async;
+use hyperview::{
+    asset_alarm_events_data::AlarmEventFilterOption,
+    asset_alarm_events_functions::list_alarm_events_async,
+};
 use log::info;
 use reqwest::Client;
 
@@ -100,9 +103,15 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::ListUnacknowledgedAlarms(options) => {
-            let resp =
-                list_alarm_events_async(&config, req, auth_header, options.skip, options.limit)
-                    .await?;
+            let resp = list_alarm_events_async(
+                &config,
+                req,
+                auth_header,
+                options.skip,
+                options.limit,
+                AlarmEventFilterOption::Unacknowledged,
+            )
+            .await?;
 
             handle_output_choice(
                 options.output_type.clone(),
