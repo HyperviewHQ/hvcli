@@ -151,9 +151,9 @@ pub struct ListUnacknowledgedAlarmsArgs {
     #[arg(
         short,
         long,
-        help = "Record limit (1 -> 10000), e.g. 100",
+        help = "Record limit (1 -> 100000), e.g. 100",
         default_value = "100",
-        value_parser(value_parser!(u32).range(1..10001))
+        value_parser(value_parser!(u32).range(1..100001))
     )]
     pub limit: u32,
 

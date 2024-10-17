@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DefaultOnNull};
 use std::fmt;
 
+#[serde_as]
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AlarmEventDto {
@@ -9,6 +11,7 @@ pub struct AlarmEventDto {
     #[serde(alias = "assetName")]
     pub asset_name: String,
     #[serde(alias = "assetLocationPath")]
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub asset_location_path: String,
     #[serde(alias = "alarmEventSettingId")]
     pub alarm_event_setting_id: String,
@@ -17,19 +20,23 @@ pub struct AlarmEventDto {
     #[serde(alias = "startTimestamp")]
     pub start_timestamp: String,
     #[serde(alias = "endTimestamp")]
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub end_timestamp: String,
     #[serde(alias = "acknowledgementState")]
     pub acknowledgement_state: String,
     #[serde(alias = "acknowledgedBy")]
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub acknowledged_by: String,
     #[serde(alias = "acknowledgedTimestamp")]
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub acknowledged_timestamp: String,
     #[serde(alias = "closedBy")]
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub closed_by: String,
     #[serde(alias = "alarmEventCategory")]
     pub alarm_event_category: String,
     #[serde(alias = "isActive")]
-    pub is_active: String,
+    pub is_active: bool,
     #[serde(alias = "propertyValues")]
     pub property_values: String,
     #[serde(alias = "textTemplate")]
@@ -77,4 +84,14 @@ text_template          : {},
 
         write!(f, "{}", asset_record)
     }
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AlarmListResponse {
+    pub data: Vec<AlarmEventDto>,
+    #[serde(alias = "groupCount")]
+    group_count: i64,
+    #[serde(alias = "totalCount")]
+    total_count: i64,
 }
