@@ -1,3 +1,5 @@
+pub const ASSET_ALARM_EVENT_LIST_API_PREFIX: &str =
+    "/api/asset/alarmEvents/allAssets/advancedCollection";
 pub const ASSET_ASSETS_API_PREFIX: &str = "/api/asset/assets";
 pub const ASSET_LOCATION_API_PREFIX: &str = "/api/asset/location";
 pub const ASSET_PORTS_API_PREFIX: &str = "/api/asset/physicalPorts";

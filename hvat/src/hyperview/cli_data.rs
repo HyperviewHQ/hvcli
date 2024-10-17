@@ -143,6 +143,23 @@ pub struct ListUnacknowledgedAlarmsArgs {
     #[arg(
         short,
         long,
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 10000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..10001))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
         help = "Output type, e.g. csv-file",
         default_value = "record"
     )]

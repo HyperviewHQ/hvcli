@@ -16,7 +16,7 @@ use crate::hyperview::{
     asset_api_data::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
-    asset_properties_api::get_named_asset_property_async,
+    asset_properties_api_functions::get_named_asset_property_async,
     cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
 };
 

@@ -1,19 +1,19 @@
 use clap::Parser;
 use color_eyre::Result;
-use hyperview::asset_api::{bulk_update_ports_async, list_asset_ports_async};
 use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
-    asset_api::{
-        bulk_update_asset_location_async, bulk_update_asset_name_async, search_assets_async,
-        update_asset_location_async, update_asset_name_by_id_async,
+    asset_api_functions::{
+        bulk_update_asset_location_async, bulk_update_asset_name_async, bulk_update_ports_async,
+        list_asset_ports_async, search_assets_async, update_asset_location_async,
+        update_asset_name_by_id_async,
     },
-    asset_properties_api::get_asset_property_list_async,
+    asset_properties_api_functions::get_asset_property_list_async,
     auth::get_auth_header_async,
-    cli::{get_config_path, get_debug_filter, handle_output_choice},
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
-    custom_asset_properties_api::get_custom_asset_property_list_async,
+    cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
+    custom_asset_properties_api_functions::get_custom_asset_property_list_async,
 };
 
 mod hyperview;
