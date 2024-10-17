@@ -134,12 +134,18 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset port names
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
 
-    /// List unacknowledged alarm events
-    ListUnacknowledgedAlarms(ListUnacknowledgedAlarmsArgs),
+    /// List alarm events
+    ListAlarms(ListAlarmsArgs),
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum AlarmEventFilterOption {
+    Unacknowledged,
+    Active,
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct ListUnacknowledgedAlarmsArgs {
+pub struct ListAlarmsArgs {
     #[arg(
         short,
         long,
@@ -156,6 +162,14 @@ pub struct ListUnacknowledgedAlarmsArgs {
         value_parser(value_parser!(u32).range(1..100001))
     )]
     pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Asset alarm event filter option, e.g. active",
+        default_value = "active"
+    )]
+    pub alarm_filter: AlarmEventFilterOption,
 
     #[arg(
         short,

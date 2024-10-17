@@ -6,9 +6,10 @@ use reqwest::{
 };
 use serde_json::{Map, Value};
 
-use crate::hyperview::{api_constants::ASSET_ALARM_EVENT_LIST_API_PREFIX, cli_data::AppConfig};
-
-use super::asset_alarm_events_data::{AlarmEventFilterOption, AlarmListResponse};
+use crate::hyperview::{
+    api_constants::ASSET_ALARM_EVENT_LIST_API_PREFIX, asset_alarm_events_data::AlarmListResponse,
+    cli_data::AlarmEventFilterOption, cli_data::AppConfig,
+};
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,
