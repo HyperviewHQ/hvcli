@@ -141,14 +141,28 @@ pub enum AppArgsSubcommands {
     ManageAlarms(ManageAlarmArgs),
 }
 
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum ManageAlarmActionOptions {
+    Acknowledge,
+    Close,
+}
+
 #[derive(Args, Debug, Clone)]
 pub struct ManageAlarmArgs {
     #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
     pub filename: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Manage action to use, e.g. close",
+        default_value = "close"
+    )]
+    pub manage_action: ManageAlarmActionOptions,
 }
 
 #[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum AlarmEventFilterOption {
+pub enum AlarmEventFilterOptions {
     Unacknowledged,
     Active,
 }
@@ -178,7 +192,7 @@ pub struct ListAlarmsArgs {
         help = "Asset alarm event filter option, e.g. active",
         default_value = "active"
     )]
-    pub alarm_filter: AlarmEventFilterOption,
+    pub alarm_filter: AlarmEventFilterOptions,
 
     #[arg(
         short,

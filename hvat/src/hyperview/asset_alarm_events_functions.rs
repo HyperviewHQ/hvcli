@@ -12,7 +12,7 @@ use crate::hyperview::{
         BULK_ACTION_BATCH_SIZE,
     },
     asset_alarm_events_data::AlarmListResponse,
-    cli_data::{AlarmEventFilterOption, AppConfig},
+    cli_data::{AlarmEventFilterOptions, AppConfig},
 };
 
 use super::asset_alarm_events_data::AlarmEventDto;
@@ -23,7 +23,7 @@ pub async fn list_alarm_events_async(
     auth_header: String,
     skip: u32,
     limit: u32,
-    alarm_filter_option: AlarmEventFilterOption,
+    alarm_filter_option: AlarmEventFilterOptions,
 ) -> Result<AlarmListResponse> {
     let target_url = format!(
         "{}{}",
@@ -37,14 +37,14 @@ pub async fn list_alarm_events_async(
     query_params.insert("take".to_string(), Value::Number(limit.into()));
 
     match alarm_filter_option {
-        AlarmEventFilterOption::Unacknowledged => {
+        AlarmEventFilterOptions::Unacknowledged => {
             query_params.insert(
                 "filter".to_string(),
                 Value::String("[\"acknowledgementState\", \"=\", \"unacknowledged\"]".to_string()),
             );
         }
 
-        AlarmEventFilterOption::Active => {
+        AlarmEventFilterOptions::Active => {
             query_params.insert(
                 "filter".to_string(),
                 Value::String("[\"isActive\", \"=\", true]".to_string()),
