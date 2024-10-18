@@ -119,8 +119,14 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::ManageAlarms(options) => {
-            manage_asset_alarm_events_async(&config, req, auth_header, options.filename.clone())
-                .await?;
+            manage_asset_alarm_events_async(
+                &config,
+                req,
+                auth_header,
+                options.filename.clone(),
+                options.manage_action,
+            )
+            .await?;
         }
     }
 

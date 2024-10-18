@@ -4,18 +4,18 @@ use reqwest::{
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
 };
-use serde_json::{Map, Value};
+use serde_json::{json, Map, Value};
 
 use crate::hyperview::{
     api_constants::{
-        ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX, ASSET_ALARM_EVENT_LIST_API_PREFIX,
-        BULK_ACTION_BATCH_SIZE,
+        ASSET_ALARM_EVENT_BULK_ACKNOWLEDGE_API_PREFIX, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX,
+        ASSET_ALARM_EVENT_LIST_API_PREFIX, BULK_ACTION_BATCH_SIZE,
     },
     asset_alarm_events_data::AlarmListResponse,
     cli_data::{AlarmEventFilterOptions, AppConfig},
 };
 
-use super::asset_alarm_events_data::AlarmEventDto;
+use super::{asset_alarm_events_data::AlarmEventDto, cli_data::ManageActionOptions};
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,
@@ -76,13 +76,8 @@ pub async fn manage_asset_alarm_events_async(
     req: Client,
     auth_header: String,
     filename: String,
+    manage_action_options: ManageActionOptions,
 ) -> Result<()> {
-    let target_url = format!(
-        "{}{}",
-        config.instance_url, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX
-    );
-    debug!("Request URL: {}", target_url);
-
     let mut reader = csv::Reader::from_path(filename)?;
     let mut work = Vec::new();
 
@@ -104,13 +99,45 @@ pub async fn manage_asset_alarm_events_async(
         work_batches[work_queue_index].push(id);
     });
 
-    for batch in work_batches {
-        let _resp = &req
-            .put(&target_url)
-            .header(AUTHORIZATION, &auth_header)
-            .json(&batch)
-            .send()
-            .await?;
+    match manage_action_options {
+        ManageActionOptions::Close => {
+            let target_url = format!(
+                "{}{}",
+                config.instance_url, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX
+            );
+            debug!("Request URL: {}", target_url);
+
+            for batch in work_batches {
+                let _resp = &req
+                    .put(&target_url)
+                    .header(AUTHORIZATION, &auth_header)
+                    .json(&batch)
+                    .send()
+                    .await?;
+            }
+        }
+
+        ManageActionOptions::Acknowledge => {
+            let target_url = format!(
+                "{}{}",
+                config.instance_url, ASSET_ALARM_EVENT_BULK_ACKNOWLEDGE_API_PREFIX
+            );
+            debug!("Request URL: {}", target_url);
+
+            for batch in work_batches {
+                let payload = json!({
+                    "alarmEventIds": batch,
+                    "acknowledgementState": "acknowledged"
+                });
+
+                let _resp = &req
+                    .put(&target_url)
+                    .header(AUTHORIZATION, &auth_header)
+                    .json(&payload)
+                    .send()
+                    .await?;
+            }
+        }
     }
 
     Ok(())

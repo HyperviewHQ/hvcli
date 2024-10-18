@@ -138,17 +138,17 @@ pub enum AppArgsSubcommands {
     ListAlarms(ListAlarmsArgs),
 
     /// Acknowledge or close alarm events
-    ManageAlarms(ManageAlarmArgs),
+    ManageAlarms(ManageAlarmsArgs),
 }
 
 #[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum ManageAlarmActionOptions {
+pub enum ManageActionOptions {
     Acknowledge,
     Close,
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct ManageAlarmArgs {
+pub struct ManageAlarmsArgs {
     #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
     pub filename: String,
 
@@ -158,7 +158,7 @@ pub struct ManageAlarmArgs {
         help = "Manage action to use, e.g. close",
         default_value = "close"
     )]
-    pub manage_action: ManageAlarmActionOptions,
+    pub manage_action: ManageActionOptions,
 }
 
 #[derive(Debug, ValueEnum, Clone, Copy)]
