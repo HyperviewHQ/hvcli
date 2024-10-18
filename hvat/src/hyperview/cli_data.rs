@@ -137,7 +137,7 @@ pub enum AppArgsSubcommands {
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
-    /// Acknowledge or close alarm events
+    /// Acknowledge or close alarm events using CSV file output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
 }
 

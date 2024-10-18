@@ -3,7 +3,7 @@
 > [!NOTE]
 > This project is under active development.
 
-Hyperview asset tool (hvat) is a command line program to interact with data within Hyperview.
+Asset tool (hvat) is a command line program to interact with data within Hyperview.
 
 # Download
 
@@ -28,7 +28,7 @@ A valid Hyperview API client must be used. The API client must have the appropri
 
 ## Example
 
-```console
+```toml
 client_id = 'c33472d0-c66b-4659-a8f8-73c289ba4dbe'
 client_secret = '2c239e21-f81b-472b-a8c3-82296d5f250d'
 scope = 'HyperviewManagerApi'
@@ -39,7 +39,8 @@ instance_url = 'https://example.hyperviewhq.com'
 
 # Usage
 
-```console
+```bash
+$  ./hvat --help
 A command line interface to interact with asset data stored in Hyperview
 
 Usage: hvat [OPTIONS] <COMMAND>
@@ -55,6 +56,8 @@ Commands:
   list-asset-ports               List asset ports
   bulk-update-patch-panel-ports  Bulk update patch panel port names
   bulk-update-asset-ports        Bulk update asset port names
+  list-alarms                    List alarm events
+  manage-alarms                  Acknowledge or close alarm events using CSV file output from the list-alarms command
   help                           Print this message or the help of the given subcommand(s)
 
 Options:
@@ -65,30 +68,88 @@ Options:
 
 ## Subcommands
 
-- `list-asset-properties` will list all set, inherited and available properties for an asset id.
-- `list-custom-asset-properties` will list all set and available custom properties for an asset id.
-- `search-assets` is the main entry point for the application and it provides various methods to search for
-assets in Hyperview.
-- `update-asset-name` will update the name of a single asset.
-- `bulk-update-asset-name` will update multiple assets using a CSV input file. Example input is in the example_input folder.
-- `update-asset-location` will update the location of a single asset.
-- `bulk-update-asset-location` will update multiple assets using a CSV input file. Example input is in the example_input folder.
-- `list-asset-ports` will List asset ports.
-- `bulk-update-patch-panel-ports`  will bulk update *patch panel* port names using a CSV input file. Example input is in the example_input folder.
-- `bulk-update-asset-ports` will bulk update *other asset* port names, E.g. a network switch. Example input is in the example_input folder.
+### 1. list-asset-properties
+This subcommand will list all _set_, _inherited_ and _available_ properties for an asset identified by its unique id.
 
-Use `--help` to explore the various options available within each sub command.
+### 2. list-custom-asset-properties
+This subcommand will list all _set_ and _available_ custom properties for an asset  identified by its unique id.
 
-A master debug level can be set to troubleshoot issues using `-d` or `--debug-level`.
+### 3. search-assets
+This subcommand is the main entry point for the application and it provides various methods to search for assets in Hyperview.
 
-Where applicable some subcommands allow the user to set to output to `record`, `json` or `csv-file`. 
+### 4. update-asset-name
+This subcommand will update the display name of a single asset.
+
+### 5. bulk-update-asset-name
+This subcommand will update multiple assets using a _CSV_ input file. Example input is in the **example_input** folder in
+this repo.
+
+### 6. update-asset-location
+This subcommand will update the location of a single asset.
+
+### 7. bulk-update-asset-location
+This subcommand will update multiple assets using a _CSV_ input file. Example input is in the **example_input** folder.
+
+### 8. list-asset-ports
+This subcommand will List asset physical network ports.
+
+### 9. bulk-update-patch-panel-ports
+This subcommand will bulk update **patch panel** physical network port names using a _CSV_ input file. Example input is in the **example_input** folder.
+
+### 10. bulk-update-asset-ports
+This subcommand will bulk update **other asset** physical network port names, E.g. a network switch. Example input is in the example_input folder.
+
+### 11. list-alarms
+This subcommand will list alarm events. By default it will list _active_ events and it can also list _unacknowledged_
+events via a command line toggle.
+
+### 12. manage-alarms
+This subcommand will _acknowledge_ or _close_ alarm events using _CSV_ file output from the list-alarms command. By
+default this command will close event and it can also acknowledge events via a command line toggle.
+
+### Help
+Use `--help` to explore the various options available within the main command and each subcommand.
+
+#### Examples
+
+```bash
+$  hvat manage-alarms --help
+Acknowledge or close alarm events using CSV file output from the list-alarms command
+
+Usage: hvat manage-alarms [OPTIONS] --filename <FILENAME>
+
+Options:
+  -f, --filename <FILENAME>            Input filename, e.g. port_name_update.csv
+  -m, --manage-action <MANAGE_ACTION>  Manage action to use, e.g. close [default: close] [possible values: acknowledge, close]
+  -h, --help                           Print help
+  -V, --version                        Print version
+
+$ hvat list-alarms --help
+List alarm events
+
+Usage: hvat list-alarms [OPTIONS]
+
+Options:
+  -s, --skip <SKIP>                  Number of records to skip (0 -> 99999), e.g. 100 [default: 0]
+  -l, --limit <LIMIT>                Record limit (1 -> 100000), e.g. 100 [default: 100]
+  -a, --alarm-filter <ALARM_FILTER>  Asset alarm event filter option, e.g. active [default: active] [possible values: unacknowledged, active]
+  -o, --output-type <OUTPUT_TYPE>    Output type, e.g. csv-file [default: record] [possible values: csv-file, json, record]
+  -f, --filename <FILENAME>          Output filename, e.g. output.csv
+  -h, --help                         Print help
+  -V, --version                      Print version
+```
+
+For troubleshooting, a master debug level can be set to troubleshoot issues using `-d` or `--debug-level`.
+
+Some subcommands allow the user to set to output to `record`, `json` or `csv-file`. Refer to the command help for more
+information.
 
 ## Examples
 
 ### Search by property (JSON output)
 
-```console
-hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
+```bash
+$ hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 [
   {
     "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
@@ -112,8 +173,8 @@ hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 
 ### Search by text pattern (record output)
 
-```console
-hvat search-assets -p "UpsExampl*"
+```bash
+$ hvat search-assets -p "UpsExampl*"
 ---- [0] ----
 id: "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb"
 name: "UpsExample"
@@ -133,8 +194,8 @@ serial_number: ["SERIALNUMBEREXAMPLE1234"]
 
 ### Combination search (JSON output)
 
-```console
-hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
+```bash
+$ hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
 [
   {
     "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
