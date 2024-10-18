@@ -40,7 +40,7 @@ instance_url = 'https://example.hyperviewhq.com'
 # Usage
 
 ```bash
-$  ./hvat --help
+$  hvat --help
 A command line interface to interact with asset data stored in Hyperview
 
 Usage: hvat [OPTIONS] <COMMAND>
@@ -113,17 +113,6 @@ Use `--help` to explore the various options available within the main command an
 #### Examples
 
 ```bash
-$  hvat manage-alarms --help
-Acknowledge or close alarm events using CSV file output from the list-alarms command
-
-Usage: hvat manage-alarms [OPTIONS] --filename <FILENAME>
-
-Options:
-  -f, --filename <FILENAME>            Input filename, e.g. port_name_update.csv
-  -m, --manage-action <MANAGE_ACTION>  Manage action to use, e.g. close [default: close] [possible values: acknowledge, close]
-  -h, --help                           Print help
-  -V, --version                        Print version
-
 $ hvat list-alarms --help
 List alarm events
 
@@ -137,6 +126,17 @@ Options:
   -f, --filename <FILENAME>          Output filename, e.g. output.csv
   -h, --help                         Print help
   -V, --version                      Print version
+
+$  hvat manage-alarms --help
+Acknowledge or close alarm events using CSV file output from the list-alarms command
+
+Usage: hvat manage-alarms [OPTIONS] --filename <FILENAME>
+
+Options:
+  -f, --filename <FILENAME>            Input filename, e.g. port_name_update.csv
+  -m, --manage-action <MANAGE_ACTION>  Manage action to use, e.g. close [default: close] [possible values: acknowledge, close]
+  -h, --help                           Print help
+  -V, --version                        Print version
 ```
 
 For troubleshooting, a master debug level can be set to troubleshoot issues using `-d` or `--debug-level`.
