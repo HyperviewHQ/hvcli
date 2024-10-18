@@ -7,9 +7,10 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, MAIN_SEPARATOR_STR};
 
-use crate::hyperview::app_errors::AppError;
-
-use super::cli_data::{DebugLevels, OutputOptions};
+use super::{
+    app_errors::AppError,
+    cli_data::{DebugLevels, OutputOptions},
+};
 
 pub fn get_config_path() -> String {
     let home_path = dirs::home_dir().expect("Error: Home directory not found");

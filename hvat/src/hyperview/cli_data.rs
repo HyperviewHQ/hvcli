@@ -133,6 +133,77 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset port names
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
+
+    /// List alarm events
+    ListAlarms(ListAlarmsArgs),
+
+    /// Acknowledge or close alarm events using CSV file output from the list-alarms command
+    ManageAlarms(ManageAlarmsArgs),
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum ManageActionOptions {
+    Acknowledge,
+    Close,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ManageAlarmsArgs {
+    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    pub filename: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Manage action to use, e.g. close",
+        default_value = "close"
+    )]
+    pub manage_action: ManageActionOptions,
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum AlarmEventFilterOptions {
+    Unacknowledged,
+    Active,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListAlarmsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 100000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..100001))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Asset alarm event filter option, e.g. active",
+        default_value = "active"
+    )]
+    pub alarm_filter: AlarmEventFilterOptions,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
 }
 
 #[derive(Args, Debug, Clone)]

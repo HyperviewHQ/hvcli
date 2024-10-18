@@ -7,7 +7,7 @@ use reqwest::{
 use serde_json::{json, Value};
 use uuid::Uuid;
 
-use crate::hyperview::{
+use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
         ASSET_SEARCH_API_PREFIX,
@@ -16,7 +16,7 @@ use crate::hyperview::{
     asset_api_data::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
-    asset_properties_api::get_named_asset_property_async,
+    asset_properties_api_functions::get_named_asset_property_async,
     cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
 };
 
@@ -700,7 +700,7 @@ mod tests {
     use serde_json::json;
     use std::fs;
 
-    use crate::hyperview::cli_data::{AssetTypes, OutputOptions};
+    use super::cli_data::{AssetTypes, OutputOptions};
 
     #[test]
     fn test_compose_search_query() {

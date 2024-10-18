@@ -3,7 +3,7 @@ use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
 
-use crate::hyperview::{
+use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX, app_errors::AppError,
     asset_properties_api_data::AssetPropertyDto, cli_data::AppConfig,
 };
