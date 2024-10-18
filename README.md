@@ -110,7 +110,7 @@ default this command will close event and it can also acknowledge events via a c
 ### Help
 Use `--help` to explore the various options available within the main command and each subcommand.
 
-#### Examples
+#### Subcommand help examples
 
 ```bash
 $ hvat list-alarms --help
@@ -144,7 +144,7 @@ For troubleshooting, a master debug level can be set to troubleshoot issues usin
 Some subcommands allow the user to set to output to `record`, `json` or `csv-file`. Refer to the command help for more
 information.
 
-## Examples
+## Output examples
 
 ### Search by property (JSON output)
 
