@@ -6,7 +6,7 @@ use reqwest::{
 };
 use serde_json::{json, Map, Value};
 
-use crate::hyperview::{
+use super::{
     api_constants::{
         ASSET_ALARM_EVENT_BULK_ACKNOWLEDGE_API_PREFIX, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX,
         ASSET_ALARM_EVENT_LIST_API_PREFIX, BULK_ACTION_BATCH_SIZE,
@@ -90,11 +90,9 @@ pub async fn manage_asset_alarm_events_async(
     let mut work_queue_index = 0;
 
     work.into_iter().enumerate().for_each(|(e, id)| {
-        if e > 0 {
-            if (e % BULK_ACTION_BATCH_SIZE) == 0 {
-                work_batches.push(Vec::new());
-                work_queue_index += 1;
-            }
+        if e > 0 && (e % BULK_ACTION_BATCH_SIZE) == 0 {
+            work_batches.push(Vec::new());
+            work_queue_index += 1;
         }
         work_batches[work_queue_index].push(id);
     });

@@ -7,7 +7,7 @@ use reqwest::{
 use serde_json::{json, Value};
 use uuid::Uuid;
 
-use crate::hyperview::{
+use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
         ASSET_SEARCH_API_PREFIX,
@@ -700,7 +700,7 @@ mod tests {
     use serde_json::json;
     use std::fs;
 
-    use crate::hyperview::cli_data::{AssetTypes, OutputOptions};
+    use super::cli_data::{AssetTypes, OutputOptions};
 
     #[test]
     fn test_compose_search_query() {

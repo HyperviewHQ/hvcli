@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DefaultOnNull};
 use std::fmt;
 
-use crate::hyperview::common_types::MultiTypeValue;
+use super::common_types::MultiTypeValue;
 
 #[serde_as]
 #[derive(Debug, Default, Serialize, Deserialize)]

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-use crate::hyperview::cli_data::{RackPosition, RackSide};
+use super::cli_data::{RackPosition, RackSide};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

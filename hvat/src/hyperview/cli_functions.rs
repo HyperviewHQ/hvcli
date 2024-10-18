@@ -7,7 +7,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{Path, MAIN_SEPARATOR_STR};
 
-use crate::hyperview::{
+use super::{
     app_errors::AppError,
     cli_data::{DebugLevels, OutputOptions},
 };
