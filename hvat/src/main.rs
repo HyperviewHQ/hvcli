@@ -21,6 +21,8 @@ mod hyperview;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    color_eyre::install()?;
+
     let args = AppArgs::parse();
     let debug_level = args.debug_level;
     let level_filter = get_debug_filter(debug_level.clone());
