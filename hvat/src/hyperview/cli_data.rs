@@ -125,6 +125,10 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 
+    /// Update asset serial number. Applies to manually created assets
+    /// and assets discovered without a serial number
+    UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
+
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
@@ -231,6 +235,23 @@ pub struct ListAssetPortsArgs {
 
     #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct UpdateAssetSerialNumberArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: String,
+
+    #[arg(
+        short = 'S',
+        long,
+        help = "New serial number for the asset, e.g. EPDU123456789"
+    )]
+    pub new_serial_number: String,
 }
 
 #[derive(Args, Debug, Clone)]

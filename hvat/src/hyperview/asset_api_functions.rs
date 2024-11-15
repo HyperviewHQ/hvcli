@@ -696,11 +696,11 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hyperview::cli_data::*;
+
     use httpmock::prelude::*;
     use serde_json::json;
     use std::fs;
-
-    use super::cli_data::{AssetTypes, OutputOptions};
 
     #[test]
     fn test_compose_search_query() {

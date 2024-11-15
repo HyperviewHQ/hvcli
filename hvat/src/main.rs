@@ -129,6 +129,10 @@ async fn main() -> Result<()> {
             )
             .await?;
         }
+
+        AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
+            info!("Options: {:?}", options);
+        }
     }
 
     Ok(())
