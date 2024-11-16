@@ -13,4 +13,7 @@ pub enum AppError {
 
     #[error("Asset not found")]
     AssetNotFound,
+
+    #[error("Unable to continue with operation; Multiple values detected for property")]
+    MultipleValuesDetectedForProperty,
 }

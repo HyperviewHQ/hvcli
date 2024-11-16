@@ -1,6 +1,7 @@
 use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -244,7 +245,7 @@ pub struct UpdateAssetSerialNumberArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short = 'S',

@@ -3,10 +3,108 @@ use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
 
+use crate::hyperview::common_types::MultiTypeValue;
+
 use super::{
-    api_constants::ASSET_PROPERTIES_API_PREFIX, app_errors::AppError,
-    asset_properties_api_data::AssetPropertyDto, cli_data::AppConfig,
+    api_constants::ASSET_PROPERTIES_API_PREFIX,
+    app_errors::AppError,
+    asset_properties_api_data::AssetPropertyDto,
+    cli_data::{AppConfig, UpdateAssetSerialNumberArgs},
 };
+
+pub async fn update_asset_serialnumber_async(
+    config: &AppConfig,
+    req: Client,
+    auth_header: String,
+    options: UpdateAssetSerialNumberArgs,
+) -> Result<()> {
+    let current_values = get_named_asset_property_async(
+        config,
+        req.clone(),
+        auth_header.clone(),
+        options.id.to_string(),
+        "serialNumber".to_string(),
+    )
+    .await?;
+
+    debug!(
+        "Current property values: {}",
+        serde_json::to_string_pretty(&current_values)?
+    );
+
+    if current_values.len() > 1 {
+        return Err(AppError::MultipleValuesDetectedForProperty.into());
+    }
+
+    if let Some(current_value) = current_values.first() {
+        let payload = AssetPropertyDto {
+            id: current_value.id.clone(),
+            property_type: current_value.property_type.clone(),
+            value: MultiTypeValue::StringValue(options.new_serial_number),
+            data_type: current_value.data_type.clone(),
+            data_source: current_value.data_source.clone(),
+            asset_property_display_category: current_value.asset_property_display_category.clone(),
+            is_deletable: current_value.is_deletable,
+            is_editable: current_value.is_editable,
+            is_inherited: current_value.is_inherited,
+            created_date_time: current_value.created_date_time.clone(),
+            updated_date_time: current_value.updated_date_time.clone(),
+            minimum_value: current_value.minimum_value.clone(),
+        };
+
+        debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+
+        match payload.id.clone() {
+            Some(id) => {
+                // Updating an existing value
+                let target_url = format!(
+                    "{}{}/{}",
+                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+                );
+                debug!("Request URL: {}", target_url);
+
+                let resp = req
+                    .put(target_url)
+                    .header(AUTHORIZATION, auth_header)
+                    .json(&payload)
+                    .send()
+                    .await?
+                    .json::<serde_json::Value>()
+                    .await?;
+
+                debug!(
+                    "Update serial number: {}",
+                    serde_json::to_string_pretty(&resp)?
+                );
+            }
+
+            None => {
+                // Setting serial number for the first time
+                let target_url = format!(
+                    "{}{}/?assetId={}",
+                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, options.id
+                );
+                debug!("Request URL: {}", target_url);
+
+                let resp = req
+                    .post(target_url)
+                    .header(AUTHORIZATION, auth_header)
+                    .json(&payload)
+                    .send()
+                    .await?
+                    .json::<serde_json::Value>()
+                    .await?;
+
+                debug!(
+                    "Update serial number: {}",
+                    serde_json::to_string_pretty(&resp)?
+                );
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub async fn get_asset_property_list_async(
     config: &AppConfig,

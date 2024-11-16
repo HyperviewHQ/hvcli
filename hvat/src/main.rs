@@ -10,7 +10,9 @@ use hyperview::{
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
     },
-    asset_properties_api_functions::get_asset_property_list_async,
+    asset_properties_api_functions::{
+        get_asset_property_list_async, update_asset_serialnumber_async,
+    },
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
@@ -131,7 +133,11 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
-            info!("Options: {:?}", options);
+            info!(
+                "Options: id: {}, SN: {}",
+                options.id, options.new_serial_number
+            );
+            update_asset_serialnumber_async(&config, req, auth_header, options.clone()).await?;
         }
     }
 
