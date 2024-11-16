@@ -8,9 +8,6 @@ pub enum AppError {
     #[error("Must provide an output filename")]
     NoOutputFilename,
 
-    #[error("Must provide a valid ID")]
-    InvalidId,
-
     #[error("Asset not found")]
     AssetNotFound,
 

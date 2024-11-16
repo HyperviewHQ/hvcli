@@ -22,7 +22,7 @@ pub async fn update_asset_serialnumber_async(
         config,
         req.clone(),
         auth_header.clone(),
-        options.id.to_string(),
+        options.id,
         "serialNumber".to_string(),
     )
     .await?;
@@ -110,12 +110,8 @@ pub async fn get_asset_property_list_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    id: String,
+    id: Uuid,
 ) -> Result<Vec<AssetPropertyDto>> {
-    if Uuid::parse_str(&id).is_err() {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
@@ -137,7 +133,7 @@ pub async fn get_named_asset_property_async(
     config: &AppConfig,
     req: Client,
     auth_header: String,
-    id: String,
+    id: Uuid,
     property_type: String,
 ) -> Result<Vec<AssetPropertyDto>> {
     let property_list = get_asset_property_list_async(config, req, auth_header, id)
@@ -151,6 +147,8 @@ pub async fn get_named_asset_property_async(
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
     use httpmock::prelude::*;
     use serde_json::json;
@@ -158,7 +156,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_asset_property_list_async() {
         // Arrange
-        let asset_id = "3a6c3022-6140-4e85-a64f-bf868766c4c8".to_string();
+        let asset_id = Uuid::from_str("3a6c3022-6140-4e85-a64f-bf868766c4c8").unwrap();
         let url_path = format!("{}/{}", ASSET_PROPERTIES_API_PREFIX, asset_id);
 
         let server = MockServer::start();
@@ -173,6 +171,7 @@ mod tests {
                           {
                             "dataSource": "snmp",
                             "assetPropertyDisplayCategory": "power",
+                            "isDeletable": false,
                             "isEditable": false,
                             "isInherited": true,
                             "createdDateTime": "2023-08-04T17:33:45.462475+00:00",
@@ -186,6 +185,7 @@ mod tests {
                           {
                             "dataSource": "snmp",
                             "assetPropertyDisplayCategory": "general",
+                            "isDeletable": false,
                             "isEditable": false,
                             "isInherited": false,
                             "createdDateTime": "2023-08-04T17:33:45.462475+00:00",

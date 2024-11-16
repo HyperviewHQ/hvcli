@@ -224,7 +224,7 @@ pub struct ListAssetPortsArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short,
@@ -262,14 +262,14 @@ pub struct UpdateAssetLocationArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short = 'n',
         long,
         help = "New location ID. It must be a valid GUID/UUID, e.g. 68713cf3-2f5b-45b3-97a3-592e70537c4d"
     )]
-    pub new_location_id: String,
+    pub new_location_id: Uuid,
 
     #[arg(
         short = 'p',
@@ -306,7 +306,7 @@ pub struct UpdateAssetNameArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short = 'n',
@@ -329,7 +329,7 @@ pub struct ListPropertiesArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short,
@@ -382,7 +382,7 @@ pub struct SearchAssetsArgs {
         long,
         help = "Primary ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: Option<String>,
+    pub id: Option<Uuid>,
 
     #[arg(short = 'M', long, help = "Manufacturer name, e.g. dell")]
     pub manufacturer: Option<String>,

@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
 
     match &args.command {
         AppArgsSubcommands::ListAssetProperties(options) => {
-            let id = options.id.clone();
+            let id = options.id;
             let output_type = options.output_type.clone();
             let filename = options.filename.clone();
 
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
-            let id = options.id.clone();
+            let id = options.id;
             let output_type = options.output_type.clone();
             let filename = options.filename.clone();
 
@@ -67,7 +67,7 @@ async fn main() -> Result<()> {
                 &config,
                 req,
                 auth_header,
-                options.id.clone(),
+                options.id,
                 options.new_name.clone(),
             )
             .await?;
