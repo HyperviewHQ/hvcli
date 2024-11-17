@@ -19,8 +19,8 @@ use super::{asset_alarm_events_data::AlarmEventDto, cli_data::ManageActionOption
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     skip: u32,
     limit: u32,
     alarm_filter_option: AlarmEventFilterOptions,
@@ -60,7 +60,7 @@ pub async fn list_alarm_events_async(
     let resp = req
         .get(target_url)
         .query(&query_params)
-        .header(AUTHORIZATION, auth_header.clone())
+        .header(AUTHORIZATION, auth_header)
         .header(CONTENT_TYPE, "application/json")
         .header(ACCEPT, "application/json")
         .send()
@@ -73,8 +73,8 @@ pub async fn list_alarm_events_async(
 
 pub async fn manage_asset_alarm_events_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
     manage_action_options: ManageActionOptions,
 ) -> Result<()> {
@@ -108,7 +108,7 @@ pub async fn manage_asset_alarm_events_async(
             for batch in work_batches {
                 let _resp = &req
                     .put(&target_url)
-                    .header(AUTHORIZATION, &auth_header)
+                    .header(AUTHORIZATION, auth_header)
                     .json(&batch)
                     .send()
                     .await?;
@@ -130,7 +130,7 @@ pub async fn manage_asset_alarm_events_async(
 
                 let _resp = &req
                     .put(&target_url)
-                    .header(AUTHORIZATION, &auth_header)
+                    .header(AUTHORIZATION, auth_header)
                     .json(&payload)
                     .send()
                     .await?;

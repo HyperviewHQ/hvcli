@@ -40,14 +40,9 @@ pub async fn update_asset_serialnumber_async(
     id: Uuid,
     new_serial_number: String,
 ) -> Result<()> {
-    let current_values = get_named_asset_property_async(
-        config,
-        req.clone(),
-        auth_header.clone(),
-        id,
-        "serialNumber".to_string(),
-    )
-    .await?;
+    let current_values =
+        get_named_asset_property_async(config, req, auth_header, id, "serialNumber".to_string())
+            .await?;
 
     debug!(
         "Current property values: {}",
@@ -130,8 +125,8 @@ pub async fn update_asset_serialnumber_async(
 
 pub async fn get_asset_property_list_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     id: Uuid,
 ) -> Result<Vec<AssetPropertyDto>> {
     let target_url = format!(
@@ -153,8 +148,8 @@ pub async fn get_asset_property_list_async(
 
 pub async fn get_named_asset_property_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     id: Uuid,
     property_type: String,
 ) -> Result<Vec<AssetPropertyDto>> {
@@ -232,7 +227,7 @@ mod tests {
         let auth_header = "Bearer test_token".to_string();
 
         // Act
-        let result = get_asset_property_list_async(&config, client, auth_header, asset_id).await;
+        let result = get_asset_property_list_async(&config, &client, &auth_header, asset_id).await;
 
         // Assert
         m.assert();

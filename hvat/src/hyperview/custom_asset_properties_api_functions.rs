@@ -10,8 +10,8 @@ use super::{
 
 pub async fn get_custom_asset_property_list_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     id: Uuid,
 ) -> Result<Vec<CustomAssetPropertyDto>> {
     let target_url = format!(
@@ -93,7 +93,7 @@ mod tests {
 
         // Act
         let result =
-            get_custom_asset_property_list_async(&config, client, auth_header, asset_id).await;
+            get_custom_asset_property_list_async(&config, &client, &auth_header, asset_id).await;
 
         // Assert
         m.assert();

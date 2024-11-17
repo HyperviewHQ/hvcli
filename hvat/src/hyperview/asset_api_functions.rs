@@ -24,8 +24,8 @@ use super::{
 
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
     is_patchpanel: bool,
 ) -> Result<()> {
@@ -50,7 +50,7 @@ pub async fn bulk_update_ports_async(
             });
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(&req, &auth_header, target_url, payload).await?;
+            update_port_async(req, auth_header, target_url, payload).await?;
         } else {
             let target_url = format!(
                 "{}{}/{}",
@@ -68,7 +68,7 @@ pub async fn bulk_update_ports_async(
 
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(&req, &auth_header, target_url, payload).await?;
+            update_port_async(req, auth_header, target_url, payload).await?;
         }
     }
 
@@ -100,8 +100,8 @@ async fn update_port_async(
 
 pub async fn list_asset_ports_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     list_asset_ports_args: ListAssetPortsArgs,
 ) -> Result<Vec<AssetPortDto>> {
     let target_url = format!(
@@ -158,8 +158,8 @@ pub async fn list_asset_ports_async(
 
 pub async fn update_asset_location_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     update_location_data: UpdateAssetLocationArgs,
 ) -> Result<()> {
     let target_url = format!(
@@ -203,8 +203,8 @@ pub async fn update_asset_location_async(
 
 pub async fn bulk_update_asset_location_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
@@ -225,13 +225,7 @@ pub async fn bulk_update_asset_location_async(
             rack_u_location: record.rack_u_location,
         };
 
-        update_asset_location_async(
-            config,
-            req.clone(),
-            auth_header.clone(),
-            update_location_data,
-        )
-        .await?;
+        update_asset_location_async(config, req, auth_header, update_location_data).await?;
     }
 
     Ok(())
@@ -239,8 +233,8 @@ pub async fn bulk_update_asset_location_async(
 
 async fn get_raw_asset_by_id_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     id: &Uuid,
 ) -> Result<Value> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
@@ -259,16 +253,15 @@ async fn get_raw_asset_by_id_async(
 
 pub async fn update_asset_name_by_id_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     id: Uuid,
     new_name: String,
 ) -> Result<()> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
     debug!("Request URL: {}", target_url);
 
-    let mut asset_value =
-        get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), &id).await?;
+    let mut asset_value = get_raw_asset_by_id_async(config, req, auth_header, &id).await?;
 
     debug!(
         "Returned asset value: {}",
@@ -303,8 +296,8 @@ pub async fn update_asset_name_by_id_async(
 
 pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
@@ -321,14 +314,7 @@ pub async fn bulk_update_asset_name_async(
             continue;
         }
 
-        update_asset_name_by_id_async(
-            config,
-            req.clone(),
-            auth_header.clone(),
-            record.asset_id,
-            new_name,
-        )
-        .await?;
+        update_asset_name_by_id_async(config, req, auth_header, record.asset_id, new_name).await?;
     }
 
     Ok(())
@@ -336,8 +322,8 @@ pub async fn bulk_update_asset_name_async(
 
 pub async fn search_assets_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
@@ -401,8 +387,8 @@ pub async fn search_assets_async(
         for a in &mut asset_list {
             let props = get_named_asset_property_async(
                 config,
-                req.clone(),
-                auth_header.clone(),
+                req,
+                auth_header,
                 a.id,
                 property_type.clone(),
             )
@@ -846,7 +832,7 @@ mod tests {
             show_property: None,
         };
         // Act
-        let result = search_assets_async(&config, client, auth_header, options).await;
+        let result = search_assets_async(&config, &client, &auth_header, options).await;
 
         // Assert
         m.assert();
