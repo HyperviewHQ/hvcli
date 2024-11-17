@@ -130,7 +130,7 @@ pub enum AppArgsSubcommands {
     /// and assets discovered without a serial number
     UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
 
-    /// Bulk update asset serial numbers
+    /// Bulk update asset serial number
     BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
 
     /// List asset ports
