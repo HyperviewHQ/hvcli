@@ -1,5 +1,5 @@
 use color_eyre::eyre::Result;
-use log::debug;
+use log::{debug, trace};
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
 
@@ -69,7 +69,7 @@ pub async fn update_asset_serialnumber_async(
             minimum_value: current_value.minimum_value.clone(),
         };
 
-        debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+        trace!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
         match payload.id {
             Some(id) => {
