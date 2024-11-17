@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use color_eyre::Result;
 use log::{debug, error, info, trace};
 use reqwest::{
@@ -7,6 +5,7 @@ use reqwest::{
     Client,
 };
 use serde_json::{json, Value};
+use std::str::FromStr;
 use uuid::Uuid;
 
 use super::{
@@ -238,7 +237,6 @@ async fn get_raw_asset_by_id_async(
     id: &Uuid,
 ) -> Result<Value> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {}", target_url);
 
     let resp = req
         .get(target_url)
@@ -263,7 +261,7 @@ pub async fn update_asset_name_by_id_async(
 
     let mut asset_value = get_raw_asset_by_id_async(config, req, auth_header, &id).await?;
 
-    debug!(
+    trace!(
         "Returned asset value: {}",
         serde_json::to_string_pretty(&asset_value)?
     );
