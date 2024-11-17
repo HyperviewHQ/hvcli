@@ -1,4 +1,4 @@
-use color_eyre::eyre::{Ok, Result};
+use color_eyre::eyre::Result;
 use log::debug;
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
@@ -8,21 +8,43 @@ use crate::hyperview::common_types::MultiTypeValue;
 use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
-    asset_properties_api_data::AssetPropertyDto,
-    cli_data::{AppConfig, UpdateAssetSerialNumberArgs},
+    asset_properties_api_data::{AssetPropertyDto, AssetSerialNumberImportDto},
+    cli_data::AppConfig,
 };
+
+pub async fn bulk_update_asset_serialnumber_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+
+    while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
+        update_asset_serialnumber_async(
+            config,
+            req,
+            auth_header,
+            record.asset_id,
+            record.serial_number,
+        )
+        .await?;
+    }
+    Ok(())
+}
 
 pub async fn update_asset_serialnumber_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
-    options: UpdateAssetSerialNumberArgs,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
+    new_serial_number: String,
 ) -> Result<()> {
     let current_values = get_named_asset_property_async(
         config,
         req.clone(),
         auth_header.clone(),
-        options.id,
+        id,
         "serialNumber".to_string(),
     )
     .await?;
@@ -40,7 +62,7 @@ pub async fn update_asset_serialnumber_async(
         let payload = AssetPropertyDto {
             id: current_value.id.clone(),
             property_type: current_value.property_type.clone(),
-            value: MultiTypeValue::StringValue(options.new_serial_number),
+            value: MultiTypeValue::StringValue(new_serial_number),
             data_type: current_value.data_type.clone(),
             data_source: current_value.data_source.clone(),
             asset_property_display_category: current_value.asset_property_display_category.clone(),
@@ -82,7 +104,7 @@ pub async fn update_asset_serialnumber_async(
                 // Setting serial number for the first time
                 let target_url = format!(
                     "{}{}/?assetId={}",
-                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, options.id
+                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
                 );
                 debug!("Request URL: {}", target_url);
 

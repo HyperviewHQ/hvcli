@@ -11,7 +11,8 @@ use hyperview::{
         update_asset_name_by_id_async,
     },
     asset_properties_api_functions::{
-        get_asset_property_list_async, update_asset_serialnumber_async,
+        bulk_update_asset_serialnumber_async, get_asset_property_list_async,
+        update_asset_serialnumber_async,
     },
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
@@ -87,6 +88,31 @@ async fn main() -> Result<()> {
                 .await?;
         }
 
+        AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
+            info!(
+                "Options: id: {}, SN: {}",
+                options.id, options.new_serial_number
+            );
+            update_asset_serialnumber_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.new_serial_number.clone(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetSerialNumber(options) => {
+            bulk_update_asset_serialnumber_async(
+                &config,
+                &req,
+                &auth_header,
+                options.filename.clone(),
+            )
+            .await?;
+        }
+
         AppArgsSubcommands::ListAssetPorts(options) => {
             let resp = list_asset_ports_async(&config, req, auth_header, options.clone()).await?;
 
@@ -130,14 +156,6 @@ async fn main() -> Result<()> {
                 options.manage_action,
             )
             .await?;
-        }
-
-        AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
-            info!(
-                "Options: id: {}, SN: {}",
-                options.id, options.new_serial_number
-            );
-            update_asset_serialnumber_async(&config, req, auth_header, options.clone()).await?;
         }
     }
 

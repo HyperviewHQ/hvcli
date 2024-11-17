@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DefaultOnNull};
 use std::fmt;
+use uuid::Uuid;
 
 use super::common_types::MultiTypeValue;
 
@@ -73,4 +74,10 @@ impl fmt::Display for AssetPropertyDto {
             self.minimum_value
         )
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AssetSerialNumberImportDto {
+    pub asset_id: Uuid,
+    pub serial_number: String,
 }

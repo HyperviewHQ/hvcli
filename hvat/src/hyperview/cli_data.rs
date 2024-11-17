@@ -130,6 +130,9 @@ pub enum AppArgsSubcommands {
     /// and assets discovered without a serial number
     UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
 
+    /// Bulk update asset serial numbers
+    BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
+
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
@@ -253,6 +256,12 @@ pub struct UpdateAssetSerialNumberArgs {
         help = "New serial number for the asset, e.g. EPDU123456789"
     )]
     pub new_serial_number: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateAssetSerialNumberArgs {
+    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    pub filename: String,
 }
 
 #[derive(Args, Debug, Clone)]
