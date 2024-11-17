@@ -60,7 +60,7 @@ pub async fn update_asset_serialnumber_async(
 
     if let Some(current_value) = current_values.first() {
         let payload = AssetPropertyDto {
-            id: current_value.id.clone(),
+            id: current_value.id,
             property_type: current_value.property_type.clone(),
             value: MultiTypeValue::StringValue(new_serial_number),
             data_type: current_value.data_type.clone(),
@@ -76,7 +76,7 @@ pub async fn update_asset_serialnumber_async(
 
         debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        match payload.id.clone() {
+        match payload.id {
             Some(id) => {
                 // Updating an existing value
                 let target_url = format!(

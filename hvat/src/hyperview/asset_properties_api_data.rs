@@ -10,7 +10,7 @@ use super::common_types::MultiTypeValue;
 #[serde(rename_all = "camelCase")]
 pub struct AssetPropertyDto {
     #[serde_as(deserialize_as = "DefaultOnNull")]
-    pub id: Option<String>,
+    pub id: Option<Uuid>,
     #[serde(alias = "type")]
     #[serde(rename(serialize = "type"))]
     pub property_type: String,
@@ -40,7 +40,7 @@ pub struct AssetPropertyDto {
 impl fmt::Display for AssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let id = if self.id.is_some() {
-            &self.id.clone().unwrap()
+            &self.id.unwrap().to_string()
         } else {
             "---- UNSET ----"
         };
