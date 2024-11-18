@@ -5,6 +5,7 @@ use reqwest::{
     Client,
 };
 use serde_json::{json, Value};
+use std::str::FromStr;
 use uuid::Uuid;
 
 use super::{
@@ -22,8 +23,8 @@ use super::{
 
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
     is_patchpanel: bool,
 ) -> Result<()> {
@@ -31,24 +32,15 @@ pub async fn bulk_update_ports_async(
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
         debug!("Updating port id: {}", record.id);
 
-        let id = record.id.trim().replace('"', "");
-
-        if Uuid::parse_str(&id).is_err() {
-            error!("Invalid port id detected while parsing: {}", id);
-            continue;
-        }
-
         if is_patchpanel {
             let target_url = format!(
                 "{}{}/patchPanel/{}",
-                config.instance_url,
-                ASSET_PORTS_API_PREFIX,
-                id.clone()
+                config.instance_url, ASSET_PORTS_API_PREFIX, record.id
             );
             debug!("Request URL: {}", target_url);
 
             let payload = json!({
-              "id": id,
+              "id": record.id,
               "name": record.name,
               "parentId": record.parent_id,
               "portNumber": record.port_number,
@@ -57,18 +49,16 @@ pub async fn bulk_update_ports_async(
             });
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(&req, &auth_header, target_url, payload).await?;
+            update_port_async(req, auth_header, target_url, payload).await?;
         } else {
             let target_url = format!(
                 "{}{}/{}",
-                config.instance_url,
-                ASSET_PORTS_API_PREFIX,
-                id.clone()
+                config.instance_url, ASSET_PORTS_API_PREFIX, record.id
             );
             debug!("Request URL: {}", target_url);
 
             let payload = json!({
-              "id": id,
+              "id": record.id,
               "name": record.name,
               "parentId": record.parent_id,
               "portNumber": record.port_number,
@@ -77,7 +67,7 @@ pub async fn bulk_update_ports_async(
 
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(&req, &auth_header, target_url, payload).await?;
+            update_port_async(req, auth_header, target_url, payload).await?;
         }
     }
 
@@ -109,14 +99,10 @@ async fn update_port_async(
 
 pub async fn list_asset_ports_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     list_asset_ports_args: ListAssetPortsArgs,
 ) -> Result<Vec<AssetPortDto>> {
-    if Uuid::parse_str(&list_asset_ports_args.id).is_err() {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!(
         "{}{}/detailed/{}",
         config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
@@ -139,7 +125,7 @@ pub async fn list_asset_ports_async(
             ..Default::default()
         };
         if let Some(id) = v["id"].as_str() {
-            port.id = id.to_string();
+            port.id = Uuid::parse_str(id).unwrap();
         };
         if let Some(name) = v["name"].as_str() {
             port.name = name.to_string();
@@ -171,16 +157,10 @@ pub async fn list_asset_ports_async(
 
 pub async fn update_asset_location_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     update_location_data: UpdateAssetLocationArgs,
 ) -> Result<()> {
-    if Uuid::parse_str(&update_location_data.id).is_err()
-        || Uuid::parse_str(&update_location_data.new_location_id).is_err()
-    {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!(
         "{}{}/{}?id={}",
         config.instance_url,
@@ -222,8 +202,8 @@ pub async fn update_asset_location_async(
 
 pub async fn bulk_update_asset_location_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
@@ -233,16 +213,8 @@ pub async fn bulk_update_asset_location_async(
             record.asset_id, record.new_location_id
         );
 
-        let id = record.asset_id.trim().replace('"', "");
-        let new_location_id = record.new_location_id.trim().replace('"', "");
-
-        if Uuid::parse_str(&id).is_err() || Uuid::parse_str(&new_location_id).is_err() {
-            error!(
-                "Invalid asset or location id detected while parsing: {} and {}",
-                id, new_location_id
-            );
-            continue;
-        }
+        let id = record.asset_id;
+        let new_location_id = record.new_location_id;
 
         let update_location_data = UpdateAssetLocationArgs {
             id,
@@ -252,13 +224,7 @@ pub async fn bulk_update_asset_location_async(
             rack_u_location: record.rack_u_location,
         };
 
-        update_asset_location_async(
-            config,
-            req.clone(),
-            auth_header.clone(),
-            update_location_data,
-        )
-        .await?;
+        update_asset_location_async(config, req, auth_header, update_location_data).await?;
     }
 
     Ok(())
@@ -266,16 +232,11 @@ pub async fn bulk_update_asset_location_async(
 
 async fn get_raw_asset_by_id_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
-    id: String,
+    req: &Client,
+    auth_header: &String,
+    id: &Uuid,
 ) -> Result<Value> {
-    if Uuid::parse_str(&id).is_err() {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {}", target_url);
 
     let resp = req
         .get(target_url)
@@ -290,22 +251,17 @@ async fn get_raw_asset_by_id_async(
 
 pub async fn update_asset_name_by_id_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
-    id: String,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
     new_name: String,
 ) -> Result<()> {
-    if Uuid::parse_str(&id).is_err() {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
     debug!("Request URL: {}", target_url);
 
-    let mut asset_value =
-        get_raw_asset_by_id_async(config, req.clone(), auth_header.clone(), id.clone()).await?;
+    let mut asset_value = get_raw_asset_by_id_async(config, req, auth_header, &id).await?;
 
-    debug!(
+    trace!(
         "Returned asset value: {}",
         serde_json::to_string_pretty(&asset_value)?
     );
@@ -338,8 +294,8 @@ pub async fn update_asset_name_by_id_async(
 
 pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     filename: String,
 ) -> Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
@@ -349,21 +305,14 @@ pub async fn bulk_update_asset_name_async(
             record.asset_id, record.new_name
         );
 
-        let id = record.asset_id.trim().replace('"', "");
         let new_name = record.new_name.trim().replace('"', "");
 
-        if Uuid::parse_str(&id).is_err() {
-            error!("Invalid asset id detected while parsing: {}", id);
-            continue;
-        }
-
         if new_name.is_empty() {
-            error!("New name can't be empty for asset id: {}", id);
+            error!("New name can't be empty for asset id: {}", record.asset_id);
             continue;
         }
 
-        update_asset_name_by_id_async(config, req.clone(), auth_header.clone(), id, new_name)
-            .await?;
+        update_asset_name_by_id_async(config, req, auth_header, record.asset_id, new_name).await?;
     }
 
     Ok(())
@@ -371,8 +320,8 @@ pub async fn bulk_update_asset_name_async(
 
 pub async fn search_assets_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
+    req: &Client,
+    auth_header: &String,
     options: SearchAssetsArgs,
 ) -> Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
@@ -400,12 +349,6 @@ pub async fn search_assets_async(
         info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
     }
 
-    let mut property_type = String::new();
-
-    if let Some(pt) = options.show_property {
-        property_type = pt;
-    }
-
     let mut asset_list = Vec::new();
 
     if let Some(assets) = resp.get("data") {
@@ -413,7 +356,7 @@ pub async fn search_assets_async(
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
 
             let asset = AssetDto {
-                id: a.get("id").unwrap().to_string(),
+                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
                 name: a.get("displayName").unwrap().to_string(),
                 asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
                 asset_type_id: a.get("assetType").unwrap().to_string(),
@@ -438,13 +381,13 @@ pub async fn search_assets_async(
         });
     };
 
-    if !property_type.is_empty() {
+    if let Some(property_type) = options.show_property {
         for a in &mut asset_list {
             let props = get_named_asset_property_async(
                 config,
-                req.clone(),
-                auth_header.clone(),
-                a.id.clone().replace('"', ""),
+                req,
+                auth_header,
+                a.id,
                 property_type.clone(),
             )
             .await?;
@@ -658,10 +601,6 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     }
 
     if let Some(id_guid) = options.id {
-        if Uuid::parse_str(&id_guid).is_err() {
-            return Err(AppError::InvalidId.into());
-        }
-
         let subquery = json!({ "match": { "id": { "query": id_guid, "lenient": true } } });
         search_query["query"]["bool"]["must"]
             .as_array_mut()
@@ -696,11 +635,11 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hyperview::cli_data::*;
+
     use httpmock::prelude::*;
     use serde_json::json;
     use std::fs;
-
-    use super::cli_data::{AssetTypes, OutputOptions};
 
     #[test]
     fn test_compose_search_query() {
@@ -891,7 +830,7 @@ mod tests {
             show_property: None,
         };
         // Act
-        let result = search_assets_async(&config, client, auth_header, options).await;
+        let result = search_assets_async(&config, &client, &auth_header, options).await;
 
         // Assert
         m.assert();

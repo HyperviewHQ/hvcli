@@ -1,6 +1,7 @@
 use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -125,6 +126,13 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 
+    /// Update asset serial number. Applies to manually created assets
+    /// and assets discovered without a serial number
+    UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
+
+    /// Bulk update asset serial number
+    BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
+
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
@@ -219,7 +227,7 @@ pub struct ListAssetPortsArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short,
@@ -234,20 +242,43 @@ pub struct ListAssetPortsArgs {
 }
 
 #[derive(Args, Debug, Clone)]
+pub struct UpdateAssetSerialNumberArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(
+        short = 'S',
+        long,
+        help = "New serial number for the asset, e.g. EPDU123456789"
+    )]
+    pub new_serial_number: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateAssetSerialNumberArgs {
+    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct UpdateAssetLocationArgs {
     #[arg(
         short,
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short = 'n',
         long,
         help = "New location ID. It must be a valid GUID/UUID, e.g. 68713cf3-2f5b-45b3-97a3-592e70537c4d"
     )]
-    pub new_location_id: String,
+    pub new_location_id: Uuid,
 
     #[arg(
         short = 'p',
@@ -284,7 +315,7 @@ pub struct UpdateAssetNameArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short = 'n',
@@ -307,7 +338,7 @@ pub struct ListPropertiesArgs {
         long,
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: String,
+    pub id: Uuid,
 
     #[arg(
         short,
@@ -360,7 +391,7 @@ pub struct SearchAssetsArgs {
         long,
         help = "Primary ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
-    pub id: Option<String>,
+    pub id: Option<Uuid>,
 
     #[arg(short = 'M', long, help = "Manufacturer name, e.g. dell")]
     pub manufacturer: Option<String>,

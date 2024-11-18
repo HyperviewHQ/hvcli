@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use uuid::Uuid;
 
 use super::cli_data::{RackPosition, RackSide};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetDto {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     #[serde(alias = "assetLifecycleState")]
     pub asset_lifecycle_state: String,
@@ -76,14 +77,14 @@ property              : {}
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateAssetNameRecord {
-    pub asset_id: String,
+    pub asset_id: Uuid,
     pub new_name: String,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetLocationDTO {
-    pub parent_id: String,
+    pub parent_id: Uuid,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rack_position: Option<RackPosition>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -94,8 +95,8 @@ pub struct AssetLocationDTO {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateAssetLocationRecord {
-    pub asset_id: String,
-    pub new_location_id: String,
+    pub asset_id: Uuid,
+    pub new_location_id: Uuid,
     pub rack_position: Option<RackPosition>,
     pub rack_side: Option<RackSide>,
     pub rack_u_location: Option<usize>,
@@ -104,7 +105,7 @@ pub struct UpdateAssetLocationRecord {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetPortDto {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     #[serde(alias = "parentId")]
     pub parent_id: String,

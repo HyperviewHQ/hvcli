@@ -10,7 +10,10 @@ use hyperview::{
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
     },
-    asset_properties_api_functions::get_asset_property_list_async,
+    asset_properties_api_functions::{
+        bulk_update_asset_serialnumber_async, get_asset_property_list_async,
+        update_asset_serialnumber_async,
+    },
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
@@ -37,25 +40,26 @@ async fn main() -> Result<()> {
 
     match &args.command {
         AppArgsSubcommands::ListAssetProperties(options) => {
-            let id = options.id.clone();
+            let id = options.id;
             let output_type = options.output_type.clone();
             let filename = options.filename.clone();
 
-            let resp = get_asset_property_list_async(&config, req, auth_header, id).await?;
+            let resp = get_asset_property_list_async(&config, &req, &auth_header, id).await?;
             handle_output_choice(output_type, filename, resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
-            let id = options.id.clone();
+            let id = options.id;
             let output_type = options.output_type.clone();
             let filename = options.filename.clone();
 
-            let resp = get_custom_asset_property_list_async(&config, req, auth_header, id).await?;
+            let resp =
+                get_custom_asset_property_list_async(&config, &req, &auth_header, id).await?;
             handle_output_choice(output_type, filename, resp)?;
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
-            let resp = search_assets_async(&config, req, auth_header, options.clone()).await?;
+            let resp = search_assets_async(&config, &req, &auth_header, options.clone()).await?;
 
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
@@ -63,49 +67,74 @@ async fn main() -> Result<()> {
         AppArgsSubcommands::UpdateAssetName(options) => {
             update_asset_name_by_id_async(
                 &config,
-                req,
-                auth_header,
-                options.id.clone(),
+                &req,
+                &auth_header,
+                options.id,
                 options.new_name.clone(),
             )
             .await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetName(options) => {
-            bulk_update_asset_name_async(&config, req, auth_header, options.filename.clone())
+            bulk_update_asset_name_async(&config, &req, &auth_header, options.filename.clone())
                 .await?;
         }
 
         AppArgsSubcommands::UpdateAssetLocation(options) => {
-            update_asset_location_async(&config, req, auth_header, options.clone()).await?;
+            update_asset_location_async(&config, &req, &auth_header, options.clone()).await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetLocation(options) => {
-            bulk_update_asset_location_async(&config, req, auth_header, options.filename.clone())
+            bulk_update_asset_location_async(&config, &req, &auth_header, options.filename.clone())
                 .await?;
         }
 
+        AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
+            info!(
+                "Options: id: {}, SN: {}",
+                options.id, options.new_serial_number
+            );
+            update_asset_serialnumber_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.new_serial_number.clone(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetSerialNumber(options) => {
+            bulk_update_asset_serialnumber_async(
+                &config,
+                &req,
+                &auth_header,
+                options.filename.clone(),
+            )
+            .await?;
+        }
+
         AppArgsSubcommands::ListAssetPorts(options) => {
-            let resp = list_asset_ports_async(&config, req, auth_header, options.clone()).await?;
+            let resp = list_asset_ports_async(&config, &req, &auth_header, options.clone()).await?;
 
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
 
         AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
-            bulk_update_ports_async(&config, req, auth_header, options.filename.clone(), true)
+            bulk_update_ports_async(&config, &req, &auth_header, options.filename.clone(), true)
                 .await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetPorts(options) => {
-            bulk_update_ports_async(&config, req, auth_header, options.filename.clone(), false)
+            bulk_update_ports_async(&config, &req, &auth_header, options.filename.clone(), false)
                 .await?;
         }
 
         AppArgsSubcommands::ListAlarms(options) => {
             let resp = list_alarm_events_async(
                 &config,
-                req,
-                auth_header,
+                &req,
+                &auth_header,
                 options.skip,
                 options.limit,
                 options.alarm_filter,
@@ -122,8 +151,8 @@ async fn main() -> Result<()> {
         AppArgsSubcommands::ManageAlarms(options) => {
             manage_asset_alarm_events_async(
                 &config,
-                req,
-                auth_header,
+                &req,
+                &auth_header,
                 options.filename.clone(),
                 options.manage_action,
             )

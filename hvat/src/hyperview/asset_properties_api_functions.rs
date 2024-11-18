@@ -1,23 +1,134 @@
-use color_eyre::eyre::{Ok, Result};
-use log::debug;
+use color_eyre::eyre::Result;
+use log::{debug, trace};
 use reqwest::{header::AUTHORIZATION, Client};
 use uuid::Uuid;
 
+use crate::hyperview::common_types::MultiTypeValue;
+
 use super::{
-    api_constants::ASSET_PROPERTIES_API_PREFIX, app_errors::AppError,
-    asset_properties_api_data::AssetPropertyDto, cli_data::AppConfig,
+    api_constants::ASSET_PROPERTIES_API_PREFIX,
+    app_errors::AppError,
+    asset_properties_api_data::{AssetPropertyDto, AssetSerialNumberImportDto},
+    cli_data::AppConfig,
 };
+
+pub async fn bulk_update_asset_serialnumber_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: String,
+) -> Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+
+    while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
+        update_asset_serialnumber_async(
+            config,
+            req,
+            auth_header,
+            record.asset_id,
+            record.serial_number,
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+pub async fn update_asset_serialnumber_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
+    new_serial_number: String,
+) -> Result<()> {
+    let current_values =
+        get_named_asset_property_async(config, req, auth_header, id, "serialNumber".to_string())
+            .await?;
+
+    debug!(
+        "Current property values: {}",
+        serde_json::to_string_pretty(&current_values)?
+    );
+
+    if current_values.len() > 1 {
+        return Err(AppError::MultipleValuesDetectedForProperty.into());
+    }
+
+    if let Some(current_value) = current_values.first() {
+        let payload = AssetPropertyDto {
+            id: current_value.id,
+            property_type: current_value.property_type.clone(),
+            value: MultiTypeValue::StringValue(new_serial_number),
+            data_type: current_value.data_type.clone(),
+            data_source: current_value.data_source.clone(),
+            asset_property_display_category: current_value.asset_property_display_category.clone(),
+            is_deletable: current_value.is_deletable,
+            is_editable: current_value.is_editable,
+            is_inherited: current_value.is_inherited,
+            created_date_time: current_value.created_date_time.clone(),
+            updated_date_time: current_value.updated_date_time.clone(),
+            minimum_value: current_value.minimum_value.clone(),
+        };
+
+        trace!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+
+        match payload.id {
+            Some(id) => {
+                // Updating an existing value
+                let target_url = format!(
+                    "{}{}/{}",
+                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+                );
+                debug!("Request URL: {}", target_url);
+
+                let resp = req
+                    .put(target_url)
+                    .header(AUTHORIZATION, auth_header)
+                    .json(&payload)
+                    .send()
+                    .await?
+                    .json::<serde_json::Value>()
+                    .await?;
+
+                debug!(
+                    "Update serial number: {}",
+                    serde_json::to_string_pretty(&resp)?
+                );
+            }
+
+            None => {
+                // Setting serial number for the first time
+                let target_url = format!(
+                    "{}{}/?assetId={}",
+                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+                );
+                debug!("Request URL: {}", target_url);
+
+                let resp = req
+                    .post(target_url)
+                    .header(AUTHORIZATION, auth_header)
+                    .json(&payload)
+                    .send()
+                    .await?
+                    .json::<serde_json::Value>()
+                    .await?;
+
+                debug!(
+                    "Update serial number: {}",
+                    serde_json::to_string_pretty(&resp)?
+                );
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub async fn get_asset_property_list_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
-    id: String,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
 ) -> Result<Vec<AssetPropertyDto>> {
-    if Uuid::parse_str(&id).is_err() {
-        return Err(AppError::InvalidId.into());
-    }
-
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
@@ -37,9 +148,9 @@ pub async fn get_asset_property_list_async(
 
 pub async fn get_named_asset_property_async(
     config: &AppConfig,
-    req: Client,
-    auth_header: String,
-    id: String,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
     property_type: String,
 ) -> Result<Vec<AssetPropertyDto>> {
     let property_list = get_asset_property_list_async(config, req, auth_header, id)
@@ -53,6 +164,8 @@ pub async fn get_named_asset_property_async(
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
     use httpmock::prelude::*;
     use serde_json::json;
@@ -60,7 +173,7 @@ mod tests {
     #[tokio::test]
     async fn test_get_asset_property_list_async() {
         // Arrange
-        let asset_id = "3a6c3022-6140-4e85-a64f-bf868766c4c8".to_string();
+        let asset_id = Uuid::from_str("3a6c3022-6140-4e85-a64f-bf868766c4c8").unwrap();
         let url_path = format!("{}/{}", ASSET_PROPERTIES_API_PREFIX, asset_id);
 
         let server = MockServer::start();
@@ -75,6 +188,7 @@ mod tests {
                           {
                             "dataSource": "snmp",
                             "assetPropertyDisplayCategory": "power",
+                            "isDeletable": false,
                             "isEditable": false,
                             "isInherited": true,
                             "createdDateTime": "2023-08-04T17:33:45.462475+00:00",
@@ -88,6 +202,7 @@ mod tests {
                           {
                             "dataSource": "snmp",
                             "assetPropertyDisplayCategory": "general",
+                            "isDeletable": false,
                             "isEditable": false,
                             "isInherited": false,
                             "createdDateTime": "2023-08-04T17:33:45.462475+00:00",
@@ -112,7 +227,7 @@ mod tests {
         let auth_header = "Bearer test_token".to_string();
 
         // Act
-        let result = get_asset_property_list_async(&config, client, auth_header, asset_id).await;
+        let result = get_asset_property_list_async(&config, &client, &auth_header, asset_id).await;
 
         // Assert
         m.assert();

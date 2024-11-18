@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[allow(clippy::enum_variant_names)]
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum MultiTypeValue {
     StringValue(String),
