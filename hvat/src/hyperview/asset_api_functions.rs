@@ -411,7 +411,11 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
       "from": options.skip,
       "query": {
         "bool": {
-          "filter": {},
+          "filter": {
+              "bool": {
+                "must": []
+              }
+            },
           "must": [],
           "should": [
             {
@@ -521,9 +525,12 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
 
     if let Some(p) = options.location_path {
         let prepared_path = format!("{}*", p.replace('/', "\t"));
-        let path = json!({ "tabDelimitedPath": { "value": prepared_path } });
+        let filter = json!({ "wildcard": { "tabDelimitedPath": { "value": prepared_path } } });
 
-        search_query["query"]["bool"]["filter"]["wildcard"] = path;
+        search_query["query"]["bool"]["filter"]["bool"]["must"]
+            .as_array_mut()
+            .unwrap()
+            .push(filter);
     }
 
     if let Some(props) = options.properties {
