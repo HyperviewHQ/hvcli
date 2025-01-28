@@ -412,10 +412,10 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
       "query": {
         "bool": {
           "filter": {
-              "bool": {
-                "must": []
-              }
-            },
+            "bool": {
+              "must": []
+            }
+          },
           "must": [],
           "should": [
             {
