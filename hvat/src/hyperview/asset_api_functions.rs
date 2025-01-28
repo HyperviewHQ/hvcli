@@ -525,12 +525,12 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
 
     if let Some(p) = options.location_path {
         let prepared_path = format!("{}*", p.replace('/', "\t"));
-        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+        let filter = json!({ "wildcard": { "tabDelimitedPath": { "value": prepared_path } } });
 
         search_query["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
             .unwrap()
-            .push(path);
+            .push(filter);
     }
 
     if let Some(props) = options.properties {
