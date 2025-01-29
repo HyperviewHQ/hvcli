@@ -780,12 +780,12 @@ mod tests {
 
         let input_path = "All/".to_string();
         let prepared_path = format!("{}*", input_path.replace('/', "\t"));
-        let path = json!({ "wildcard": { "tabDelimitedPath": prepared_path } });
+        let filter = json!({ "wildcard": { "tabDelimitedPath": { "value": prepared_path } } });
 
         query1["query"]["bool"]["filter"]["bool"]["must"]
             .as_array_mut()
             .unwrap()
-            .push(path);
+            .push(filter);
 
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
