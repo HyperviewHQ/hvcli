@@ -343,15 +343,27 @@ pub async fn search_assets_async(
         .json::<Value>()
         .await?;
 
-    if let Some(metadata) = &resp.get("_metadata") {
-        let total = metadata["total"].as_u64().unwrap();
-        let limit = metadata["limit"].as_u64().unwrap();
-        info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
-    }
+    let total = resp
+        .get("estimatedTotalHits")
+        .expect("Expected estimatedTotalHits to be defined in response body.")
+        .as_u64()
+        .unwrap();
+
+    let limit = resp
+        .get("limit")
+        .expect("Expected limit to be defined in response body.")
+        .as_u64()
+        .unwrap();
+
+    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
 
     let mut asset_list = Vec::new();
 
-    if let Some(assets) = resp.get("data") {
+    if total == 0 {
+        return  Ok(asset_list);
+    }
+
+    if let Some(assets) = resp.get("hits") {
         assets.as_array().unwrap().iter().for_each(|a| {
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
 
@@ -369,11 +381,14 @@ pub async fn search_assets_async(
                 product_name: a.get("productName").unwrap().to_string(),
                 status: a.get("status").unwrap().to_string(),
                 path: a
-                    .get("tabDelimitedPath")
+                    .get("delimitedPath")
                     .unwrap()
                     .to_string()
-                    .replace("\\t", "/"),
-                serial_number: a.get("serialNumber").unwrap().to_string(),
+                    .replace("~", "/"),
+                serial_number: a.get("assetProperty_serialNumber")
+                    .and_then(|v| v.as_array())
+                    .and_then(|arr| serde_json::to_string(arr).ok())
+                    .unwrap_or_else(|| "[]".to_string()),
                 property: None,
             };
 
@@ -407,221 +422,81 @@ pub async fn search_assets_async(
 
 fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
     let mut search_query = json!({
-      "size": options.limit,
-      "from": options.skip,
-      "query": {
-        "bool": {
-          "filter": {
-            "bool": {
-              "must": []
-            }
-          },
-          "must": [],
-          "should": [
-            {
-              "query_string": {
-                "query": format!("{}", options.search_pattern),
-                "fields": [
-                  "displayNameLowerCase^5",
-                  "*"
-                ]
-              }
-            },
-            {
-              "nested": {
-                "path": "componentAssets",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "componentAssets.displayName"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "stringCustomProperties.name",
-                      "stringCustomProperties.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "dateTimeCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "dateTimeCustomProperties.name",
-                      "dateTimeCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericCustomProperties",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "numericCustomProperties.name",
-                      "numericCustomProperties.searchableValue"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "stringSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "stringSensors.value"
-                    ]
-                  }
-                }
-              }
-            },
-            {
-              "nested": {
-                "path": "numericSensors",
-                "query": {
-                  "query_string": {
-                    "query": format!("{}", options.search_pattern),
-                    "fields": [
-                      "numericSensors.searchableValue"
-                    ]
-                  }
-                }
-              }
-            }
-          ],
-          "minimum_should_match": 1
-        }
-      }
+      "limit": options.limit,
+      "offset": options.skip,
+      "attributesToRetrieve": [
+        "id",
+        "displayName",
+        "assetLifecycleState",
+        "assetType",
+        "manufacturerId",
+        "manufacturerName",
+        "monitoringState",
+        "parentId",
+        "parentDisplayName",
+        "productId",
+        "productName",
+        "status",
+        "delimitedPath",
+        "assetProperty_serialNumber"
+      ],
+      "q": options.search_pattern,
+      "filter": "",
     });
 
-    if let Some(t) = options.asset_type {
-        let filter = json!({ "match": { "assetType": { "query": t.to_string() }} });
+    let mut filters = Vec::new();
 
-        search_query["query"]["bool"]["filter"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(filter);
+    if let Some(t) = options.asset_type {
+        let asset_type = t.to_string();
+        filters.push(format!("assetType = '{}'", asset_type));
     }
 
     if let Some(p) = options.location_path {
-        let prepared_path = format!("{}*", p.replace('/', "\t"));
-        let filter = json!({ "wildcard": { "tabDelimitedPath": { "value": prepared_path } } });
-
-        search_query["query"]["bool"]["filter"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(filter);
+        let prepared_path = p.replace('/', "~").to_string();
+        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
     }
 
-    if let Some(props) = options.properties {
-        let kv: Vec<(String, String)> = props
-            .iter()
-            .filter_map(|x| {
-                let mut s = x.splitn(2, '=');
-                match (s.next(), s.next()) {
-                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
-                    _ => None,
-                }
-            })
-            .collect();
-
-        kv.iter().for_each(|(k, v)| {
-            let subquery = json!({ "match": { k: { "query": v, "lenient": true } } });
-            search_query["query"]["bool"]["must"]
-                .as_array_mut()
-                .unwrap()
-                .push(subquery);
-        });
+    if let Some(properties) = options.properties {
+        for property in properties {
+            if let Some((property_key_name, property_key_value)) = property.split_once('=') {
+                let property_key_attribute = format!("assetProperty_{} ", property_key_name.trim());
+                filters.push(format!("{} = '{}'", property_key_attribute, property_key_value.trim()));
+            } else {
+                eprintln!("Asset property filter was formatted incorrectly. Skipping... '{}'", property);
+            }
+        }
     }
 
-    if let Some(props) = options.custom_properties {
-        let kv: Vec<(String, String)> = props
-            .iter()
-            .filter_map(|x| {
-                let mut s = x.splitn(2, '=');
-                match (s.next(), s.next()) {
-                    (Some(k), Some(v)) => Some((k.to_string(), v.to_string())),
-                    _ => None,
-                }
-            })
-            .collect();
-
-        kv.iter().for_each(|(k, v)| {
-            let subquery = json!({
-              "nested": {
-                "path": "stringCustomProperties",
-                "inner_hits": {},
-                "query": {
-                  "bool": {
-                    "must": [
-                      {
-                        "match": {
-                          "stringCustomProperties.name": { "query": k }
-                        }
-                      },
-                      {
-                        "match": {
-                          "stringCustomProperties.value": {
-                            "query": v,
-                            "lenient": true
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            });
-
-            search_query["query"]["bool"]["must"]
-                .as_array_mut()
-                .unwrap()
-                .push(subquery);
-        });
+    if let Some(custom_properties) = options.custom_properties {
+        for custom_property in custom_properties {
+            if let Some((custom_property_key_name, custom_property_key_value)) = custom_property.split_once('=') {
+                 let custom_property_key_attribute = format!("customProperty_{} ", custom_property_key_name.trim());
+                filters.push(format!("{} = '{}'", custom_property_key_attribute, custom_property_key_value.trim()));
+            } else {
+                eprintln!("Custom asset property filter was formatted incorrectly. Skipping... '{}'", custom_property);
+            }
+        }
     }
 
     if let Some(id_guid) = options.id {
-        let subquery = json!({ "match": { "id": { "query": id_guid, "lenient": true } } });
-        search_query["query"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(subquery);
+        let id_query = format!("id = '{}'", id_guid);
+        filters.push(id_query);
     }
 
     if let Some(manufacturer) = options.manufacturer {
-        let subquery = json!({ "match": { "manufacturerNameSearchableProperty": { "query": manufacturer, "lenient": true } } });
-        search_query["query"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(subquery);
+        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        filters.push(manufacturer_name_query);
     }
 
     if let Some(product) = options.product {
-        let subquery = json!({ "match": { "productNameSearchableProperty": { "query": product, "lenient": true } } });
-        search_query["query"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(subquery);
+        let product_name_query = format!("productName CONTAINS '{}'", product);
+        filters.push(product_name_query);
+    }
+
+    let filter_str = filters.join(" AND ");
+
+    if let Some(filter_field) = search_query.get_mut("filter") {
+        *filter_field = Value::String(filter_str);
     }
 
     trace!(
@@ -644,111 +519,26 @@ mod tests {
     #[test]
     fn test_compose_search_query() {
         let mut query1 = json!({
-          "size": 100,
-          "from": 0,
-          "query": {
-            "bool": {
-              "filter": {
-                "bool": {
-                  "must": []
-                }
-              },
-              "must": [],
-              "should": [
-                {
-                  "query_string": {
-                    "query": format!("{}","search_pattern"),
-                    "fields": [
-                      "displayNameLowerCase^5",
-                      "*"
-                    ]
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "componentAssets",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "componentAssets.displayName"
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "stringCustomProperties",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "stringCustomProperties.name",
-                          "stringCustomProperties.value"
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "dateTimeCustomProperties",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "dateTimeCustomProperties.name",
-                          "dateTimeCustomProperties.searchableValue"
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "numericCustomProperties",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "numericCustomProperties.name",
-                          "numericCustomProperties.searchableValue"
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "stringSensors",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "stringSensors.value"
-                        ]
-                      }
-                    }
-                  }
-                },
-                {
-                  "nested": {
-                    "path": "numericSensors",
-                    "query": {
-                      "query_string": {
-                        "query": format!("{}","search_pattern"),
-                        "fields": [
-                          "numericSensors.searchableValue"
-                        ]
-                      }
-                    }
-                  }
-                }
-              ],
-              "minimum_should_match": 1
-            }
-          }
+            "limit": 100,
+            "offset": 0,
+            "attributesToRetrieve": [
+                "id",
+                "displayName",
+                "assetLifecycleState",
+                "assetType",
+                "manufacturerId",
+                "manufacturerName",
+                "monitoringState",
+                "parentId",
+                "parentDisplayName",
+                "productId",
+                "productName",
+                "status",
+                "delimitedPath",
+                "assetProperty_serialNumber"
+            ],
+            "q": "search_pattern",
+            "filter": ""
         });
 
         let mut options = SearchAssetsArgs {
@@ -770,22 +560,19 @@ mod tests {
         assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
 
         // Test with asset type and location set
+        let mut filter = Vec::new();
 
-        let filter = json!({ "match": { "assetType": { "query": "Server" } } });
-
-        query1["query"]["bool"]["filter"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(filter);
+        filter.push(format!("assetType = '{}'", "Server"));
 
         let input_path = "All/".to_string();
-        let prepared_path = format!("{}*", input_path.replace('/', "\t"));
-        let filter = json!({ "wildcard": { "tabDelimitedPath": { "value": prepared_path } } });
+        let prepared_path = format!("{}", input_path.replace('/', "~"));
+        filter.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
 
-        query1["query"]["bool"]["filter"]["bool"]["must"]
-            .as_array_mut()
-            .unwrap()
-            .push(filter);
+        let filter_str = filter.join(" AND ");
+
+         if let Some(filter_field) = query1.get_mut("filter") {
+            *filter_field = Value::String(filter_str);
+        }
 
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);

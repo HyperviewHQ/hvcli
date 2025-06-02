@@ -375,14 +375,14 @@ pub struct SearchAssetsArgs {
     #[arg(
         short = 'P',
         long,
-        help = "Optional property or custom property to filter on, e.g. serialNumer=SN1234567890"
+        help = "Optional property or custom property to filter on, e.g. serialNumber=SN1234567890"
     )]
     pub properties: Option<Vec<String>>,
 
     #[arg(
         short = 'C',
         long,
-        help = "Optional custom property or custom property to filter on, e.g. serialNumer=SN1234567890"
+        help = "Optional custom property or custom property to filter on, e.g. testCustomProperty=testValue"
     )]
     pub custom_properties: Option<Vec<String>>,
 
@@ -399,7 +399,7 @@ pub struct SearchAssetsArgs {
     #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
     pub product: Option<String>,
 
-    #[arg(short = 'U', long, help = "Show property in output, e.g. dnsName")]
+    #[arg(short = 'U', long, help = "Show property in output, e.g. ratedVoltage")]
     pub show_property: Option<String>,
 
     #[arg(
