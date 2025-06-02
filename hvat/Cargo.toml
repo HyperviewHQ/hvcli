@@ -1,7 +1,7 @@
 [package]
 name = "hvat"
 version = "0.7.0"
-edition = "2021"
+edition = "2025"
 authors = ["Hyperview Technologies Inc."]
 description = "A command line interface to interact with asset data stored in Hyperview"
 
