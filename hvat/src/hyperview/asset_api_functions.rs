@@ -345,13 +345,13 @@ pub async fn search_assets_async(
 
     let total = resp
         .get("estimatedTotalHits")
-        .expect("Expected a value")
+        .expect("Expected estimatedTotalHits to be defined in response body.")
         .as_u64()
         .unwrap();
 
     let limit = resp
         .get("limit")
-        .expect("Expected a value")
+        .expect("Expected limit to be defined in response body.")
         .as_u64()
         .unwrap();
 
