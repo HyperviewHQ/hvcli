@@ -20,7 +20,7 @@ RUN apk update && apk upgrade
 
 WORKDIR /app
 
-COPY --from=builder /build/target/release/* .
+COPY --from=builder /build/target/release/hvat .
 
 ENTRYPOINT ["/app/hvat"]
 CMD ["help"]
