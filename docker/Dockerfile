@@ -22,4 +22,5 @@ WORKDIR /app
 
 COPY --from=builder /build/target/release/* .
 
-CMD ["/app/hvat"]
+ENTRYPOINT ["/app/hvat"]
+CMD ["help"]
