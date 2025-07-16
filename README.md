@@ -17,20 +17,6 @@ Your success is important to us! Enjoy using the Hyperview Asset Tool (hvat), an
 
 To use this tool simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/asset_tool/releases) section.
 
-# Build from source
-
-## Linux
-If you are experimenting with the code on a single platform the usual `cargo build` and `cargo build --release` will work. However, if the desire is to build a binary that can run on multiple Linux distributions it is recommended to install the `x86_64-unknown-linux-musl` target and to build a statically-linked binary to avoid dependency problems. 
-
-The command to build a statically-linked version is:
-
-```console
-PKG_CONFIG_SYSROOT_DIR=/ RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-unknown-linux-musl --release
-```
-
-## Windows & MacOS
-The usual `cargo build` and `cargo build --release` will work. 
-
 # Configuration
 A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`
 
@@ -227,4 +213,54 @@ $ hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices
     "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
   }
 ]
+```
+
+# Building from source
+
+## Linux, Windows and MacOS
+
+### Debug build 
+
+```
+cd hvat
+cargo build
+```
+
+The binary will be under `target/debug/hvat`.
+
+### Release build
+
+```
+cd hvat
+cargo build --release
+```
+
+The binary will be under `target/release/hvat`.
+
+## Docker
+
+```
+docker build --tag hvat:latest -f docker/Dockerfile .
+```
+
+### Running the Docker image
+
+To run the docker image generated you need to: 
+
+1. Map the application configuration directory to the container.
+2. Optional, map an output folder to the container
+
+#### Example
+
+Assuming the username is **albert**
+
+```
+docker run -v /home/albert/.hyperview:/root/.hyperview hvat search-assets
+
+```
+
+If you are planing to output to csv
+
+```
+docker run -v /home/albert/.hyperview:/root/.hyperview -v /tmp:/output hvat search-assets -o csv-file -f /output/assets.csv
 ```
