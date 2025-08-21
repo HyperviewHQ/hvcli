@@ -1,5 +1,5 @@
 [package]
-name = "hvat"
+name = "hvcli"
 version = "0.7.0"
 edition = "2024"
 authors = ["Hyperview Technologies Inc."]

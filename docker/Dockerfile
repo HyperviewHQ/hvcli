@@ -8,7 +8,7 @@ RUN set -x && \
 
 ENV OPENSSL_STATIC=1
 
-COPY ./hvat/ ${BUILD_DIR}
+COPY ./ ${BUILD_DIR}
 
 RUN set -x && \
     cd ${BUILD_DIR} && \
