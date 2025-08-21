@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
 use log::{debug, trace};
-use reqwest::{header::AUTHORIZATION, Client};
+use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
 
 use crate::hyperview::common_types::MultiTypeValue;

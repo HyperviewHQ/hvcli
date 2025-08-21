@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
-use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, Scope, TokenResponse, TokenUrl};
-use reqwest::{redirect, ClientBuilder};
+use oauth2::{AuthUrl, ClientId, ClientSecret, Scope, TokenResponse, TokenUrl, basic::BasicClient};
+use reqwest::{ClientBuilder, redirect};
 
 use super::cli_data::AppConfig;
 

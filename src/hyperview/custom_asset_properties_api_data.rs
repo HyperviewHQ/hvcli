@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DefaultOnNull};
+use serde_with::{DefaultOnNull, serde_as};
 use std::fmt;
 
 use super::common_types::MultiTypeValue;
@@ -30,7 +30,8 @@ pub struct CustomAssetPropertyDto {
 
 impl fmt::Display for CustomAssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
+        write!(
+            f,
             "id: {}\ncustom_asset_property_key_id: {}\ncustom_asset_property_group_id: {}\nvalue: {}\ndata_type: {}\nname: {}\ngroup_name: {}\ndata_source: {}\nupdated_date_time: {}\nunit: {}",
             self.id,
             self.custom_asset_property_key_id,
