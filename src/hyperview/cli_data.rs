@@ -1,4 +1,4 @@
-use clap::{value_parser, Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum, value_parser};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;

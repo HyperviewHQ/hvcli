@@ -1,11 +1,11 @@
 use color_eyre::Result;
 use csv::Writer;
-use log::{error, LevelFilter};
+use log::{LevelFilter, error};
 use serde::Serialize;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::Write;
-use std::path::{Path, MAIN_SEPARATOR_STR};
+use std::path::{MAIN_SEPARATOR_STR, Path};
 
 use super::{
     app_errors::AppError,

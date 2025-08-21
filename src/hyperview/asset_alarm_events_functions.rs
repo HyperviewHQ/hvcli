@@ -1,10 +1,10 @@
 use color_eyre::Result;
 use log::debug;
 use reqwest::{
-    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
+    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
 };
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 
 use super::{
     api_constants::{
