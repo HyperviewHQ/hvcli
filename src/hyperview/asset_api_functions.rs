@@ -1,10 +1,10 @@
 use color_eyre::Result;
 use log::{debug, error, info, trace};
 use reqwest::{
-    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     Client,
+    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -32,7 +32,9 @@ pub async fn bulk_update_ports_async(
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
         debug!("Updating port id: {}", record.id);
 
+        // Patch panel flow
         if is_patchpanel {
+            trace!("Updating patch panel port");
             let target_url = format!(
                 "{}{}/patchPanel/{}",
                 config.instance_url, ASSET_PORTS_API_PREFIX, record.id
@@ -50,25 +52,31 @@ pub async fn bulk_update_ports_async(
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
             update_port_async(req, auth_header, target_url, payload).await?;
-        } else {
-            let target_url = format!(
-                "{}{}/{}",
-                config.instance_url, ASSET_PORTS_API_PREFIX, record.id
-            );
-            debug!("Request URL: {}", target_url);
 
-            let payload = json!({
-              "id": record.id,
-              "name": record.name,
-              "parentId": record.parent_id,
-              "portNumber": record.port_number,
-              "portTypeValueId": record.port_type_value_id
-            });
-
-            debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
-
-            update_port_async(req, auth_header, target_url, payload).await?;
+            // Go to next record
+            continue;
         }
+
+        // Asset flow
+        trace!("Updating asset port");
+        let target_url = format!(
+            "{}{}/{}",
+            config.instance_url, ASSET_PORTS_API_PREFIX, record.id
+        );
+        debug!("Request URL: {}", target_url);
+
+        let payload = json!({
+          "id": record.id,
+          "name": record.name,
+          "parentId": record.parent_id,
+          "portNumber": record.port_number,
+          "portSideValueId": record.port_side_value_id,
+          "portTypeValueId": record.port_type_value_id
+        });
+
+        debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
+
+        update_port_async(req, auth_header, target_url, payload).await?;
     }
 
     Ok(())
@@ -360,7 +368,7 @@ pub async fn search_assets_async(
     let mut asset_list = Vec::new();
 
     if total == 0 {
-        return  Ok(asset_list);
+        return Ok(asset_list);
     }
 
     if let Some(assets) = resp.get("hits") {
@@ -385,7 +393,8 @@ pub async fn search_assets_async(
                     .unwrap()
                     .to_string()
                     .replace("~", "/"),
-                serial_number: a.get("assetProperty_serialNumber")
+                serial_number: a
+                    .get("assetProperty_serialNumber")
                     .and_then(|v| v.as_array())
                     .and_then(|arr| serde_json::to_string(arr).ok())
                     .unwrap_or_else(|| "[]".to_string()),
@@ -460,20 +469,37 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
         for property in properties {
             if let Some((property_key_name, property_key_value)) = property.split_once('=') {
                 let property_key_attribute = format!("assetProperty_{} ", property_key_name.trim());
-                filters.push(format!("{} = '{}'", property_key_attribute, property_key_value.trim()));
+                filters.push(format!(
+                    "{} = '{}'",
+                    property_key_attribute,
+                    property_key_value.trim()
+                ));
             } else {
-                eprintln!("Asset property filter was formatted incorrectly. Skipping... '{}'", property);
+                eprintln!(
+                    "Asset property filter was formatted incorrectly. Skipping... '{}'",
+                    property
+                );
             }
         }
     }
 
     if let Some(custom_properties) = options.custom_properties {
         for custom_property in custom_properties {
-            if let Some((custom_property_key_name, custom_property_key_value)) = custom_property.split_once('=') {
-                 let custom_property_key_attribute = format!("customProperty_{} ", custom_property_key_name.trim());
-                filters.push(format!("{} = '{}'", custom_property_key_attribute, custom_property_key_value.trim()));
+            if let Some((custom_property_key_name, custom_property_key_value)) =
+                custom_property.split_once('=')
+            {
+                let custom_property_key_attribute =
+                    format!("customProperty_{} ", custom_property_key_name.trim());
+                filters.push(format!(
+                    "{} = '{}'",
+                    custom_property_key_attribute,
+                    custom_property_key_value.trim()
+                ));
             } else {
-                eprintln!("Custom asset property filter was formatted incorrectly. Skipping... '{}'", custom_property);
+                eprintln!(
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
+                    custom_property
+                );
             }
         }
     }
@@ -570,7 +596,7 @@ mod tests {
 
         let filter_str = filter.join(" AND ");
 
-         if let Some(filter_field) = query1.get_mut("filter") {
+        if let Some(filter_field) = query1.get_mut("filter") {
             *filter_field = Value::String(filter_str);
         }
 
