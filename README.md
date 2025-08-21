@@ -1,9 +1,9 @@
-# Hyperview Asset Tool
+# Hyperview CLI
 
 > [!NOTE]
 > This project is under active development. Please remember to check for new release.
 
-Asset tool (hvat) is a command line program to interact with data within Hyperview. 
+Hyperview CLI (hvcli) is a command line program to interact with data within Hyperview. 
 
 ** Important Reminders **
 
@@ -11,25 +11,11 @@ Asset tool (hvat) is a command line program to interact with data within Hypervi
 > - _Check Twice, Act Once_: Ensure that all your inputs are accurate. A small oversight can lead to unintended consequences.
 > - _Test with a small sample first_: Test and verify bulk changes with a small sample before proceeding to make big changes.
 
-Your success is important to us! Enjoy using the Hyperview Asset Tool (hvat), and remember to proceed with caution! 
+Your success is important to us! Enjoy using the Hyperview CLI (hvcli), and remember to proceed with caution! 
 
 # Download
 
-To use this tool simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/asset_tool/releases) section.
-
-# Build from source
-
-## Linux
-If you are experimenting with the code on a single platform the usual `cargo build` and `cargo build --release` will work. However, if the desire is to build a binary that can run on multiple Linux distributions it is recommended to install the `x86_64-unknown-linux-musl` target and to build a statically-linked binary to avoid dependency problems. 
-
-The command to build a statically-linked version is:
-
-```console
-PKG_CONFIG_SYSROOT_DIR=/ RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-unknown-linux-musl --release
-```
-
-## Windows & MacOS
-The usual `cargo build` and `cargo build --release` will work. 
+To use this tool simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/hvcli/releases) section.
 
 # Configuration
 A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`
@@ -48,10 +34,10 @@ instance_url = 'https://example.hyperviewhq.com'
 # Usage
 
 ```bash
-$  hvat --help
+$  hvcli --help
 A command line interface to interact with asset data stored in Hyperview
 
-Usage: hvat [OPTIONS] <COMMAND>
+Usage: hvcli [OPTIONS] <COMMAND>
 
 Commands:
   list-asset-properties            List asset properties
@@ -126,10 +112,10 @@ Use `--help` to explore the various options available within the main command an
 #### Subcommand help examples
 
 ```bash
-$ hvat list-alarms --help
+$ hvcli list-alarms --help
 List alarm events
 
-Usage: hvat list-alarms [OPTIONS]
+Usage: hvcli list-alarms [OPTIONS]
 
 Options:
   -s, --skip <SKIP>                  Number of records to skip (0 -> 99999), e.g. 100 [default: 0]
@@ -140,10 +126,10 @@ Options:
   -h, --help                         Print help
   -V, --version                      Print version
 
-$  hvat manage-alarms --help
+$  hvcli manage-alarms --help
 Acknowledge or close alarm events using CSV file output from the list-alarms command
 
-Usage: hvat manage-alarms [OPTIONS] --filename <FILENAME>
+Usage: hvcli manage-alarms [OPTIONS] --filename <FILENAME>
 
 Options:
   -f, --filename <FILENAME>            Input filename, e.g. port_name_update.csv
@@ -162,7 +148,7 @@ information.
 ### Search by property (JSON output)
 
 ```bash
-$ hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
+$ hvcli search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 [
   {
     "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
@@ -187,7 +173,7 @@ $ hvat search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 ### Search by text pattern (record output)
 
 ```bash
-$ hvat search-assets -p "UpsExampl*"
+$ hvcli search-assets -p "UpsExampl*"
 ---- [0] ----
 id: "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb"
 name: "UpsExample"
@@ -208,7 +194,7 @@ serial_number: ["SERIALNUMBEREXAMPLE1234"]
 ### Combination search (JSON output)
 
 ```bash
-$ hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
+$ hvcli search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
 [
   {
     "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
@@ -227,4 +213,52 @@ $ hvat search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices
     "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
   }
 ]
+```
+
+# Building from source
+
+## Linux, Windows and MacOS
+
+### Debug build 
+
+```
+cargo build
+```
+
+The binary will be under `target/debug/hvcli`.
+
+### Release build
+
+```
+cargo build --release
+```
+
+The binary will be under `target/release/hvcli`.
+
+## Docker
+
+```
+docker build --tag hvcli:latest -f docker/Dockerfile .
+```
+
+### Running the Docker image
+
+To run the docker image generated you need to: 
+
+1. Map the application configuration directory to the container.
+2. Optional, map an output folder to the container
+
+#### Example
+
+Assuming the username is **albert**
+
+```
+docker run -v /home/albert/.hyperview:/root/.hyperview hvcli search-assets
+
+```
+
+If you are planing to output to csv
+
+```
+docker run -v /home/albert/.hyperview:/root/.hyperview -v /tmp:/output hvcli search-assets -o csv-file -f /output/assets.csv
 ```
