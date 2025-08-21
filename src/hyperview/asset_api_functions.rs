@@ -475,7 +475,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
                     property_key_value.trim()
                 ));
             } else {
-                eprintln!(
+                error!(
                     "Asset property filter was formatted incorrectly. Skipping... '{}'",
                     property
                 );
@@ -496,7 +496,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
                     custom_property_key_value.trim()
                 ));
             } else {
-                eprintln!(
+                error!(
                     "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
                     custom_property
                 );
