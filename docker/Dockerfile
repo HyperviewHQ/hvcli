@@ -20,7 +20,7 @@ RUN apk update && apk upgrade
 
 WORKDIR /app
 
-COPY --from=builder /build/target/release/hvat .
+COPY --from=builder /build/target/release/hvcli .
 
-ENTRYPOINT ["/app/hvat"]
+ENTRYPOINT ["/app/hvcli"]
 CMD ["help"]
