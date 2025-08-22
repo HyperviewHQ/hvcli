@@ -235,6 +235,14 @@ cargo build --release
 
 The binary will be under `target/release/hvcli`.
 
+## Linux static binary
+
+Install the **x86_64-unknown-linux-musl** target and run the command to build a statically-linked version:
+
+```
+PKG_CONFIG_SYSROOT_DIR=/ RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-unknown-linux-musl --release
+```
+
 ## Docker
 
 ```
