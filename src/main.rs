@@ -64,6 +64,10 @@ async fn main() -> Result<()> {
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
 
+        AppArgsSubcommands::ListAnyOf(options) => {
+            info!("{options:#?}");
+        }
+
         AppArgsSubcommands::UpdateAssetName(options) => {
             update_asset_name_by_id_async(
                 &config,

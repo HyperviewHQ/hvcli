@@ -114,6 +114,9 @@ pub enum AppArgsSubcommands {
     #[clap(alias = "list-assets")]
     SearchAssets(SearchAssetsArgs),
 
+    /// List assets matching a list of property values
+    ListAnyOf(ListAnyOfArgs),
+
     /// Update asset name
     UpdateAssetName(UpdateAssetNameArgs),
 
@@ -353,6 +356,84 @@ pub struct ListPropertiesArgs {
 }
 
 #[derive(Args, Debug, Clone)]
+pub struct ListAnyOfArgs {
+    #[arg(
+        short = 'k',
+        long,
+        help = "Property key to filter on, e.g. serialNumber"
+    )]
+    pub property_key: String,
+
+    #[arg(
+        short = 'v',
+        long,
+        help = "A list of Property values to filter on, e.g. serialNumber1,serialNumber2"
+    )]
+    pub property_value: Vec<String>,
+
+    #[arg(short = 't', long, help = "Optional asset type, e.g. Crah")]
+    pub asset_type: Option<AssetTypes>,
+
+    #[arg(
+        short = 'c',
+        long,
+        help = "Optional prefix of location path, e.g. \"All/\""
+    )]
+    pub location_path: Option<String>,
+
+    #[arg(
+        short = 'C',
+        long,
+        help = "Optional custom property to filter on, e.g. testCustomProperty=testValue"
+    )]
+    pub custom_properties: Option<Vec<String>>,
+
+    #[arg(
+        short,
+        long,
+        help = "Optional asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Option<Uuid>,
+
+    #[arg(short = 'M', long, help = "Manufacturer name, e.g. dell")]
+    pub manufacturer: Option<String>,
+
+    #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
+    pub product: Option<String>,
+
+    #[arg(short = 'U', long, help = "Show property in output, e.g. ratedVoltage")]
+    pub show_property: Option<String>,
+
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 1000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..1001))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
     #[arg(
         short = 'p',
@@ -375,21 +456,21 @@ pub struct SearchAssetsArgs {
     #[arg(
         short = 'P',
         long,
-        help = "Optional property or custom property to filter on, e.g. serialNumber=SN1234567890"
+        help = "Optional property to filter on, e.g. serialNumber=SN1234567890"
     )]
     pub properties: Option<Vec<String>>,
 
     #[arg(
         short = 'C',
         long,
-        help = "Optional custom property or custom property to filter on, e.g. testCustomProperty=testValue"
+        help = "Optional custom property to filter on, e.g. testCustomProperty=testValue"
     )]
     pub custom_properties: Option<Vec<String>>,
 
     #[arg(
         short,
         long,
-        help = "Primary ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+        help = "Optional asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: Option<Uuid>,
 
