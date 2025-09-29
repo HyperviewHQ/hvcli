@@ -591,7 +591,7 @@ mod tests {
         filter.push(format!("assetType = '{}'", "Server"));
 
         let input_path = "All/".to_string();
-        let prepared_path = format!("{}", input_path.replace('/', "~"));
+        let prepared_path = input_path.replace('/', "~").to_string();
         filter.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
 
         let filter_str = filter.join(" AND ");
