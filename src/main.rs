@@ -20,6 +20,8 @@ use hyperview::{
     custom_asset_properties_api_functions::get_custom_asset_property_list_async,
 };
 
+use crate::hyperview::asset_api_functions::list_any_of_async;
+
 mod hyperview;
 
 #[tokio::main]
@@ -65,7 +67,9 @@ async fn main() -> Result<()> {
         }
 
         AppArgsSubcommands::ListAnyOf(options) => {
-            info!("{options:#?}");
+            let resp = list_any_of_async(&config, &req, &auth_header, options.clone()).await?;
+
+            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
 
         AppArgsSubcommands::UpdateAssetName(options) => {
