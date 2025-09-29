@@ -367,6 +367,7 @@ pub struct ListAnyOfArgs {
     #[arg(
         short = 'v',
         long,
+        value_delimiter = ',',
         help = "A list of Property values to filter on, e.g. serialNumber1,serialNumber2"
     )]
     pub property_value: Vec<String>,
