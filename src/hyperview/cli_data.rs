@@ -148,7 +148,7 @@ pub enum AppArgsSubcommands {
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
-    /// Acknowledge or close alarm events using CSV file output from the list-alarms command
+    /// Acknowledge or close alarm events using the CSV file output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
 }
 
@@ -368,7 +368,7 @@ pub struct ListAnyOfArgs {
         short = 'v',
         long,
         value_delimiter = ',',
-        help = "A list of Property values to filter on, e.g. serialNumber1,serialNumber2"
+        help = "A list of property values to filter on, e.g. serialNumber1,serialNumber2"
     )]
     pub property_value: Vec<String>,
 
