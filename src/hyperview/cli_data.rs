@@ -107,14 +107,14 @@ pub enum AppArgsSubcommands {
     /// List asset properties
     ListAssetProperties(ListPropertiesArgs),
 
-    /// List custom asset properties
+    /// List asset custom properties
     ListCustomAssetProperties(ListPropertiesArgs),
 
     /// Search assets
     #[clap(alias = "list-assets")]
     SearchAssets(SearchAssetsArgs),
 
-    /// List assets matching a list of property values
+    /// List assets matching any of the provided property values
     ListAnyOf(ListAnyOfArgs),
 
     /// Update asset name
@@ -129,11 +129,12 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 
-    /// Update asset serial number. Applies to manually created assets
-    /// and assets discovered without a serial number
+    /// Update asset serial number. This applies to manually created
+    /// assets and assets discovered without a serial number
     UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
 
-    /// Bulk update asset serial number
+    /// Bulk update asset serial number. This applies to manually created
+    /// assets and assets discovered without a serial number
     BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
 
     /// List asset ports
@@ -148,7 +149,7 @@ pub enum AppArgsSubcommands {
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
-    /// Acknowledge or close alarm events using the CSV file output from the list-alarms command
+    /// Acknowledge or close alarm events using the CSV output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
 }
 
@@ -160,7 +161,7 @@ pub enum ManageActionOptions {
 
 #[derive(Args, Debug, Clone)]
 pub struct ManageAlarmsArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 
     #[arg(
@@ -219,7 +220,7 @@ pub struct ListAlarmsArgs {
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdatePortsArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -253,17 +254,13 @@ pub struct UpdateAssetSerialNumberArgs {
     )]
     pub id: Uuid,
 
-    #[arg(
-        short = 'S',
-        long,
-        help = "New serial number for the asset, e.g. EPDU123456789"
-    )]
+    #[arg(short = 'S', long, help = "New serial number, e.g. EPDU123456789")]
     pub new_serial_number: String,
 }
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdateAssetSerialNumberArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -286,7 +283,7 @@ pub struct UpdateAssetLocationArgs {
     #[arg(
         short = 'p',
         long,
-        help = "Optional rack position attribute for zero-u rack mounted assets. e.g. Front"
+        help = "Optional rack position attribute for zero-u rack mounted assets. e.g. Left"
     )]
     pub rack_position: Option<RackPosition>,
 
@@ -300,14 +297,14 @@ pub struct UpdateAssetLocationArgs {
     #[arg(
         short = 'u',
         long,
-        help = "Optional rack unit elevation attribute for rack mounted assets. e.g. Front"
+        help = "Optional rack unit elevation attribute for rack mounted assets. e.g. 22"
     )]
     pub rack_u_location: Option<usize>,
 }
 
 #[derive(Args, Debug)]
 pub struct BulkUpdateAssetLocationArgs {
-    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -330,7 +327,7 @@ pub struct UpdateAssetNameArgs {
 
 #[derive(Args, Debug)]
 pub struct BulkUpdateAssetNameArgs {
-    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
