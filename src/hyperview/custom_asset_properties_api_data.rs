@@ -28,6 +28,19 @@ pub struct CustomAssetPropertyDto {
     pub unit: String,
 }
 
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomAssetPropertyUpdateDto {
+    pub id: String,
+    #[serde(alias = "customAssetPropertyKeyId")]
+    pub custom_asset_property_key_id: String,
+    #[serde(alias = "dataType")]
+    pub data_type: String,
+    pub value: String,
+    #[serde(alias = "groupName")]
+    pub group_name: String,
+}
+
 impl fmt::Display for CustomAssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(

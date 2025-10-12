@@ -13,4 +13,7 @@ pub enum AppError {
 
     #[error("Unable to continue with operation; Multiple values detected for property")]
     MultipleValuesDetectedForProperty,
+
+    #[error("Unable to continue with operation; Asset does not have a property named {0}")]
+    AssetDoesNotHavePropertyName(String),
 }

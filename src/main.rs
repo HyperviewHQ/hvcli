@@ -19,7 +19,10 @@ use hyperview::{
     custom_asset_properties_api_functions::get_custom_asset_property_list_async,
 };
 
-use crate::hyperview::asset_api_functions::list_any_of_async;
+use crate::hyperview::{
+    asset_api_functions::list_any_of_async,
+    custom_asset_properties_api_functions::update_custom_property_by_name_async,
+};
 
 mod hyperview;
 
@@ -138,7 +141,15 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetCustomProperty(options) => {
-            info!("{options:#?}");
+            update_custom_property_by_name_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.custom_property.clone(),
+                options.new_custom_property_value.clone(),
+            )
+            .await?;
         }
 
         AppArgsSubcommands::ListAlarms(options) => {
