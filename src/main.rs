@@ -1,5 +1,4 @@
 use clap::Parser;
-use color_eyre::Result;
 use log::info;
 use reqwest::Client;
 
@@ -25,7 +24,7 @@ use crate::hyperview::asset_api_functions::list_any_of_async;
 mod hyperview;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
     let args = AppArgs::parse();

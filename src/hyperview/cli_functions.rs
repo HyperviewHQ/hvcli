@@ -1,4 +1,3 @@
-use color_eyre::Result;
 use csv::Writer;
 use log::{LevelFilter, error};
 use serde::Serialize;
@@ -33,7 +32,7 @@ pub fn get_debug_filter(debug_level: DebugLevels) -> LevelFilter {
     }
 }
 
-pub fn write_output<T: Serialize>(filename: String, object_list: Vec<T>) -> Result<()> {
+pub fn write_output<T: Serialize>(filename: String, object_list: Vec<T>) -> color_eyre::Result<()> {
     let mut writer = Writer::from_path(filename)?;
 
     for object in object_list {
@@ -47,7 +46,7 @@ pub fn handle_output_choice<T: Display + Serialize>(
     output_type: OutputOptions,
     filename: Option<String>,
     resp: Vec<T>,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut outfile = String::new();
 
     if let Some(f) = filename.clone() {

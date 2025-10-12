@@ -1,4 +1,3 @@
-use color_eyre::Result;
 use log::{debug, error, info, trace};
 use reqwest::{
     Client,
@@ -29,7 +28,7 @@ pub async fn bulk_update_ports_async(
     auth_header: &String,
     filename: String,
     is_patchpanel: bool,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
         debug!("Updating port id: {}", record.id);
@@ -89,7 +88,7 @@ async fn update_port_async(
     auth_header: &String,
     target_url: String,
     payload: Value,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
@@ -112,7 +111,7 @@ pub async fn list_asset_ports_async(
     req: &Client,
     auth_header: &String,
     list_asset_ports_args: ListAssetPortsArgs,
-) -> Result<Vec<AssetPortDto>> {
+) -> color_eyre::Result<Vec<AssetPortDto>> {
     let target_url = format!(
         "{}{}/detailed/{}",
         config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
@@ -170,7 +169,7 @@ pub async fn update_asset_location_async(
     req: &Client,
     auth_header: &String,
     update_location_data: UpdateAssetLocationArgs,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let target_url = format!(
         "{}{}/{}?id={}",
         config.instance_url,
@@ -215,7 +214,7 @@ pub async fn bulk_update_asset_location_async(
     req: &Client,
     auth_header: &String,
     filename: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
         debug!(
@@ -245,7 +244,7 @@ async fn get_raw_asset_by_id_async(
     req: &Client,
     auth_header: &String,
     id: &Uuid,
-) -> Result<Value> {
+) -> color_eyre::Result<Value> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
 
     let resp = req
@@ -265,7 +264,7 @@ pub async fn update_asset_name_by_id_async(
     auth_header: &String,
     id: Uuid,
     new_name: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
     debug!("Request URL: {}", target_url);
 
@@ -307,7 +306,7 @@ pub async fn bulk_update_asset_name_async(
     req: &Client,
     auth_header: &String,
     filename: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
         debug!(
@@ -333,7 +332,7 @@ pub async fn list_any_of_async(
     req: &Client,
     auth_header: &String,
     options: ListAnyOfArgs,
-) -> Result<Vec<AssetDto>> {
+) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {}", target_url);
     debug!("Options: {:#?}", options);
@@ -431,7 +430,7 @@ pub async fn list_any_of_async(
     Ok(asset_list)
 }
 
-fn compose_any_of_query(options: ListAnyOfArgs) -> Result<Value> {
+fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -521,7 +520,7 @@ pub async fn search_assets_async(
     req: &Client,
     auth_header: &String,
     options: SearchAssetsArgs,
-) -> Result<Vec<AssetDto>> {
+) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {}", target_url);
     debug!("Options: {:#?}", options);
@@ -619,7 +618,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
+fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,

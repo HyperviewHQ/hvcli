@@ -1,4 +1,3 @@
-use color_eyre::Result;
 use log::debug;
 use reqwest::{
     Client,
@@ -24,7 +23,7 @@ pub async fn list_alarm_events_async(
     skip: u32,
     limit: u32,
     alarm_filter_option: AlarmEventFilterOptions,
-) -> Result<AlarmListResponse> {
+) -> color_eyre::Result<AlarmListResponse> {
     let target_url = format!(
         "{}{}",
         config.instance_url, ASSET_ALARM_EVENT_LIST_API_PREFIX
@@ -77,7 +76,7 @@ pub async fn manage_asset_alarm_events_async(
     auth_header: &String,
     filename: String,
     manage_action_options: ManageActionOptions,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     let mut work = Vec::new();
 

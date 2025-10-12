@@ -1,4 +1,3 @@
-use color_eyre::eyre::Result;
 use log::{debug, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
@@ -17,7 +16,7 @@ pub async fn bulk_update_asset_serialnumber_async(
     req: &Client,
     auth_header: &String,
     filename: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
 
     while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
@@ -39,7 +38,7 @@ pub async fn update_asset_serialnumber_async(
     auth_header: &String,
     id: Uuid,
     new_serial_number: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let current_values =
         get_named_asset_property_async(config, req, auth_header, id, "serialNumber".to_string())
             .await?;
@@ -128,7 +127,7 @@ pub async fn get_asset_property_list_async(
     req: &Client,
     auth_header: &String,
     id: Uuid,
-) -> Result<Vec<AssetPropertyDto>> {
+) -> color_eyre::Result<Vec<AssetPropertyDto>> {
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
@@ -152,7 +151,7 @@ pub async fn get_named_asset_property_async(
     auth_header: &String,
     id: Uuid,
     property_type: String,
-) -> Result<Vec<AssetPropertyDto>> {
+) -> color_eyre::Result<Vec<AssetPropertyDto>> {
     let property_list = get_asset_property_list_async(config, req, auth_header, id)
         .await?
         .into_iter()

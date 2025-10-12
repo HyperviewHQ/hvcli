@@ -1,4 +1,3 @@
-use color_eyre::eyre::Result;
 use log::debug;
 use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
@@ -13,7 +12,7 @@ pub async fn get_custom_asset_property_list_async(
     req: &Client,
     auth_header: &String,
     id: Uuid,
-) -> Result<Vec<CustomAssetPropertyDto>> {
+) -> color_eyre::Result<Vec<CustomAssetPropertyDto>> {
     let target_url = format!(
         "{}{}/{}",
         config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, id
@@ -29,6 +28,15 @@ pub async fn get_custom_asset_property_list_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn update_custom_property_by_name_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    id: Uuid,
+) -> color_eyre::Result<()> {
+    Ok(())
 }
 
 #[cfg(test)]
