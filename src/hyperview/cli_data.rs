@@ -146,6 +146,9 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset port names
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
 
+    /// Update asset custom property
+    UpdateAssetCustomProperty(UpdateAssetCustomPropertyArgs),
+
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
@@ -216,6 +219,26 @@ pub struct ListAlarmsArgs {
 
     #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct UpdateAssetCustomPropertyArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(
+        short = 'N',
+        long,
+        help = "Custom property to update, e.g. testCustomPropertyName"
+    )]
+    pub custom_property: String,
+
+    #[arg(short = 'D', long, help = "New custom property value, e.g. testValue")]
+    pub new_custom_property_value: String,
 }
 
 #[derive(Args, Debug, Clone)]

@@ -138,6 +138,10 @@ async fn main() -> Result<()> {
                 .await?;
         }
 
+        AppArgsSubcommands::UpdateAssetCustomProperty(options) => {
+            info!("{options:#?}");
+        }
+
         AppArgsSubcommands::ListAlarms(options) => {
             let resp = list_alarm_events_async(
                 &config,
