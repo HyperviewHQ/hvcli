@@ -140,7 +140,7 @@ async fn main() -> color_eyre::Result<()> {
                 .await?;
         }
 
-        AppArgsSubcommands::UpdateAssetCustomProperty(options) => {
+        AppArgsSubcommands::UpdateCustomAssetProperty(options) => {
             update_custom_property_by_name_async(
                 &config,
                 &req,
@@ -150,6 +150,10 @@ async fn main() -> color_eyre::Result<()> {
                 options.new_custom_property_value.clone(),
             )
             .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateCustomAssetProperty(options) => {
+            info!("{options:#?}");
         }
 
         AppArgsSubcommands::ListAlarms(options) => {

@@ -85,8 +85,8 @@ pub enum RackPosition {
 pub enum DebugLevels {
     Error,
     Warn,
-    Debug,
     Info,
+    Debug,
     Trace,
 }
 
@@ -147,7 +147,10 @@ pub enum AppArgsSubcommands {
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
 
     /// Update asset custom property
-    UpdateAssetCustomProperty(UpdateAssetCustomPropertyArgs),
+    UpdateCustomAssetProperty(UpdateCustomAssetPropertyArgs),
+
+    ///Bulk  update asset custom property
+    BulkUpdateCustomAssetProperty(BulkUpdateCustomAssetPropertyArgs),
 
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
@@ -222,7 +225,7 @@ pub struct ListAlarmsArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct UpdateAssetCustomPropertyArgs {
+pub struct UpdateCustomAssetPropertyArgs {
     #[arg(
         short,
         long,
@@ -239,6 +242,12 @@ pub struct UpdateAssetCustomPropertyArgs {
 
     #[arg(short = 'D', long, help = "New custom property value, e.g. testValue")]
     pub new_custom_property_value: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateCustomAssetPropertyArgs {
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
+    pub filename: String,
 }
 
 #[derive(Args, Debug, Clone)]
