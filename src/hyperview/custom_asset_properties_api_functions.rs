@@ -4,7 +4,10 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::hyperview::{
-    app_errors::AppError, custom_asset_properties_api_data::CustomAssetPropertyUpdateDto,
+    app_errors::AppError,
+    custom_asset_properties_api_data::{
+        CustomAssetPropertyFileImportDto, CustomAssetPropertyUpdateDto,
+    },
 };
 
 use super::{
@@ -16,11 +19,11 @@ pub async fn get_custom_asset_property_list_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    id: Uuid,
+    asset_id: Uuid,
 ) -> color_eyre::Result<Vec<CustomAssetPropertyDto>> {
     let target_url = format!(
         "{}{}/{}",
-        config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, id
+        config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, asset_id
     );
     debug!("Request URL: {:?}", target_url);
 
@@ -39,12 +42,12 @@ pub async fn update_custom_property_by_name_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    id: Uuid,
+    asset_id: Uuid,
     custom_asset_property_name: String,
     new_custom_property_value: String,
 ) -> color_eyre::Result<()> {
     let custom_asset_property_list =
-        get_custom_asset_property_list_async(config, req, auth_header, id).await?;
+        get_custom_asset_property_list_async(config, req, auth_header, asset_id).await?;
 
     let custom_asset_property = custom_asset_property_list
         .into_iter()
@@ -95,6 +98,31 @@ pub async fn update_custom_property_by_name_async(
             .expect("Could not serialize update custom asset property response to JSON")
     );
 
+    Ok(())
+}
+
+pub async fn bulk_update_custom_property_by_name_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader
+        .deserialize::<CustomAssetPropertyFileImportDto>()
+        .next()
+    {
+        debug!("Update custom asset property record: {record:?}");
+        update_custom_property_by_name_async(
+            config,
+            req,
+            auth_header,
+            record.asset_id,
+            record.custom_asset_property_name.clone(),
+            record.new_custom_property_value.clone(),
+        )
+        .await?;
+    }
     Ok(())
 }
 

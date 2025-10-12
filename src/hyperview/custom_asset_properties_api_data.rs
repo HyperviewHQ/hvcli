@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_with::{DefaultOnNull, serde_as};
 use std::fmt;
+use uuid::Uuid;
 
 use super::common_types::MultiTypeValue;
 
@@ -39,6 +40,13 @@ pub struct CustomAssetPropertyUpdateDto {
     pub value: String,
     #[serde(alias = "groupName")]
     pub group_name: String,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct CustomAssetPropertyFileImportDto {
+    pub asset_id: Uuid,
+    pub custom_asset_property_name: String,
+    pub new_custom_property_value: String,
 }
 
 impl fmt::Display for CustomAssetPropertyDto {
