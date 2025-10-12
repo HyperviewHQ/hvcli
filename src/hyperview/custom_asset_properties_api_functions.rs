@@ -91,7 +91,8 @@ pub async fn update_custom_property_by_name_async(
 
     debug!(
         "Update custom asset property response: {}",
-        serde_json::to_string_pretty(&resp).expect("Could not serialize response to JSON")
+        serde_json::to_string_pretty(&resp)
+            .expect("Could not serialize update custom asset property response to JSON")
     );
 
     Ok(())
