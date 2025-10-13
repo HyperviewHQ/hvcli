@@ -1,5 +1,4 @@
 use clap::Parser;
-use color_eyre::Result;
 use log::info;
 use reqwest::Client;
 
@@ -20,10 +19,17 @@ use hyperview::{
     custom_asset_properties_api_functions::get_custom_asset_property_list_async,
 };
 
+use crate::hyperview::{
+    asset_api_functions::list_any_of_async,
+    custom_asset_properties_api_functions::{
+        bulk_update_custom_property_by_name_async, update_custom_property_by_name_async,
+    },
+};
+
 mod hyperview;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
     let args = AppArgs::parse();
@@ -60,6 +66,12 @@ async fn main() -> Result<()> {
 
         AppArgsSubcommands::SearchAssets(options) => {
             let resp = search_assets_async(&config, &req, &auth_header, options.clone()).await?;
+
+            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
+        }
+
+        AppArgsSubcommands::ListAnyOf(options) => {
+            let resp = list_any_of_async(&config, &req, &auth_header, options.clone()).await?;
 
             handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
         }
@@ -128,6 +140,28 @@ async fn main() -> Result<()> {
         AppArgsSubcommands::BulkUpdateAssetPorts(options) => {
             bulk_update_ports_async(&config, &req, &auth_header, options.filename.clone(), false)
                 .await?;
+        }
+
+        AppArgsSubcommands::UpdateCustomAssetProperty(options) => {
+            update_custom_property_by_name_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.custom_property.clone(),
+                options.new_custom_property_value.clone(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateCustomAssetProperty(options) => {
+            bulk_update_custom_property_by_name_async(
+                &config,
+                &req,
+                &auth_header,
+                options.filename.clone(),
+            )
+            .await?;
         }
 
         AppArgsSubcommands::ListAlarms(options) => {

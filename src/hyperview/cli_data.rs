@@ -85,8 +85,8 @@ pub enum RackPosition {
 pub enum DebugLevels {
     Error,
     Warn,
-    Debug,
     Info,
+    Debug,
     Trace,
 }
 
@@ -107,12 +107,15 @@ pub enum AppArgsSubcommands {
     /// List asset properties
     ListAssetProperties(ListPropertiesArgs),
 
-    /// List custom asset properties
+    /// List asset custom properties
     ListCustomAssetProperties(ListPropertiesArgs),
 
     /// Search assets
     #[clap(alias = "list-assets")]
     SearchAssets(SearchAssetsArgs),
+
+    /// List assets matching any of the provided property values
+    ListAnyOf(ListAnyOfArgs),
 
     /// Update asset name
     UpdateAssetName(UpdateAssetNameArgs),
@@ -126,11 +129,12 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset location
     BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
 
-    /// Update asset serial number. Applies to manually created assets
-    /// and assets discovered without a serial number
+    /// Update asset serial number. This applies to manually created
+    /// assets and assets discovered without a serial number
     UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
 
-    /// Bulk update asset serial number
+    /// Bulk update asset serial number. This applies to manually created
+    /// assets and assets discovered without a serial number
     BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
 
     /// List asset ports
@@ -142,10 +146,16 @@ pub enum AppArgsSubcommands {
     /// Bulk update asset port names
     BulkUpdateAssetPorts(BulkUpdatePortsArgs),
 
+    /// Update asset custom property
+    UpdateCustomAssetProperty(UpdateCustomAssetPropertyArgs),
+
+    ///Bulk  update asset custom property
+    BulkUpdateCustomAssetProperty(BulkUpdateCustomAssetPropertyArgs),
+
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
-    /// Acknowledge or close alarm events using CSV file output from the list-alarms command
+    /// Acknowledge or close alarm events using the CSV output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
 }
 
@@ -157,7 +167,7 @@ pub enum ManageActionOptions {
 
 #[derive(Args, Debug, Clone)]
 pub struct ManageAlarmsArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 
     #[arg(
@@ -215,8 +225,34 @@ pub struct ListAlarmsArgs {
 }
 
 #[derive(Args, Debug, Clone)]
+pub struct UpdateCustomAssetPropertyArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(
+        short = 'N',
+        long,
+        help = "Custom property to update, e.g. testCustomPropertyName"
+    )]
+    pub custom_property: String,
+
+    #[arg(short = 'D', long, help = "New custom property value, e.g. testValue")]
+    pub new_custom_property_value: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateCustomAssetPropertyArgs {
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
+    pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct BulkUpdatePortsArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -250,17 +286,13 @@ pub struct UpdateAssetSerialNumberArgs {
     )]
     pub id: Uuid,
 
-    #[arg(
-        short = 'S',
-        long,
-        help = "New serial number for the asset, e.g. EPDU123456789"
-    )]
+    #[arg(short = 'S', long, help = "New serial number, e.g. EPDU123456789")]
     pub new_serial_number: String,
 }
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdateAssetSerialNumberArgs {
-    #[arg(short, long, help = "Input filename, e.g. port_name_update.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -283,7 +315,7 @@ pub struct UpdateAssetLocationArgs {
     #[arg(
         short = 'p',
         long,
-        help = "Optional rack position attribute for zero-u rack mounted assets. e.g. Front"
+        help = "Optional rack position attribute for zero-u rack mounted assets. e.g. Left"
     )]
     pub rack_position: Option<RackPosition>,
 
@@ -297,14 +329,14 @@ pub struct UpdateAssetLocationArgs {
     #[arg(
         short = 'u',
         long,
-        help = "Optional rack unit elevation attribute for rack mounted assets. e.g. Front"
+        help = "Optional rack unit elevation attribute for rack mounted assets. e.g. 22"
     )]
     pub rack_u_location: Option<usize>,
 }
 
 #[derive(Args, Debug)]
 pub struct BulkUpdateAssetLocationArgs {
-    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -327,7 +359,7 @@ pub struct UpdateAssetNameArgs {
 
 #[derive(Args, Debug)]
 pub struct BulkUpdateAssetNameArgs {
-    #[arg(short, long, help = "Input filename, e.g. name_changes.csv")]
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }
 
@@ -339,6 +371,85 @@ pub struct ListPropertiesArgs {
         help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListAnyOfArgs {
+    #[arg(
+        short = 'k',
+        long,
+        help = "Property key to filter on, e.g. serialNumber"
+    )]
+    pub property_key: String,
+
+    #[arg(
+        short = 'v',
+        long,
+        value_delimiter = ',',
+        help = "A list of property values to filter on, e.g. serialNumber1,serialNumber2"
+    )]
+    pub property_value: Vec<String>,
+
+    #[arg(short = 't', long, help = "Optional asset type, e.g. Crah")]
+    pub asset_type: Option<AssetTypes>,
+
+    #[arg(
+        short = 'c',
+        long,
+        help = "Optional prefix of location path, e.g. \"All/\""
+    )]
+    pub location_path: Option<String>,
+
+    #[arg(
+        short = 'C',
+        long,
+        help = "Optional custom property to filter on, e.g. testCustomProperty=testValue"
+    )]
+    pub custom_properties: Option<Vec<String>>,
+
+    #[arg(
+        short,
+        long,
+        help = "Optional asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Option<Uuid>,
+
+    #[arg(short = 'M', long, help = "Manufacturer name, e.g. dell")]
+    pub manufacturer: Option<String>,
+
+    #[arg(short = 'R', long, help = "Product name, e.g. poweredge")]
+    pub product: Option<String>,
+
+    #[arg(short = 'U', long, help = "Show property in output, e.g. ratedVoltage")]
+    pub show_property: Option<String>,
+
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 99999), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 1000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..1001))
+    )]
+    pub limit: u32,
 
     #[arg(
         short,
@@ -375,21 +486,21 @@ pub struct SearchAssetsArgs {
     #[arg(
         short = 'P',
         long,
-        help = "Optional property or custom property to filter on, e.g. serialNumber=SN1234567890"
+        help = "Optional property to filter on, e.g. serialNumber=SN1234567890"
     )]
     pub properties: Option<Vec<String>>,
 
     #[arg(
         short = 'C',
         long,
-        help = "Optional custom property or custom property to filter on, e.g. testCustomProperty=testValue"
+        help = "Optional custom property to filter on, e.g. testCustomProperty=testValue"
     )]
     pub custom_properties: Option<Vec<String>>,
 
     #[arg(
         short,
         long,
-        help = "Primary ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+        help = "Optional asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
     )]
     pub id: Option<Uuid>,
 

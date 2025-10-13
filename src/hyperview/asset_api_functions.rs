@@ -1,4 +1,3 @@
-use color_eyre::Result;
 use log::{debug, error, info, trace};
 use reqwest::{
     Client,
@@ -7,6 +6,8 @@ use reqwest::{
 use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
+
+use crate::hyperview::cli_data::ListAnyOfArgs;
 
 use super::{
     api_constants::{
@@ -27,7 +28,7 @@ pub async fn bulk_update_ports_async(
     auth_header: &String,
     filename: String,
     is_patchpanel: bool,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
         debug!("Updating port id: {}", record.id);
@@ -87,7 +88,7 @@ async fn update_port_async(
     auth_header: &String,
     target_url: String,
     payload: Value,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
@@ -110,7 +111,7 @@ pub async fn list_asset_ports_async(
     req: &Client,
     auth_header: &String,
     list_asset_ports_args: ListAssetPortsArgs,
-) -> Result<Vec<AssetPortDto>> {
+) -> color_eyre::Result<Vec<AssetPortDto>> {
     let target_url = format!(
         "{}{}/detailed/{}",
         config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
@@ -168,7 +169,7 @@ pub async fn update_asset_location_async(
     req: &Client,
     auth_header: &String,
     update_location_data: UpdateAssetLocationArgs,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let target_url = format!(
         "{}{}/{}?id={}",
         config.instance_url,
@@ -213,7 +214,7 @@ pub async fn bulk_update_asset_location_async(
     req: &Client,
     auth_header: &String,
     filename: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
         debug!(
@@ -243,7 +244,7 @@ async fn get_raw_asset_by_id_async(
     req: &Client,
     auth_header: &String,
     id: &Uuid,
-) -> Result<Value> {
+) -> color_eyre::Result<Value> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
 
     let resp = req
@@ -263,7 +264,7 @@ pub async fn update_asset_name_by_id_async(
     auth_header: &String,
     id: Uuid,
     new_name: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
     debug!("Request URL: {}", target_url);
 
@@ -305,7 +306,7 @@ pub async fn bulk_update_asset_name_async(
     req: &Client,
     auth_header: &String,
     filename: String,
-) -> Result<()> {
+) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
         debug!(
@@ -326,12 +327,200 @@ pub async fn bulk_update_asset_name_async(
     Ok(())
 }
 
+pub async fn list_any_of_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    options: ListAnyOfArgs,
+) -> color_eyre::Result<Vec<AssetDto>> {
+    let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
+    debug!("Request URL: {}", target_url);
+    debug!("Options: {:#?}", options);
+
+    let search_query = compose_any_of_query(options.clone())?;
+
+    trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
+
+    let resp = req
+        .post(target_url)
+        .header(AUTHORIZATION, auth_header.clone())
+        .header(CONTENT_TYPE, "application/json")
+        .header(ACCEPT, "application/json")
+        .json(&search_query)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    let total = resp
+        .get("estimatedTotalHits")
+        .expect("Expected estimatedTotalHits to be defined in response body.")
+        .as_u64()
+        .unwrap();
+
+    let limit = resp
+        .get("limit")
+        .expect("Expected limit to be defined in response body.")
+        .as_u64()
+        .unwrap();
+
+    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+
+    let mut asset_list = Vec::new();
+
+    if total == 0 {
+        return Ok(asset_list);
+    }
+
+    if let Some(assets) = resp.get("hits") {
+        assets.as_array().unwrap().iter().for_each(|a| {
+            debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
+
+            let asset = AssetDto {
+                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
+                name: a.get("displayName").unwrap().to_string(),
+                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
+                asset_type_id: a.get("assetType").unwrap().to_string(),
+                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
+                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
+                monitoring_state: a.get("monitoringState").unwrap().to_string(),
+                parent_id: a.get("parentId").unwrap().to_string(),
+                parent_name: a.get("parentDisplayName").unwrap().to_string(),
+                product_id: a.get("productId").unwrap().to_string(),
+                product_name: a.get("productName").unwrap().to_string(),
+                status: a.get("status").unwrap().to_string(),
+                path: a
+                    .get("delimitedPath")
+                    .unwrap()
+                    .to_string()
+                    .replace("~", "/"),
+                serial_number: a
+                    .get("assetProperty_serialNumber")
+                    .and_then(|v| v.as_array())
+                    .and_then(|arr| serde_json::to_string(arr).ok())
+                    .unwrap_or_else(|| "[]".to_string()),
+                property: None,
+            };
+
+            asset_list.push(asset);
+        });
+    };
+
+    if let Some(property_type) = options.show_property {
+        for a in &mut asset_list {
+            let props = get_named_asset_property_async(
+                config,
+                req,
+                auth_header,
+                a.id,
+                property_type.clone(),
+            )
+            .await?;
+
+            let prop_values: String = props.iter().fold(String::new(), |mut a, v| {
+                let v = format!("{} ", v.value);
+                a.push_str(&v);
+                a
+            });
+
+            a.property = Some(prop_values);
+        }
+    }
+
+    Ok(asset_list)
+}
+
+fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
+    let mut search_query = json!({
+      "limit": options.limit,
+      "offset": options.skip,
+      "attributesToRetrieve": [
+        "id",
+        "displayName",
+        "assetLifecycleState",
+        "assetType",
+        "manufacturerId",
+        "manufacturerName",
+        "monitoringState",
+        "parentId",
+        "parentDisplayName",
+        "productId",
+        "productName",
+        "status",
+        "delimitedPath",
+        "assetProperty_serialNumber"
+      ],
+      "filter": "",
+    });
+
+    let mut filters = Vec::new();
+
+    filters.push(format!(
+        "assetProperty_{} EXISTS AND assetProperty_{} IN {:?}",
+        options.property_key, options.property_key, options.property_value
+    ));
+
+    if let Some(t) = options.asset_type {
+        let asset_type = t.to_string();
+        filters.push(format!("assetType = '{}'", asset_type));
+    }
+
+    if let Some(p) = options.location_path {
+        let prepared_path = p.replace('/', "~").to_string();
+        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+    }
+
+    if let Some(custom_properties) = options.custom_properties {
+        for custom_property in custom_properties {
+            if let Some((custom_property_key_name, custom_property_key_value)) =
+                custom_property.split_once('=')
+            {
+                let custom_property_key_attribute =
+                    format!("customProperty_{} ", custom_property_key_name.trim());
+                filters.push(format!(
+                    "{} = '{}'",
+                    custom_property_key_attribute,
+                    custom_property_key_value.trim()
+                ));
+            } else {
+                error!(
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
+                    custom_property
+                );
+            }
+        }
+    }
+
+    if let Some(id_guid) = options.id {
+        let id_query = format!("id = '{}'", id_guid);
+        filters.push(id_query);
+    }
+
+    if let Some(manufacturer) = options.manufacturer {
+        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        filters.push(manufacturer_name_query);
+    }
+
+    if let Some(product) = options.product {
+        let product_name_query = format!("productName CONTAINS '{}'", product);
+        filters.push(product_name_query);
+    }
+
+    let filter_str = filters.join(" AND ");
+
+    if let Some(filter_field) = search_query.get_mut("filter") {
+        *filter_field = Value::String(filter_str);
+    }
+
+    Ok(search_query)
+}
+
 pub async fn search_assets_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
     options: SearchAssetsArgs,
-) -> Result<Vec<AssetDto>> {
+) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
     debug!("Request URL: {}", target_url);
     debug!("Options: {:#?}", options);
@@ -429,7 +618,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
+fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -525,11 +714,6 @@ fn compose_search_query(options: SearchAssetsArgs) -> Result<Value> {
         *filter_field = Value::String(filter_str);
     }
 
-    trace!(
-        "search_query:t\n{}",
-        serde_json::to_string_pretty(&search_query).unwrap()
-    );
-
     Ok(search_query)
 }
 
@@ -591,7 +775,7 @@ mod tests {
         filter.push(format!("assetType = '{}'", "Server"));
 
         let input_path = "All/".to_string();
-        let prepared_path = format!("{}", input_path.replace('/', "~"));
+        let prepared_path = input_path.replace('/', "~").to_string();
         filter.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
 
         let filter_str = filter.join(" AND ");

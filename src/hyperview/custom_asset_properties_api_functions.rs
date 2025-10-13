@@ -1,7 +1,14 @@
-use color_eyre::eyre::Result;
-use log::debug;
+use log::{debug, trace};
 use reqwest::{Client, header::AUTHORIZATION};
+use serde_json::Value;
 use uuid::Uuid;
+
+use crate::hyperview::{
+    app_errors::AppError,
+    custom_asset_properties_api_data::{
+        CustomAssetPropertyFileImportDto, CustomAssetPropertyUpdateDto,
+    },
+};
 
 use super::{
     api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX, cli_data::AppConfig,
@@ -12,11 +19,11 @@ pub async fn get_custom_asset_property_list_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    id: Uuid,
-) -> Result<Vec<CustomAssetPropertyDto>> {
+    asset_id: Uuid,
+) -> color_eyre::Result<Vec<CustomAssetPropertyDto>> {
     let target_url = format!(
         "{}{}/{}",
-        config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, id
+        config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, asset_id
     );
     debug!("Request URL: {:?}", target_url);
 
@@ -29,6 +36,94 @@ pub async fn get_custom_asset_property_list_async(
         .await?;
 
     Ok(resp)
+}
+
+pub async fn update_custom_property_by_name_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    asset_id: Uuid,
+    custom_asset_property_name: String,
+    new_custom_property_value: String,
+) -> color_eyre::Result<()> {
+    let custom_asset_property_list =
+        get_custom_asset_property_list_async(config, req, auth_header, asset_id).await?;
+
+    let custom_asset_property = custom_asset_property_list
+        .into_iter()
+        .filter(|p| p.name == custom_asset_property_name)
+        .collect::<Vec<CustomAssetPropertyDto>>();
+
+    if custom_asset_property.is_empty() {
+        return Err(AppError::AssetDoesNotHavePropertyName(custom_asset_property_name).into());
+    }
+
+    let custom_property = custom_asset_property
+        .first()
+        .expect("Asset should have a custom property that can be updated");
+    debug!("Custom property to update: {custom_property:#?}");
+
+    let target_url = format!(
+        "{}{}/{}",
+        config.instance_url,
+        CUSTOM_ASSET_PROPERTIES_API_PREFIX,
+        custom_property.id.clone()
+    );
+    debug!("Request URL: {:?}", target_url);
+
+    let update_dto = CustomAssetPropertyUpdateDto {
+        custom_asset_property_key_id: custom_property.custom_asset_property_key_id.clone(),
+        data_type: custom_property.data_type.clone(),
+        group_name: custom_property.group_name.clone(),
+        id: custom_property.id.clone(),
+        value: new_custom_property_value,
+    };
+    trace!(
+        "New custom property update DTO: {}",
+        serde_json::to_string_pretty(&update_dto).expect("Could not serialize update_dto to JSON")
+    );
+
+    let resp = req
+        .put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&update_dto)
+        .send()
+        .await?
+        .json::<Value>()
+        .await?;
+
+    debug!(
+        "Update custom asset property response: {}",
+        serde_json::to_string_pretty(&resp)
+            .expect("Could not serialize update custom asset property response to JSON")
+    );
+
+    Ok(())
+}
+
+pub async fn bulk_update_custom_property_by_name_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader
+        .deserialize::<CustomAssetPropertyFileImportDto>()
+        .next()
+    {
+        debug!("Update custom asset property record: {record:?}");
+        update_custom_property_by_name_async(
+            config,
+            req,
+            auth_header,
+            record.asset_id,
+            record.custom_asset_property_name.clone(),
+            record.new_custom_property_value.clone(),
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]

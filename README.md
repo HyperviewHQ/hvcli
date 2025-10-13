@@ -34,30 +34,33 @@ instance_url = 'https://example.hyperviewhq.com'
 # Usage
 
 ```bash
-$  hvcli --help
+$ hvcli --help
 A command line interface to interact with asset data stored in Hyperview
 
 Usage: hvcli [OPTIONS] <COMMAND>
 
 Commands:
-  list-asset-properties            List asset properties
-  list-custom-asset-properties     List custom asset properties
-  search-assets                    Search assets
-  update-asset-name                Update asset name
-  bulk-update-asset-name           Bulk update asset name
-  update-asset-location            Update asset location
-  bulk-update-asset-location       Bulk update asset location
-  update-asset-serial-number       Update asset serial number. Applies to manually created assets and assets discovered without a serial number
-  bulk-update-asset-serial-number  Bulk update asset serial numbers
-  list-asset-ports                 List asset ports
-  bulk-update-patch-panel-ports    Bulk update patch panel port names
-  bulk-update-asset-ports          Bulk update asset port names
-  list-alarms                      List alarm events
-  manage-alarms                    Acknowledge or close alarm events using CSV file output from the list-alarms command
-  help                             Print this message or the help of the given subcommand(s)
+  list-asset-properties              List asset properties
+  list-custom-asset-properties       List asset custom properties
+  search-assets                      Search assets
+  list-any-of                        List assets matching any of the provided property values
+  update-asset-name                  Update asset name
+  bulk-update-asset-name             Bulk update asset name
+  update-asset-location              Update asset location
+  bulk-update-asset-location         Bulk update asset location
+  update-asset-serial-number         Update asset serial number. This applies to manually created assets and assets discovered without a serial number
+  bulk-update-asset-serial-number    Bulk update asset serial number. This applies to manually created assets and assets discovered without a serial number
+  list-asset-ports                   List asset ports
+  bulk-update-patch-panel-ports      Bulk update patch panel port names
+  bulk-update-asset-ports            Bulk update asset port names
+  update-custom-asset-property       Update asset custom property
+  bulk-update-custom-asset-property  Bulk  update asset custom property
+  list-alarms                        List alarm events
+  manage-alarms                      Acknowledge or close alarm events using the CSV output from the list-alarms command
+  help                               Print this message or the help of the given subcommand(s)
 
 Options:
-  -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn, debug, info, trace]
+  -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn, info, debug, trace]
   -h, --help                       Print help
   -V, --version                    Print version
 ```
@@ -73,37 +76,47 @@ This subcommand will list all _set_ and _available_ custom properties for an ass
 ### 3. search-assets
 This subcommand is the main entry point for the application and it provides various methods to search for assets in Hyperview.
 
-### 4. update-asset-name
+### 4. list-any-of
+This subcommand will list assets that match a specific set of property values. For example, a list of serial numbers.
+Please note that the matches are exact.
+
+### 5. update-asset-name
 This subcommand will update the display name of a single asset.
 
-### 5. bulk-update-asset-name
+### 6. bulk-update-asset-name
 This subcommand will update multiple assets using a _CSV_ input file. Example input is in the **example_input** folder in this repo.
 
-### 6. update-asset-location
+### 7. update-asset-location
 This subcommand will update the location of a single asset.
 
-### 7. bulk-update-asset-location
+### 8. bulk-update-asset-location
 This subcommand will update multiple assets using a _CSV_ input file. Example input is in the **example_input** folder.
 
-### 8. update-asset-serial-number
+### 9. update-asset-serial-number
 This subcommand will update asset serial number. Applies to manually created assets and assets discovered without a serial number.
 
-### 9. bulk-update-asset-serial-number
+### 10. bulk-update-asset-serial-number
 This subcommand will update the serial number for multiple assets  using a _CSV_ input file. Example input is in the **example_input** folder in this repo.
 
-### 10. list-asset-ports
+### 11. list-asset-ports
 This subcommand will List asset physical network ports.
 
-### 11. bulk-update-patch-panel-ports
+### 12. bulk-update-patch-panel-ports
 This subcommand will bulk update **patch panel** physical network port names using a _CSV_ input file. Example input is in the **example_input** folder.
 
-### 12. bulk-update-asset-ports
+### 13. bulk-update-asset-ports
 This subcommand will bulk update **other asset** physical network port names, E.g. a network switch. Example input is in the example_input folder.
 
-### 13. list-alarms
+### 14. update-custom-asset-property
+This subcommand will update the value of an asset custom property.
+
+### 15. bulk-update-custom-asset-property
+This subcommand will bulk update the custom property value for a list of assets using a _CSV_ input file. Example input is in the **example_input** folder.
+
+### 16. list-alarms
 This subcommand will list alarm events. By default it will list _active_ events and it can also list _unacknowledged_ events via a command line toggle.
 
-### 14. manage-alarms
+### 17. manage-alarms
 This subcommand will _acknowledge_ or _close_ alarm events using _CSV_ file output from the list-alarms command. By default this command will close event and it can also acknowledge events via a command line toggle.
 
 ### Help
