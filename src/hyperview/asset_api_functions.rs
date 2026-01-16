@@ -40,7 +40,7 @@ pub async fn bulk_update_ports_async(
                 "{}{}/patchPanel/{}",
                 config.instance_url, ASSET_PORTS_API_PREFIX, record.id
             );
-            debug!("Request URL: {}", target_url);
+            debug!("Request URL: {target_url}");
 
             let payload = json!({
               "id": record.id,
@@ -64,7 +64,7 @@ pub async fn bulk_update_ports_async(
             "{}{}/{}",
             config.instance_url, ASSET_PORTS_API_PREFIX, record.id
         );
-        debug!("Request URL: {}", target_url);
+        debug!("Request URL: {target_url}");
 
         let payload = json!({
           "id": record.id,
@@ -117,7 +117,7 @@ pub async fn list_asset_ports_async(
         config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
     );
 
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let resp = req
         .get(target_url)
@@ -129,37 +129,45 @@ pub async fn list_asset_ports_async(
 
     let mut asset_ports = Vec::new();
 
-    resp.into_iter().for_each(|v| {
+    for record in resp {
         let mut port = AssetPortDto {
             ..Default::default()
         };
-        if let Some(id) = v["id"].as_str() {
+
+        if let Some(id) = record["id"].as_str() {
             port.id = Uuid::parse_str(id).unwrap();
-        };
-        if let Some(name) = v["name"].as_str() {
+        }
+
+        if let Some(name) = record["name"].as_str() {
             port.name = name.to_string();
-        };
-        if let Some(parent_id) = v["parentId"].as_str() {
+        }
+
+        if let Some(parent_id) = record["parentId"].as_str() {
             port.parent_id = parent_id.to_string();
-        };
-        if let Some(port_number) = v["portNumber"].as_i64() {
+        }
+
+        if let Some(port_number) = record["portNumber"].as_i64() {
             port.port_number = port_number;
-        };
-        if let Some(port_side) = v["portSide"].as_str() {
+        }
+
+        if let Some(port_side) = record["portSide"].as_str() {
             port.port_side = Some(port_side.to_string());
-        };
-        if let Some(port_side_value_id) = v["portSideValueId"].as_str() {
+        }
+
+        if let Some(port_side_value_id) = record["portSideValueId"].as_str() {
             port.port_side_value_id = Some(port_side_value_id.to_string());
-        };
-        if let Some(connector_type_value_id) = v["connectorTypeValueId"].as_str() {
+        }
+
+        if let Some(connector_type_value_id) = record["connectorTypeValueId"].as_str() {
             port.connector_type_value_id = Some(connector_type_value_id.to_string());
-        };
-        if let Some(port_type_value_id) = v["portTypeValueId"].as_str() {
+        }
+
+        if let Some(port_type_value_id) = record["portTypeValueId"].as_str() {
             port.port_type_value_id = Some(port_type_value_id.to_string());
-        };
+        }
 
         asset_ports.push(port);
-    });
+    }
 
     Ok(asset_ports)
 }
@@ -178,7 +186,7 @@ pub async fn update_asset_location_async(
         update_location_data.id
     );
 
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let asset_location_dto = AssetLocationDTO {
         parent_id: update_location_data.new_location_id,
@@ -266,7 +274,7 @@ pub async fn update_asset_name_by_id_async(
     new_name: String,
 ) -> color_eyre::Result<()> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let mut asset_value = get_raw_asset_by_id_async(config, req, auth_header, &id).await?;
 
@@ -334,10 +342,10 @@ pub async fn list_any_of_async(
     options: ListAnyOfArgs,
 ) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
-    debug!("Request URL: {}", target_url);
-    debug!("Options: {:#?}", options);
+    debug!("Request URL: {target_url}");
+    debug!("Options: {options:#?}");
 
-    let search_query = compose_any_of_query(options.clone())?;
+    let search_query = compose_any_of_query(options.clone());
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -364,7 +372,7 @@ pub async fn list_any_of_async(
         .as_u64()
         .unwrap();
 
-    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    info!("Meta Data: | Total: {total} | Limit: {limit} |");
 
     let mut asset_list = Vec::new();
 
@@ -393,7 +401,7 @@ pub async fn list_any_of_async(
                     .get("delimitedPath")
                     .unwrap()
                     .to_string()
-                    .replace("~", "/"),
+                    .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
                     .and_then(|v| v.as_array())
@@ -404,7 +412,7 @@ pub async fn list_any_of_async(
 
             asset_list.push(asset);
         });
-    };
+    }
 
     if let Some(property_type) = options.show_property {
         for a in &mut asset_list {
@@ -430,7 +438,7 @@ pub async fn list_any_of_async(
     Ok(asset_list)
 }
 
-fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
+fn compose_any_of_query(options: ListAnyOfArgs) -> serde_json::Value {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -462,12 +470,12 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
 
     if let Some(t) = options.asset_type {
         let asset_type = t.to_string();
-        filters.push(format!("assetType = '{}'", asset_type));
+        filters.push(format!("assetType = '{asset_type}'"));
     }
 
     if let Some(p) = options.location_path {
-        let prepared_path = p.replace('/', "~").to_string();
-        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = p.replace('/', "~").clone();
+        filters.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
     }
 
     if let Some(custom_properties) = options.custom_properties {
@@ -484,25 +492,24 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
                 ));
             } else {
                 error!(
-                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
-                    custom_property
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{custom_property}'"
                 );
             }
         }
     }
 
     if let Some(id_guid) = options.id {
-        let id_query = format!("id = '{}'", id_guid);
+        let id_query = format!("id = '{id_guid}'");
         filters.push(id_query);
     }
 
     if let Some(manufacturer) = options.manufacturer {
-        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        let manufacturer_name_query = format!("manufacturerName = '{manufacturer}'");
         filters.push(manufacturer_name_query);
     }
 
     if let Some(product) = options.product {
-        let product_name_query = format!("productName CONTAINS '{}'", product);
+        let product_name_query = format!("productName CONTAINS '{product}'");
         filters.push(product_name_query);
     }
 
@@ -512,7 +519,7 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
         *filter_field = Value::String(filter_str);
     }
 
-    Ok(search_query)
+    search_query
 }
 
 pub async fn search_assets_async(
@@ -522,10 +529,10 @@ pub async fn search_assets_async(
     options: SearchAssetsArgs,
 ) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
-    debug!("Request URL: {}", target_url);
-    debug!("Options: {:#?}", options);
+    debug!("Request URL: {target_url}");
+    debug!("Options: {options:#?}");
 
-    let search_query = compose_search_query(options.clone())?;
+    let search_query = compose_search_query(options.clone());
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -552,7 +559,7 @@ pub async fn search_assets_async(
         .as_u64()
         .unwrap();
 
-    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    info!("Meta Data: | Total: {total} | Limit: {limit} |");
 
     let mut asset_list = Vec::new();
 
@@ -581,7 +588,7 @@ pub async fn search_assets_async(
                     .get("delimitedPath")
                     .unwrap()
                     .to_string()
-                    .replace("~", "/"),
+                    .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
                     .and_then(|v| v.as_array())
@@ -592,7 +599,7 @@ pub async fn search_assets_async(
 
             asset_list.push(asset);
         });
-    };
+    }
 
     if let Some(property_type) = options.show_property {
         for a in &mut asset_list {
@@ -618,7 +625,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> {
+fn compose_search_query(options: SearchAssetsArgs) -> serde_json::Value {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -646,12 +653,12 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
 
     if let Some(t) = options.asset_type {
         let asset_type = t.to_string();
-        filters.push(format!("assetType = '{}'", asset_type));
+        filters.push(format!("assetType = '{asset_type}'"));
     }
 
     if let Some(p) = options.location_path {
-        let prepared_path = p.replace('/', "~").to_string();
-        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = p.replace('/', "~").clone();
+        filters.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
     }
 
     if let Some(properties) = options.properties {
@@ -664,10 +671,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
                     property_key_value.trim()
                 ));
             } else {
-                error!(
-                    "Asset property filter was formatted incorrectly. Skipping... '{}'",
-                    property
-                );
+                error!("Asset property filter was formatted incorrectly. Skipping... '{property}'");
             }
         }
     }
@@ -686,25 +690,24 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
                 ));
             } else {
                 error!(
-                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
-                    custom_property
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{custom_property}'"
                 );
             }
         }
     }
 
     if let Some(id_guid) = options.id {
-        let id_query = format!("id = '{}'", id_guid);
+        let id_query = format!("id = '{id_guid}'");
         filters.push(id_query);
     }
 
     if let Some(manufacturer) = options.manufacturer {
-        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        let manufacturer_name_query = format!("manufacturerName = '{manufacturer}'");
         filters.push(manufacturer_name_query);
     }
 
     if let Some(product) = options.product {
-        let product_name_query = format!("productName CONTAINS '{}'", product);
+        let product_name_query = format!("productName CONTAINS '{product}'");
         filters.push(product_name_query);
     }
 
@@ -714,7 +717,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
         *filter_field = Value::String(filter_str);
     }
 
-    Ok(search_query)
+    search_query
 }
 
 #[cfg(test)]

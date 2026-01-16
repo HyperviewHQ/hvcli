@@ -16,13 +16,13 @@ impl fmt::Display for MultiTypeValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             MultiTypeValue::StringValue(s) => {
-                write!(f, "\"{}\"", s)
+                write!(f, "\"{s}\"")
             }
             MultiTypeValue::FloatValue(n) => {
-                write!(f, "{}", n)
+                write!(f, "{n}")
             }
             MultiTypeValue::IntegerValue(n) => {
-                write!(f, "{}", n)
+                write!(f, "{n}")
             }
             MultiTypeValue::NullValue => {
                 write!(f, "null")

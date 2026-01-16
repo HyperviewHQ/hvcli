@@ -34,7 +34,7 @@ async fn main() -> color_eyre::Result<()> {
 
     let args = AppArgs::parse();
     let debug_level = args.debug_level;
-    let level_filter = get_debug_filter(debug_level.clone());
+    let level_filter = get_debug_filter(debug_level);
     env_logger::builder().filter(None, level_filter).init();
 
     info!("Starting Hyperview Asset Tool");
@@ -47,33 +47,34 @@ async fn main() -> color_eyre::Result<()> {
     match &args.command {
         AppArgsSubcommands::ListAssetProperties(options) => {
             let id = options.id;
-            let output_type = options.output_type.clone();
+            let output_type = options.output_type;
             let filename = options.filename.clone();
 
             let resp = get_asset_property_list_async(&config, &req, &auth_header, id).await?;
-            handle_output_choice(output_type, filename, resp)?;
+            handle_output_choice(output_type, filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
             let id = options.id;
-            let output_type = options.output_type.clone();
+            let output_type = options.output_type;
             let filename = options.filename.clone();
 
             let resp =
                 get_custom_asset_property_list_async(&config, &req, &auth_header, id).await?;
-            handle_output_choice(output_type, filename, resp)?;
+
+            handle_output_choice(output_type, filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
             let resp = search_assets_async(&config, &req, &auth_header, options.clone()).await?;
 
-            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListAnyOf(options) => {
             let resp = list_any_of_async(&config, &req, &auth_header, options.clone()).await?;
 
-            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::UpdateAssetName(options) => {
@@ -129,7 +130,7 @@ async fn main() -> color_eyre::Result<()> {
         AppArgsSubcommands::ListAssetPorts(options) => {
             let resp = list_asset_ports_async(&config, &req, &auth_header, options.clone()).await?;
 
-            handle_output_choice(options.output_type.clone(), options.filename.clone(), resp)?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
@@ -175,11 +176,7 @@ async fn main() -> color_eyre::Result<()> {
             )
             .await?;
 
-            handle_output_choice(
-                options.output_type.clone(),
-                options.filename.clone(),
-                resp.data,
-            )?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp.data)?;
         }
 
         AppArgsSubcommands::ManageAlarms(options) => {

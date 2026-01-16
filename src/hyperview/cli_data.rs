@@ -13,7 +13,7 @@ pub struct AppConfig {
     pub instance_url: String,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum OutputOptions {
     CsvFile,
     Json,
@@ -57,7 +57,7 @@ pub enum AssetTypes {
 
 impl fmt::Display for AssetTypes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -81,7 +81,7 @@ pub enum RackPosition {
     Unknown,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum DebugLevels {
     Error,
     Warn,

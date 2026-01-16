@@ -70,52 +70,48 @@ pub async fn update_asset_serialnumber_async(
 
         trace!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        match payload.id {
-            Some(id) => {
-                // Updating an existing value
-                let target_url = format!(
-                    "{}{}/{}",
-                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
-                );
-                debug!("Request URL: {}", target_url);
+        if let Some(id) = payload.id {
+            // Updating an existing value
+            let target_url = format!(
+                "{}{}/{}",
+                config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+            );
+            debug!("Request URL: {target_url}");
 
-                let resp = req
-                    .put(target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&payload)
-                    .send()
-                    .await?
-                    .json::<serde_json::Value>()
-                    .await?;
+            let resp = req
+                .put(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&payload)
+                .send()
+                .await?
+                .json::<serde_json::Value>()
+                .await?;
 
-                debug!(
-                    "Update serial number: {}",
-                    serde_json::to_string_pretty(&resp)?
-                );
-            }
+            debug!(
+                "Update serial number: {}",
+                serde_json::to_string_pretty(&resp)?
+            );
+        } else {
+            // Setting serial number for the first time
+            let target_url = format!(
+                "{}{}/?assetId={}",
+                config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+            );
+            debug!("Request URL: {target_url}");
 
-            None => {
-                // Setting serial number for the first time
-                let target_url = format!(
-                    "{}{}/?assetId={}",
-                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
-                );
-                debug!("Request URL: {}", target_url);
+            let resp = req
+                .post(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&payload)
+                .send()
+                .await?
+                .json::<serde_json::Value>()
+                .await?;
 
-                let resp = req
-                    .post(target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&payload)
-                    .send()
-                    .await?
-                    .json::<serde_json::Value>()
-                    .await?;
-
-                debug!(
-                    "Update serial number: {}",
-                    serde_json::to_string_pretty(&resp)?
-                );
-            }
+            debug!(
+                "Update serial number: {}",
+                serde_json::to_string_pretty(&resp)?
+            );
         }
     }
 
@@ -132,7 +128,7 @@ pub async fn get_asset_property_list_async(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
     );
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {target_url:?}");
 
     let resp = req
         .get(target_url)

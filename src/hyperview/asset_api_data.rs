@@ -37,7 +37,7 @@ pub struct AssetDto {
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let asset_record = format!(
-            r#"
+            r"
 id                    : {}
 name                  : {}
 asset_lifecycle_state : {}
@@ -53,7 +53,7 @@ status                : {}
 path                  : {}
 serial_number         : {}
 property              : {}
-"#,
+",
             self.id,
             self.name,
             self.asset_lifecycle_state,
@@ -71,7 +71,7 @@ property              : {}
             self.property.clone().unwrap_or_default()
         );
 
-        write!(f, "{}", asset_record)
+        write!(f, "{asset_record}")
     }
 }
 
@@ -124,7 +124,7 @@ pub struct AssetPortDto {
 impl fmt::Display for AssetPortDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let asset_port_record = format!(
-            r#"
+            r"
 id: {}
 name: {}
 parent_id: {}
@@ -133,7 +133,7 @@ port_side: {}
 port_side_value_id: {}
 connector_type_value_id: {}
 port_type_value_id: {}
-"#,
+",
             self.id,
             self.name,
             self.parent_id,
@@ -144,6 +144,6 @@ port_type_value_id: {}
             self.port_type_value_id.clone().unwrap_or_default()
         );
 
-        write!(f, "{}", asset_port_record)
+        write!(f, "{asset_port_record}")
     }
 }
