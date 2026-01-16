@@ -770,7 +770,7 @@ mod tests {
             show_property: None,
         };
 
-        assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
+        assert_eq!(compose_search_query(options.clone()), query1);
 
         // Test with asset type and location set
         let mut filter = Vec::new();
@@ -790,7 +790,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(compose_search_query(options).unwrap(), query1);
+        assert_eq!(compose_search_query(options), query1);
     }
 
     #[tokio::test]

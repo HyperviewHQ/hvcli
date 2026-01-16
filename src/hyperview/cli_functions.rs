@@ -193,7 +193,7 @@ mod tests {
         let filename = Some(temp_file.path().to_str().unwrap().to_string());
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
-        match handle_output_choice(output_type, filename, resp) {
+        match handle_output_choice(output_type, filename.as_ref(), resp) {
             Err(e) => assert_eq!(e.to_string(), AppError::FileExists.to_string()),
             _ => panic!("Expected Err, but got Ok"),
         }
@@ -207,7 +207,7 @@ mod tests {
         let filename = temp_file_path.clone() + "_new";
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
-        let result = handle_output_choice(output_type, Some(filename.clone()), resp);
+        let result = handle_output_choice(output_type, Some(&filename), resp);
         assert!(result.is_ok());
 
         let mut file = File::open(filename).unwrap();
