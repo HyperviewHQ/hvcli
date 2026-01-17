@@ -11,37 +11,39 @@ use super::{
     cli_data::AppConfig,
 };
 
-pub async fn bulk_update_asset_serialnumber_async(
+pub async fn bulk_update_asset_property_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
     filename: String,
+    asset_property_type: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
 
     while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
-        update_asset_serialnumber_async(
+        update_asset_property_async(
             config,
             req,
             auth_header,
             record.asset_id,
             record.serial_number,
+            asset_property_type.clone(),
         )
         .await?;
     }
     Ok(())
 }
 
-pub async fn update_asset_serialnumber_async(
+pub async fn update_asset_property_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
     id: Uuid,
-    new_serial_number: String,
+    new_value: String,
+    asset_property_type: String,
 ) -> color_eyre::Result<()> {
     let current_values =
-        get_named_asset_property_async(config, req, auth_header, id, "serialNumber".to_string())
-            .await?;
+        get_named_asset_property_async(config, req, auth_header, id, asset_property_type).await?;
 
     debug!(
         "Current property values: {}",
@@ -56,7 +58,7 @@ pub async fn update_asset_serialnumber_async(
         let payload = AssetPropertyDto {
             id: current_value.id,
             property_type: current_value.property_type.clone(),
-            value: MultiTypeValue::StringValue(new_serial_number),
+            value: MultiTypeValue::StringValue(new_value),
             data_type: current_value.data_type.clone(),
             data_source: current_value.data_source.clone(),
             asset_property_display_category: current_value.asset_property_display_category.clone(),

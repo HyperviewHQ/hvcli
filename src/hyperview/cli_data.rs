@@ -137,6 +137,9 @@ pub enum AppArgsSubcommands {
     /// assets and assets discovered without a serial number
     BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
 
+    /// Update asset "asset tag" Property
+    UpdateAssetTag(UpdateAssetTagArgs),
+
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
@@ -294,6 +297,19 @@ pub struct UpdateAssetSerialNumberArgs {
 pub struct BulkUpdateAssetSerialNumberArgs {
     #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct UpdateAssetTagArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(short = 'T', long, help = "New asset tag, e.g. AT-123456789")]
+    pub new_asset_tag: String,
 }
 
 #[derive(Args, Debug, Clone)]

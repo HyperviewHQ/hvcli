@@ -10,8 +10,8 @@ use hyperview::{
         update_asset_name_by_id_async,
     },
     asset_properties_api_functions::{
-        bulk_update_asset_serialnumber_async, get_asset_property_list_async,
-        update_asset_serialnumber_async,
+        bulk_update_asset_property_async, get_asset_property_list_async,
+        update_asset_property_async,
     },
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
@@ -107,22 +107,37 @@ async fn main() -> color_eyre::Result<()> {
                 "Options: id: {}, SN: {}",
                 options.id, options.new_serial_number
             );
-            update_asset_serialnumber_async(
+            update_asset_property_async(
                 &config,
                 &req,
                 &auth_header,
                 options.id,
                 options.new_serial_number.clone(),
+                "serialNumber".to_string(),
             )
             .await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetSerialNumber(options) => {
-            bulk_update_asset_serialnumber_async(
+            bulk_update_asset_property_async(
                 &config,
                 &req,
                 &auth_header,
                 options.filename.clone(),
+                "serialNumber".to_string(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::UpdateAssetTag(options) => {
+            info!("Options: id: {}, AT: {}", options.id, options.new_asset_tag);
+            update_asset_property_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.new_asset_tag.clone(),
+                "assetTag".to_string(),
             )
             .await?;
         }
