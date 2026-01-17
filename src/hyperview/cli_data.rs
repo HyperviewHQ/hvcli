@@ -135,10 +135,13 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
-    BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
+    BulkUpdateAssetSerialNumber(BulkUpdateAssetPropertyArgs),
 
     /// Update asset "asset tag" Property
     UpdateAssetTag(UpdateAssetTagArgs),
+
+    /// Bulk update asset "asset tag" Property
+    BulkUpdateAssetTag(BulkUpdateAssetPropertyArgs),
 
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
@@ -294,7 +297,7 @@ pub struct UpdateAssetSerialNumberArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct BulkUpdateAssetSerialNumberArgs {
+pub struct BulkUpdateAssetPropertyArgs {
     #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
 }

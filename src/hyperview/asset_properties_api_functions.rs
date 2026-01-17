@@ -7,7 +7,7 @@ use crate::hyperview::common_types::MultiTypeValue;
 use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
-    asset_properties_api_data::{AssetPropertyDto, AssetSerialNumberImportDto},
+    asset_properties_api_data::{AssetPropertyDto, AssetPropertyImportDto},
     cli_data::AppConfig,
 };
 
@@ -20,13 +20,13 @@ pub async fn bulk_update_asset_property_async(
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
 
-    while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
+    while let Some(Ok(record)) = reader.deserialize::<AssetPropertyImportDto>().next() {
         update_asset_property_async(
             config,
             req,
             auth_header,
             record.asset_id,
-            record.serial_number,
+            record.new_value,
             asset_property_type.clone(),
         )
         .await?;

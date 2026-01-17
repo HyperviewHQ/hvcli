@@ -20,6 +20,7 @@ use hyperview::{
 };
 
 use crate::hyperview::{
+    api_constants::{ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_SERIAL_NUMBER},
     asset_api_functions::list_any_of_async,
     custom_asset_properties_api_functions::{
         bulk_update_custom_property_by_name_async, update_custom_property_by_name_async,
@@ -113,7 +114,7 @@ async fn main() -> color_eyre::Result<()> {
                 &auth_header,
                 options.id,
                 options.new_serial_number.clone(),
-                "serialNumber".to_string(),
+                ASSET_PROPERTY_SERIAL_NUMBER.to_string(),
             )
             .await?;
         }
@@ -124,7 +125,7 @@ async fn main() -> color_eyre::Result<()> {
                 &req,
                 &auth_header,
                 options.filename.clone(),
-                "serialNumber".to_string(),
+                ASSET_PROPERTY_SERIAL_NUMBER.to_string(),
             )
             .await?;
         }
@@ -137,7 +138,18 @@ async fn main() -> color_eyre::Result<()> {
                 &auth_header,
                 options.id,
                 options.new_asset_tag.clone(),
-                "assetTag".to_string(),
+                ASSET_PROPERTY_ASSET_TAG.to_string(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetTag(options) => {
+            bulk_update_asset_property_async(
+                &config,
+                &req,
+                &auth_header,
+                options.filename.clone(),
+                ASSET_PROPERTY_ASSET_TAG.to_string(),
             )
             .await?;
         }

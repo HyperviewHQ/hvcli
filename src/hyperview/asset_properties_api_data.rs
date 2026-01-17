@@ -77,7 +77,7 @@ impl fmt::Display for AssetPropertyDto {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AssetSerialNumberImportDto {
+pub struct AssetPropertyImportDto {
     pub asset_id: Uuid,
-    pub serial_number: String,
+    pub new_value: String,
 }
