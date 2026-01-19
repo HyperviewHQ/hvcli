@@ -131,17 +131,25 @@ pub enum AppArgsSubcommands {
 
     /// Update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
-    UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
+    UpdateAssetSerialNumber(UpdateAssetPropertyArgs),
 
     /// Bulk update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
     BulkUpdateAssetSerialNumber(BulkUpdateAssetPropertyArgs),
 
     /// Update asset "asset tag" Property
-    UpdateAssetTag(UpdateAssetTagArgs),
+    UpdateAssetTag(UpdateAssetPropertyArgs),
 
     /// Bulk update asset "asset tag" Property
     BulkUpdateAssetTag(BulkUpdateAssetPropertyArgs),
+
+    /// Update asset power "design value" Property
+    /// Applies to Rack and Location asset types
+    UpdatePowerDesignValue(UpdateAssetPropertyArgs),
+
+    /// Bulk update asset power "design value" Property
+    /// Applies to Rack and Location asset types
+    BulkUpdatePowerDesignValue(BulkUpdateAssetPropertyArgs),
 
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
@@ -284,7 +292,7 @@ pub struct ListAssetPortsArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct UpdateAssetSerialNumberArgs {
+pub struct UpdateAssetPropertyArgs {
     #[arg(
         short,
         long,
@@ -292,27 +300,14 @@ pub struct UpdateAssetSerialNumberArgs {
     )]
     pub id: Uuid,
 
-    #[arg(short = 'S', long, help = "New serial number, e.g. EPDU123456789")]
-    pub new_serial_number: String,
+    #[arg(short = 'T', long, help = "New property value, e.g. EPDU123456789")]
+    pub new_value: String,
 }
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdateAssetPropertyArgs {
     #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct UpdateAssetTagArgs {
-    #[arg(
-        short,
-        long,
-        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
-    )]
-    pub id: Uuid,
-
-    #[arg(short = 'T', long, help = "New asset tag, e.g. AT-123456789")]
-    pub new_asset_tag: String,
 }
 
 #[derive(Args, Debug, Clone)]

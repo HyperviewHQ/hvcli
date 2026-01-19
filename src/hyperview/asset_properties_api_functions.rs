@@ -55,10 +55,17 @@ pub async fn update_asset_property_async(
     }
 
     if let Some(current_value) = current_values.first() {
+        let parsed_value = if current_value.data_type == "decimal" {
+            let decimal_value = new_value.parse::<f64>()?;
+            MultiTypeValue::FloatValue(decimal_value)
+        } else {
+            MultiTypeValue::StringValue(new_value)
+        };
+
         let payload = AssetPropertyDto {
             id: current_value.id,
             property_type: current_value.property_type.clone(),
-            value: MultiTypeValue::StringValue(new_value),
+            value: parsed_value,
             data_type: current_value.data_type.clone(),
             data_source: current_value.data_source.clone(),
             asset_property_display_category: current_value.asset_property_display_category.clone(),

@@ -14,3 +14,4 @@ pub const CUSTOM_ASSET_PROPERTIES_API_PREFIX: &str = "/api/asset/customAssetProp
 // Asset property name constants
 pub const ASSET_PROPERTY_ASSET_TAG: &str = "assetTag";
 pub const ASSET_PROPERTY_SERIAL_NUMBER: &str = "serialNumber";
+pub const ASSET_PROPERTY_DESIGN_VALUE: &str = "designValue";

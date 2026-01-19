@@ -20,7 +20,9 @@ use hyperview::{
 };
 
 use crate::hyperview::{
-    api_constants::{ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_SERIAL_NUMBER},
+    api_constants::{
+        ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_DESIGN_VALUE, ASSET_PROPERTY_SERIAL_NUMBER,
+    },
     asset_api_functions::list_any_of_async,
     custom_asset_properties_api_functions::{
         bulk_update_custom_property_by_name_async, update_custom_property_by_name_async,
@@ -104,16 +106,13 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
-            info!(
-                "Options: id: {}, SN: {}",
-                options.id, options.new_serial_number
-            );
+            info!("Options: id: {}, SN: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
                 &auth_header,
                 options.id,
-                options.new_serial_number.clone(),
+                options.new_value.clone(),
                 ASSET_PROPERTY_SERIAL_NUMBER.to_string(),
             )
             .await?;
@@ -131,13 +130,13 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetTag(options) => {
-            info!("Options: id: {}, AT: {}", options.id, options.new_asset_tag);
+            info!("Options: id: {}, AT: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
                 &auth_header,
                 options.id,
-                options.new_asset_tag.clone(),
+                options.new_value.clone(),
                 ASSET_PROPERTY_ASSET_TAG.to_string(),
             )
             .await?;
@@ -150,6 +149,30 @@ async fn main() -> color_eyre::Result<()> {
                 &auth_header,
                 options.filename.clone(),
                 ASSET_PROPERTY_ASSET_TAG.to_string(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::UpdatePowerDesignValue(options) => {
+            info!("Options: id: {}, AT: {}", options.id, options.new_value);
+            update_asset_property_async(
+                &config,
+                &req,
+                &auth_header,
+                options.id,
+                options.new_value.clone(),
+                ASSET_PROPERTY_DESIGN_VALUE.to_string(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkUpdatePowerDesignValue(options) => {
+            bulk_update_asset_property_async(
+                &config,
+                &req,
+                &auth_header,
+                options.filename.clone(),
+                ASSET_PROPERTY_DESIGN_VALUE.to_string(),
             )
             .await?;
         }
