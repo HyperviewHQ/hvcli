@@ -13,6 +13,17 @@ pub struct AppConfig {
     pub instance_url: String,
 }
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+pub struct AppArgs {
+    #[arg(short = 'd', long, help = "Debug level", default_value = "error")]
+    pub debug_level: DebugLevels,
+
+    #[command(subcommand)]
+    pub command: AppArgsSubcommands,
+}
+
 #[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum OutputOptions {
     CsvFile,
@@ -90,15 +101,22 @@ pub enum DebugLevels {
     Trace,
 }
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-#[command(propagate_version = true)]
-pub struct AppArgs {
-    #[arg(short = 'd', long, help = "Debug level", default_value = "error")]
-    pub debug_level: DebugLevels,
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum RackPanelType {
+    BlankingPanel,
+    CableManagement,
+}
 
-    #[command(subcommand)]
-    pub command: AppArgsSubcommands,
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum ManageActionOptions {
+    Acknowledge,
+    Close,
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum AlarmEventFilterOptions {
+    Unacknowledged,
+    Active,
 }
 
 #[allow(clippy::enum_variant_names)]
@@ -171,12 +189,36 @@ pub enum AppArgsSubcommands {
 
     /// Acknowledge or close alarm events using the CSV output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
+
+    // Add a blanking panel or cable management panel to a rack
+    AddRackAccessory(AddRackAccessoryArgs),
 }
 
-#[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum ManageActionOptions {
-    Acknowledge,
-    Close,
+#[derive(Args, Debug, Clone)]
+pub struct AddRackAccessoryArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(short = 'l', long, help = "Panel type value. e.g. CableManagement")]
+    pub panel_type: RackPanelType,
+
+    #[arg(
+        short = 's',
+        long,
+        help = "Rack side attribute for accessory. e.g. Front"
+    )]
+    pub rack_side: RackSide,
+
+    #[arg(
+        short = 'u',
+        long,
+        help = "Rack unit elevation attribute for rack mounted assets. e.g. 22"
+    )]
+    pub rack_u_location: usize,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -191,12 +233,6 @@ pub struct ManageAlarmsArgs {
         default_value = "close"
     )]
     pub manage_action: ManageActionOptions,
-}
-
-#[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum AlarmEventFilterOptions {
-    Unacknowledged,
-    Active,
 }
 
 #[derive(Args, Debug, Clone)]

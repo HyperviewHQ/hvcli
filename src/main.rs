@@ -106,7 +106,6 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
-            info!("Options: id: {}, SN: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
@@ -130,7 +129,6 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetTag(options) => {
-            info!("Options: id: {}, AT: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
@@ -238,6 +236,10 @@ async fn main() -> color_eyre::Result<()> {
                 options.manage_action,
             )
             .await?;
+        }
+
+        AppArgsSubcommands::AddRackAccessory(options) => {
+            info!("options: {options:#?}");
         }
     }
 
