@@ -2,10 +2,14 @@ use clap::Parser;
 use log::info;
 use reqwest::Client;
 
-use hyperview::{
+use crate::hyperview::{
+    api_constants::{
+        ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_DESIGN_VALUE, ASSET_PROPERTY_SERIAL_NUMBER,
+    },
     asset_alarm_events_functions::{list_alarm_events_async, manage_asset_alarm_events_async},
     asset_api_functions::{
-        bulk_update_asset_location_async, bulk_update_asset_name_async, bulk_update_ports_async,
+        add_rack_accessory, bulk_add_rack_accessory, bulk_update_asset_location_async,
+        bulk_update_asset_name_async, bulk_update_ports_async, list_any_of_async,
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
     },
@@ -16,16 +20,9 @@ use hyperview::{
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
-    custom_asset_properties_api_functions::get_custom_asset_property_list_async,
-};
-
-use crate::hyperview::{
-    api_constants::{
-        ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_DESIGN_VALUE, ASSET_PROPERTY_SERIAL_NUMBER,
-    },
-    asset_api_functions::list_any_of_async,
     custom_asset_properties_api_functions::{
-        bulk_update_custom_property_by_name_async, update_custom_property_by_name_async,
+        bulk_update_custom_property_by_name_async, get_custom_asset_property_list_async,
+        update_custom_property_by_name_async,
     },
 };
 
@@ -106,7 +103,6 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
-            info!("Options: id: {}, SN: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
@@ -130,7 +126,6 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::UpdateAssetTag(options) => {
-            info!("Options: id: {}, AT: {}", options.id, options.new_value);
             update_asset_property_async(
                 &config,
                 &req,
@@ -238,6 +233,23 @@ async fn main() -> color_eyre::Result<()> {
                 options.manage_action,
             )
             .await?;
+        }
+
+        AppArgsSubcommands::AddRackAccessory(options) => {
+            add_rack_accessory(
+                &config,
+                &req,
+                &auth_header,
+                &options.id,
+                &options.panel_type,
+                &options.rack_side,
+                options.rack_u_location,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkAddRackAccessory(options) => {
+            bulk_add_rack_accessory(&config, &req, &auth_header, &options.filename).await?;
         }
     }
 

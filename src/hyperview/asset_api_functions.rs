@@ -7,20 +7,113 @@ use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
 
-use crate::hyperview::cli_data::ListAnyOfArgs;
+use crate::hyperview::asset_api_data::AddRackAccessoryRecord;
 
 use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
-        ASSET_SEARCH_API_PREFIX,
+        ASSET_SEARCH_API_PREFIX, RACK_PANEL_API_PREFIX,
     },
     app_errors::AppError,
     asset_api_data::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
     asset_properties_api_functions::get_named_asset_property_async,
-    cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
+    cli_data::{
+        AppConfig, ListAnyOfArgs, ListAssetPortsArgs, RackPanelType, RackSide, SearchAssetsArgs,
+        UpdateAssetLocationArgs,
+    },
 };
+
+pub async fn bulk_add_rack_accessory(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: &String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
+        debug!("Adding rack accessory to rack_id {}", record.id);
+        add_rack_accessory(
+            config,
+            req,
+            auth_header,
+            &record.id,
+            &record.panel_type,
+            &record.side,
+            record.u_location,
+        )
+        .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn add_rack_accessory(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    rack_id: &Uuid,
+    rack_panel_type: &RackPanelType,
+    rack_side: &RackSide,
+    rack_u_location: usize,
+) -> color_eyre::Result<()> {
+    let target_url = format!("{}{}", config.instance_url, RACK_PANEL_API_PREFIX);
+    debug!("Request URL: {target_url}");
+
+    let display_name_annotation = match rack_side {
+        RackSide::Rear => "(R)",
+        _ => "",
+    };
+
+    let display_name = match rack_panel_type {
+        RackPanelType::BlankingPanel => {
+            format!("Blanking Panel at {rack_u_location}U{display_name_annotation}")
+        }
+
+        RackPanelType::CableManagement => {
+            format!("Cable Management at {rack_u_location}U{display_name_annotation}")
+        }
+    };
+
+    let panel = match rack_panel_type {
+        RackPanelType::BlankingPanel => "blankingPanel",
+        RackPanelType::CableManagement => "cableManagement",
+    };
+
+    let side = match rack_side {
+        RackSide::Front => "front",
+        RackSide::Rear => "rear",
+        RackSide::Unknown => "",
+    };
+
+    let payload = serde_json::json!({
+        "panelType": panel,
+        "rackId": rack_id,
+        "rackSide": side,
+        "rackPanelDataCollection": [
+            {
+                "rackUnit": rack_u_location,
+                "displayName": display_name,
+            }
+        ]
+    });
+    trace!(
+        "Add rack accessory payload: {}",
+        serde_json::to_string_pretty(&payload)?
+    );
+
+    let resp = req
+        .post(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&payload)
+        .send()
+        .await?;
+
+    trace!("Server response: {}", resp.status());
+
+    Ok(())
+}
 
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
