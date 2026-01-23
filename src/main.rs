@@ -48,21 +48,19 @@ async fn main() -> color_eyre::Result<()> {
         AppArgsSubcommands::ListAssetProperties(options) => {
             let id = options.id;
             let output_type = options.output_type;
-            let filename = options.filename.clone();
 
             let resp = get_asset_property_list_async(&config, &req, &auth_header, id).await?;
-            handle_output_choice(output_type, filename.as_ref(), resp)?;
+            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
             let id = options.id;
             let output_type = options.output_type;
-            let filename = options.filename.clone();
 
             let resp =
                 get_custom_asset_property_list_async(&config, &req, &auth_header, id).await?;
 
-            handle_output_choice(output_type, filename.as_ref(), resp)?;
+            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
