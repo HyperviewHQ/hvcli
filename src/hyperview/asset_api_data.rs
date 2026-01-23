@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
 
-use super::cli_data::{RackPosition, RackSide};
+use super::cli_data::{RackPanelType, RackPosition, RackSide};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -100,6 +100,14 @@ pub struct UpdateAssetLocationRecord {
     pub rack_position: Option<RackPosition>,
     pub rack_side: Option<RackSide>,
     pub rack_u_location: Option<usize>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AddRackAccessoryRecord {
+    pub id: Uuid,
+    pub panel_type: RackPanelType,
+    pub side: RackSide,
+    pub u_location: usize,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]

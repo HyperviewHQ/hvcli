@@ -101,7 +101,7 @@ pub enum DebugLevels {
     Trace,
 }
 
-#[derive(Debug, ValueEnum, Clone, Copy)]
+#[derive(Debug, ValueEnum, Clone, Copy, Deserialize)]
 #[clap(rename_all = "PascalCase")]
 pub enum RackPanelType {
     BlankingPanel,
@@ -140,13 +140,13 @@ pub enum AppArgsSubcommands {
     UpdateAssetName(UpdateAssetNameArgs),
 
     /// Bulk update asset name
-    BulkUpdateAssetName(BulkUpdateAssetNameArgs),
+    BulkUpdateAssetName(BulkUpdateSingleInputFileArgs),
 
     /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
 
     /// Bulk update asset location
-    BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
+    BulkUpdateAssetLocation(BulkUpdateSingleInputFileArgs),
 
     /// Update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
@@ -154,13 +154,13 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
-    BulkUpdateAssetSerialNumber(BulkUpdateAssetPropertyArgs),
+    BulkUpdateAssetSerialNumber(BulkUpdateSingleInputFileArgs),
 
     /// Update asset "asset tag" Property
     UpdateAssetTag(UpdateAssetPropertyArgs),
 
     /// Bulk update asset "asset tag" Property
-    BulkUpdateAssetTag(BulkUpdateAssetPropertyArgs),
+    BulkUpdateAssetTag(BulkUpdateSingleInputFileArgs),
 
     /// Update asset power "design value" Property
     /// Applies to Rack and Location asset types
@@ -168,22 +168,22 @@ pub enum AppArgsSubcommands {
 
     /// Bulk update asset power "design value" Property
     /// Applies to Rack and Location asset types
-    BulkUpdatePowerDesignValue(BulkUpdateAssetPropertyArgs),
+    BulkUpdatePowerDesignValue(BulkUpdateSingleInputFileArgs),
 
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
     /// Bulk update patch panel port names
-    BulkUpdatePatchPanelPorts(BulkUpdatePortsArgs),
+    BulkUpdatePatchPanelPorts(BulkUpdateSingleInputFileArgs),
 
     /// Bulk update asset port names
-    BulkUpdateAssetPorts(BulkUpdatePortsArgs),
+    BulkUpdateAssetPorts(BulkUpdateSingleInputFileArgs),
 
     /// Update asset custom property
     UpdateCustomAssetProperty(UpdateCustomAssetPropertyArgs),
 
     ///Bulk  update asset custom property
-    BulkUpdateCustomAssetProperty(BulkUpdateCustomAssetPropertyArgs),
+    BulkUpdateCustomAssetProperty(BulkUpdateSingleInputFileArgs),
 
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
@@ -193,6 +193,15 @@ pub enum AppArgsSubcommands {
 
     // Add a blanking panel or cable management panel to a rack
     AddRackAccessory(AddRackAccessoryArgs),
+
+    // Bulk add a blanking panel or cable management panel to a rack
+    BulkAddRackAccessory(BulkUpdateSingleInputFileArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateSingleInputFileArgs {
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
+    pub filename: String,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -296,18 +305,6 @@ pub struct UpdateCustomAssetPropertyArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct BulkUpdateCustomAssetPropertyArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct BulkUpdatePortsArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug, Clone)]
 pub struct ListAssetPortsArgs {
     #[arg(
         short,
@@ -339,12 +336,6 @@ pub struct UpdateAssetPropertyArgs {
 
     #[arg(short = 'T', long, help = "New property value, e.g. EPDU123456789")]
     pub new_value: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct BulkUpdateAssetPropertyArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -386,12 +377,6 @@ pub struct UpdateAssetLocationArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct BulkUpdateAssetLocationArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug)]
 pub struct UpdateAssetNameArgs {
     #[arg(
         short,
@@ -406,12 +391,6 @@ pub struct UpdateAssetNameArgs {
         help = "New Name. It must be a string value, e.g. \"Main_Generator\""
     )]
     pub new_name: String,
-}
-
-#[derive(Args, Debug)]
-pub struct BulkUpdateAssetNameArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
 }
 
 #[derive(Args, Debug)]

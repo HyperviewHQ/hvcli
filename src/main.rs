@@ -8,9 +8,10 @@ use crate::hyperview::{
     },
     asset_alarm_events_functions::{list_alarm_events_async, manage_asset_alarm_events_async},
     asset_api_functions::{
-        add_rack_accessory, bulk_update_asset_location_async, bulk_update_asset_name_async,
-        bulk_update_ports_async, list_any_of_async, list_asset_ports_async, search_assets_async,
-        update_asset_location_async, update_asset_name_by_id_async,
+        add_rack_accessory, bulk_add_rack_accessory, bulk_update_asset_location_async,
+        bulk_update_asset_name_async, bulk_update_ports_async, list_any_of_async,
+        list_asset_ports_async, search_assets_async, update_asset_location_async,
+        update_asset_name_by_id_async,
     },
     asset_properties_api_functions::{
         bulk_update_asset_property_async, get_asset_property_list_async,
@@ -245,6 +246,10 @@ async fn main() -> color_eyre::Result<()> {
                 options.rack_u_location,
             )
             .await?;
+        }
+
+        AppArgsSubcommands::BulkAddRackAccessory(options) => {
+            bulk_add_rack_accessory(&config, &req, &auth_header, &options.filename).await?;
         }
     }
 

@@ -7,6 +7,8 @@ use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
 
+use crate::hyperview::asset_api_data::AddRackAccessoryRecord;
+
 use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
@@ -22,6 +24,30 @@ use super::{
         UpdateAssetLocationArgs,
     },
 };
+
+pub async fn bulk_add_rack_accessory(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: &String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
+        debug!("Adding rack accessory to rack_id {}", record.id);
+        add_rack_accessory(
+            config,
+            req,
+            auth_header,
+            &record.id,
+            &record.panel_type,
+            &record.side,
+            record.u_location,
+        )
+        .await?;
+    }
+
+    Ok(())
+}
 
 pub async fn add_rack_accessory(
     config: &AppConfig,
