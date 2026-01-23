@@ -102,6 +102,7 @@ pub enum DebugLevels {
 }
 
 #[derive(Debug, ValueEnum, Clone, Copy)]
+#[clap(rename_all = "PascalCase")]
 pub enum RackPanelType {
     BlankingPanel,
     CableManagement,

@@ -7,8 +7,6 @@ use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
 
-use crate::hyperview::cli_data::ListAnyOfArgs;
-
 use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
@@ -19,7 +17,9 @@ use super::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
     asset_properties_api_functions::get_named_asset_property_async,
-    cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
+    cli_data::{
+        AppConfig, ListAnyOfArgs, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs,
+    },
 };
 
 pub async fn bulk_update_ports_async(

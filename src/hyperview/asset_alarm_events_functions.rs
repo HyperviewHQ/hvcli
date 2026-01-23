@@ -10,11 +10,9 @@ use super::{
         ASSET_ALARM_EVENT_BULK_ACKNOWLEDGE_API_PREFIX, ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX,
         ASSET_ALARM_EVENT_LIST_API_PREFIX, BULK_ACTION_BATCH_SIZE,
     },
-    asset_alarm_events_data::AlarmListResponse,
-    cli_data::{AlarmEventFilterOptions, AppConfig},
+    asset_alarm_events_data::{AlarmEventDto, AlarmListResponse},
+    cli_data::{AlarmEventFilterOptions, AppConfig, ManageActionOptions},
 };
-
-use super::{asset_alarm_events_data::AlarmEventDto, cli_data::ManageActionOptions};
 
 pub async fn list_alarm_events_async(
     config: &AppConfig,

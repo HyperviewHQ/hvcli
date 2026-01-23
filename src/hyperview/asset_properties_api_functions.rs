@@ -2,13 +2,12 @@ use log::{debug, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
 
-use crate::hyperview::common_types::MultiTypeValue;
-
 use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
     asset_properties_api_data::{AssetPropertyDto, AssetPropertyImportDto},
     cli_data::AppConfig,
+    common_types::MultiTypeValue,
 };
 
 pub async fn bulk_update_asset_property_async(
