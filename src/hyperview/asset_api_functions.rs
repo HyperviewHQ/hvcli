@@ -752,6 +752,8 @@ fn compose_search_query(options: SearchAssetsArgs) -> serde_json::Value {
     if let Some(p) = options.location_path {
         let prepared_path = p.replace('/', "~").clone();
         filters.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
+    } else {
+        filters.push("delimitedPath STARTS WITH 'All~'".to_string());
     }
 
     if let Some(properties) = options.properties {

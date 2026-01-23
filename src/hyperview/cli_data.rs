@@ -495,13 +495,8 @@ pub struct ListAnyOfArgs {
 
 #[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
-    #[arg(
-        short = 'p',
-        long,
-        help = "Search pattern or string, e.g. chrome",
-        default_value = "*"
-    )]
-    pub search_pattern: String,
+    #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
+    pub search_pattern: Option<String>,
 
     #[arg(short = 't', long, help = "Optional asset type, e.g. Crah")]
     pub asset_type: Option<AssetTypes>,
