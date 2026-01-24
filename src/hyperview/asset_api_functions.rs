@@ -625,7 +625,16 @@ pub async fn search_assets_async(
     debug!("Request URL: {target_url}");
     debug!("Options: {options:#?}");
 
-    let search_query = compose_search_query(options.clone());
+    let all_location_uuid = Uuid::parse_str("11223344-5566-7788-99aa-bbccddeeff00")?;
+    let all_location =
+        get_raw_asset_by_id_async(config, req, auth_header, &all_location_uuid).await?;
+    let all_location_name = all_location
+        .get("name")
+        .expect("All location did not have a name")
+        .as_str()
+        .expect("Unable to parse location name as str");
+
+    let search_query = compose_search_query(options.clone(), all_location_name);
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -718,7 +727,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> serde_json::Value {
+fn compose_search_query(options: SearchAssetsArgs, all_location_name: &str) -> serde_json::Value {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -749,12 +758,12 @@ fn compose_search_query(options: SearchAssetsArgs) -> serde_json::Value {
         filters.push(format!("assetType = '{asset_type}'"));
     }
 
+    let mut path_filter = format!("delimitedPath STARTS WITH '{all_location_name}~'");
     if let Some(p) = options.location_path {
-        let prepared_path = p.replace('/', "~").clone();
-        filters.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
-    } else {
-        filters.push("delimitedPath STARTS WITH 'All~'".to_string());
+        let prepared_path = p.replace('/', "~");
+        path_filter = format!("delimitedPath STARTS WITH '{prepared_path}'");
     }
+    filters.push(path_filter);
 
     if let Some(properties) = options.properties {
         for property in properties {
@@ -846,11 +855,11 @@ mod tests {
                 "assetProperty_serialNumber"
             ],
             "q": "search_pattern",
-            "filter": ""
+            "filter": "delimitedPath STARTS WITH 'All~'"
         });
 
         let mut options = SearchAssetsArgs {
-            search_pattern: "search_pattern".to_string(),
+            search_pattern: Some("search_pattern".to_string()),
             asset_type: None,
             location_path: None,
             properties: None,
@@ -865,7 +874,7 @@ mod tests {
             show_property: None,
         };
 
-        assert_eq!(compose_search_query(options.clone()), query1);
+        assert_eq!(compose_search_query(options.clone(), "All"), query1);
 
         // Test with asset type and location set
         let mut filter = Vec::new();
@@ -885,7 +894,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(compose_search_query(options), query1);
+        assert_eq!(compose_search_query(options, "All"), query1);
     }
 
     #[tokio::test]
@@ -910,7 +919,7 @@ mod tests {
         let auth_header = "Bearer test_token".to_string();
 
         let options = SearchAssetsArgs {
-            search_pattern: "labworker16".to_string(),
+            search_pattern: Some("labworker16".to_string()),
             asset_type: None,
             location_path: None,
             properties: None,
