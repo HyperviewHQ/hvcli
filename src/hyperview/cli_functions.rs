@@ -44,18 +44,18 @@ pub fn write_output<T: Serialize>(filename: String, object_list: Vec<T>) -> colo
 
 pub fn handle_output_choice<T: Display + Serialize>(
     output_type: OutputOptions,
-    filename: Option<String>,
+    filename: Option<&String>,
     resp: Vec<T>,
 ) -> color_eyre::Result<()> {
     let mut outfile = String::new();
 
-    if let Some(f) = filename.clone() {
-        if Path::new(&f).exists() {
+    if let Some(f) = filename {
+        if Path::new(f).exists() {
             error!("Specified file already exists. exiting ...");
             return Err(AppError::FileExists.into());
         }
 
-        outfile = f;
+        outfile = f.to_owned();
     }
 
     match output_type {
@@ -81,14 +81,14 @@ pub fn handle_output_choice<T: Display + Serialize>(
         OutputOptions::Record => {
             if filename.is_none() {
                 for (i, s) in resp.iter().enumerate() {
-                    println!("---- [{}] ----\n{}\n", i, s);
+                    println!("---- [{i}] ----\n{s}\n");
                 }
                 return Ok(());
             }
 
             let mut file_handle = File::create(outfile)?;
             for (i, s) in resp.iter().enumerate() {
-                write!(file_handle, "---- [{}] ----\n{}\n\n", i, s)?;
+                write!(file_handle, "---- [{i}] ----\n{s}\n\n")?;
             }
         }
     }
@@ -193,7 +193,7 @@ mod tests {
         let filename = Some(temp_file.path().to_str().unwrap().to_string());
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
-        match handle_output_choice(output_type, filename, resp) {
+        match handle_output_choice(output_type, filename.as_ref(), resp) {
             Err(e) => assert_eq!(e.to_string(), AppError::FileExists.to_string()),
             _ => panic!("Expected Err, but got Ok"),
         }
@@ -207,7 +207,7 @@ mod tests {
         let filename = temp_file_path.clone() + "_new";
         let resp: Vec<i32> = vec![1, 2, 3, 4, 5];
 
-        let result = handle_output_choice(output_type, Some(filename.clone()), resp);
+        let result = handle_output_choice(output_type, Some(&filename), resp);
         assert!(result.is_ok());
 
         let mut file = File::open(filename).unwrap();

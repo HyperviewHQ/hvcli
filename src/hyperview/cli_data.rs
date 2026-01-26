@@ -13,7 +13,18 @@ pub struct AppConfig {
     pub instance_url: String,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+pub struct AppArgs {
+    #[arg(short = 'd', long, help = "Debug level", default_value = "error")]
+    pub debug_level: DebugLevels,
+
+    #[command(subcommand)]
+    pub command: AppArgsSubcommands,
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum OutputOptions {
     CsvFile,
     Json,
@@ -57,7 +68,7 @@ pub enum AssetTypes {
 
 impl fmt::Display for AssetTypes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -81,7 +92,7 @@ pub enum RackPosition {
     Unknown,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Copy)]
 pub enum DebugLevels {
     Error,
     Warn,
@@ -90,15 +101,23 @@ pub enum DebugLevels {
     Trace,
 }
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-#[command(propagate_version = true)]
-pub struct AppArgs {
-    #[arg(short = 'd', long, help = "Debug level", default_value = "error")]
-    pub debug_level: DebugLevels,
+#[derive(Debug, ValueEnum, Clone, Copy, Deserialize)]
+#[clap(rename_all = "PascalCase")]
+pub enum RackPanelType {
+    BlankingPanel,
+    CableManagement,
+}
 
-    #[command(subcommand)]
-    pub command: AppArgsSubcommands,
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum ManageActionOptions {
+    Acknowledge,
+    Close,
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum AlarmEventFilterOptions {
+    Unacknowledged,
+    Active,
 }
 
 #[allow(clippy::enum_variant_names)]
@@ -121,48 +140,95 @@ pub enum AppArgsSubcommands {
     UpdateAssetName(UpdateAssetNameArgs),
 
     /// Bulk update asset name
-    BulkUpdateAssetName(BulkUpdateAssetNameArgs),
+    BulkUpdateAssetName(BulkUpdateSingleInputFileArgs),
 
     /// Update asset location
     UpdateAssetLocation(UpdateAssetLocationArgs),
 
     /// Bulk update asset location
-    BulkUpdateAssetLocation(BulkUpdateAssetLocationArgs),
+    BulkUpdateAssetLocation(BulkUpdateSingleInputFileArgs),
 
     /// Update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
-    UpdateAssetSerialNumber(UpdateAssetSerialNumberArgs),
+    UpdateAssetSerialNumber(UpdateAssetPropertyArgs),
 
     /// Bulk update asset serial number. This applies to manually created
     /// assets and assets discovered without a serial number
-    BulkUpdateAssetSerialNumber(BulkUpdateAssetSerialNumberArgs),
+    BulkUpdateAssetSerialNumber(BulkUpdateSingleInputFileArgs),
+
+    /// Update asset "asset tag" Property
+    UpdateAssetTag(UpdateAssetPropertyArgs),
+
+    /// Bulk update asset "asset tag" Property
+    BulkUpdateAssetTag(BulkUpdateSingleInputFileArgs),
+
+    /// Update asset power "design value" Property
+    /// Applies to Rack and Location asset types
+    UpdatePowerDesignValue(UpdateAssetPropertyArgs),
+
+    /// Bulk update asset power "design value" Property
+    /// Applies to Rack and Location asset types
+    BulkUpdatePowerDesignValue(BulkUpdateSingleInputFileArgs),
 
     /// List asset ports
     ListAssetPorts(ListAssetPortsArgs),
 
     /// Bulk update patch panel port names
-    BulkUpdatePatchPanelPorts(BulkUpdatePortsArgs),
+    BulkUpdatePatchPanelPorts(BulkUpdateSingleInputFileArgs),
 
     /// Bulk update asset port names
-    BulkUpdateAssetPorts(BulkUpdatePortsArgs),
+    BulkUpdateAssetPorts(BulkUpdateSingleInputFileArgs),
 
     /// Update asset custom property
     UpdateCustomAssetProperty(UpdateCustomAssetPropertyArgs),
 
     ///Bulk  update asset custom property
-    BulkUpdateCustomAssetProperty(BulkUpdateCustomAssetPropertyArgs),
+    BulkUpdateCustomAssetProperty(BulkUpdateSingleInputFileArgs),
 
     /// List alarm events
     ListAlarms(ListAlarmsArgs),
 
     /// Acknowledge or close alarm events using the CSV output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
+
+    /// Add a blanking panel or cable management panel to a rack
+    AddRackAccessory(AddRackAccessoryArgs),
+
+    /// Bulk add a blanking panel or cable management panel to a rack
+    BulkAddRackAccessory(BulkUpdateSingleInputFileArgs),
 }
 
-#[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum ManageActionOptions {
-    Acknowledge,
-    Close,
+#[derive(Args, Debug, Clone)]
+pub struct BulkUpdateSingleInputFileArgs {
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
+    pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct AddRackAccessoryArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(short = 'l', long, help = "Panel type value. e.g. CableManagement")]
+    pub panel_type: RackPanelType,
+
+    #[arg(
+        short = 's',
+        long,
+        help = "Rack side attribute for accessory. e.g. Front"
+    )]
+    pub rack_side: RackSide,
+
+    #[arg(
+        short = 'u',
+        long,
+        help = "Rack unit elevation attribute for rack mounted assets. e.g. 22"
+    )]
+    pub rack_u_location: usize,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -177,12 +243,6 @@ pub struct ManageAlarmsArgs {
         default_value = "close"
     )]
     pub manage_action: ManageActionOptions,
-}
-
-#[derive(Debug, ValueEnum, Clone, Copy)]
-pub enum AlarmEventFilterOptions {
-    Unacknowledged,
-    Active,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -245,18 +305,6 @@ pub struct UpdateCustomAssetPropertyArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct BulkUpdateCustomAssetPropertyArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct BulkUpdatePortsArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug, Clone)]
 pub struct ListAssetPortsArgs {
     #[arg(
         short,
@@ -278,7 +326,7 @@ pub struct ListAssetPortsArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct UpdateAssetSerialNumberArgs {
+pub struct UpdateAssetPropertyArgs {
     #[arg(
         short,
         long,
@@ -286,14 +334,8 @@ pub struct UpdateAssetSerialNumberArgs {
     )]
     pub id: Uuid,
 
-    #[arg(short = 'S', long, help = "New serial number, e.g. EPDU123456789")]
-    pub new_serial_number: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct BulkUpdateAssetSerialNumberArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
+    #[arg(short = 'T', long, help = "New property value, e.g. EPDU123456789")]
+    pub new_value: String,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -335,12 +377,6 @@ pub struct UpdateAssetLocationArgs {
 }
 
 #[derive(Args, Debug)]
-pub struct BulkUpdateAssetLocationArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
-}
-
-#[derive(Args, Debug)]
 pub struct UpdateAssetNameArgs {
     #[arg(
         short,
@@ -355,12 +391,6 @@ pub struct UpdateAssetNameArgs {
         help = "New Name. It must be a string value, e.g. \"Main_Generator\""
     )]
     pub new_name: String,
-}
-
-#[derive(Args, Debug)]
-pub struct BulkUpdateAssetNameArgs {
-    #[arg(short, long, help = "Input filename, e.g. input.csv")]
-    pub filename: String,
 }
 
 #[derive(Args, Debug)]
@@ -465,13 +495,8 @@ pub struct ListAnyOfArgs {
 
 #[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
-    #[arg(
-        short = 'p',
-        long,
-        help = "Search pattern or string, e.g. chrome",
-        default_value = "*"
-    )]
-    pub search_pattern: String,
+    #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
+    pub search_pattern: Option<String>,
 
     #[arg(short = 't', long, help = "Optional asset type, e.g. Crah")]
     pub asset_type: Option<AssetTypes>,

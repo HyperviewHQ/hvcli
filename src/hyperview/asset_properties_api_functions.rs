@@ -2,46 +2,47 @@ use log::{debug, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
 
-use crate::hyperview::common_types::MultiTypeValue;
-
 use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
-    asset_properties_api_data::{AssetPropertyDto, AssetSerialNumberImportDto},
+    asset_properties_api_data::{AssetPropertyDto, AssetPropertyImportDto},
     cli_data::AppConfig,
+    common_types::MultiTypeValue,
 };
 
-pub async fn bulk_update_asset_serialnumber_async(
+pub async fn bulk_update_asset_property_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
     filename: String,
+    asset_property_type: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
 
-    while let Some(Ok(record)) = reader.deserialize::<AssetSerialNumberImportDto>().next() {
-        update_asset_serialnumber_async(
+    while let Some(Ok(record)) = reader.deserialize::<AssetPropertyImportDto>().next() {
+        update_asset_property_async(
             config,
             req,
             auth_header,
             record.asset_id,
-            record.serial_number,
+            record.new_value,
+            asset_property_type.clone(),
         )
         .await?;
     }
     Ok(())
 }
 
-pub async fn update_asset_serialnumber_async(
+pub async fn update_asset_property_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
     id: Uuid,
-    new_serial_number: String,
+    new_value: String,
+    asset_property_type: String,
 ) -> color_eyre::Result<()> {
     let current_values =
-        get_named_asset_property_async(config, req, auth_header, id, "serialNumber".to_string())
-            .await?;
+        get_named_asset_property_async(config, req, auth_header, id, asset_property_type).await?;
 
     debug!(
         "Current property values: {}",
@@ -53,10 +54,17 @@ pub async fn update_asset_serialnumber_async(
     }
 
     if let Some(current_value) = current_values.first() {
+        let parsed_value = if current_value.data_type == "decimal" {
+            let decimal_value = new_value.parse::<f64>()?;
+            MultiTypeValue::FloatValue(decimal_value)
+        } else {
+            MultiTypeValue::StringValue(new_value)
+        };
+
         let payload = AssetPropertyDto {
             id: current_value.id,
             property_type: current_value.property_type.clone(),
-            value: MultiTypeValue::StringValue(new_serial_number),
+            value: parsed_value,
             data_type: current_value.data_type.clone(),
             data_source: current_value.data_source.clone(),
             asset_property_display_category: current_value.asset_property_display_category.clone(),
@@ -70,52 +78,48 @@ pub async fn update_asset_serialnumber_async(
 
         trace!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        match payload.id {
-            Some(id) => {
-                // Updating an existing value
-                let target_url = format!(
-                    "{}{}/{}",
-                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
-                );
-                debug!("Request URL: {}", target_url);
+        if let Some(id) = payload.id {
+            // Updating an existing value
+            let target_url = format!(
+                "{}{}/{}",
+                config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+            );
+            debug!("Request URL: {target_url}");
 
-                let resp = req
-                    .put(target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&payload)
-                    .send()
-                    .await?
-                    .json::<serde_json::Value>()
-                    .await?;
+            let resp = req
+                .put(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&payload)
+                .send()
+                .await?
+                .json::<serde_json::Value>()
+                .await?;
 
-                debug!(
-                    "Update serial number: {}",
-                    serde_json::to_string_pretty(&resp)?
-                );
-            }
+            debug!(
+                "Update serial number: {}",
+                serde_json::to_string_pretty(&resp)?
+            );
+        } else {
+            // Setting serial number for the first time
+            let target_url = format!(
+                "{}{}/?assetId={}",
+                config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
+            );
+            debug!("Request URL: {target_url}");
 
-            None => {
-                // Setting serial number for the first time
-                let target_url = format!(
-                    "{}{}/?assetId={}",
-                    config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
-                );
-                debug!("Request URL: {}", target_url);
+            let resp = req
+                .post(target_url)
+                .header(AUTHORIZATION, auth_header)
+                .json(&payload)
+                .send()
+                .await?
+                .json::<serde_json::Value>()
+                .await?;
 
-                let resp = req
-                    .post(target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&payload)
-                    .send()
-                    .await?
-                    .json::<serde_json::Value>()
-                    .await?;
-
-                debug!(
-                    "Update serial number: {}",
-                    serde_json::to_string_pretty(&resp)?
-                );
-            }
+            debug!(
+                "Update serial number: {}",
+                serde_json::to_string_pretty(&resp)?
+            );
         }
     }
 
@@ -132,7 +136,7 @@ pub async fn get_asset_property_list_async(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
     );
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {target_url:?}");
 
     let resp = req
         .get(target_url)

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
 
-use super::cli_data::{RackPosition, RackSide};
+use super::cli_data::{RackPanelType, RackPosition, RackSide};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,7 +37,7 @@ pub struct AssetDto {
 impl fmt::Display for AssetDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let asset_record = format!(
-            r#"
+            r"
 id                    : {}
 name                  : {}
 asset_lifecycle_state : {}
@@ -53,7 +53,7 @@ status                : {}
 path                  : {}
 serial_number         : {}
 property              : {}
-"#,
+",
             self.id,
             self.name,
             self.asset_lifecycle_state,
@@ -71,7 +71,7 @@ property              : {}
             self.property.clone().unwrap_or_default()
         );
 
-        write!(f, "{}", asset_record)
+        write!(f, "{asset_record}")
     }
 }
 
@@ -102,6 +102,14 @@ pub struct UpdateAssetLocationRecord {
     pub rack_u_location: Option<usize>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct AddRackAccessoryRecord {
+    pub id: Uuid,
+    pub panel_type: RackPanelType,
+    pub side: RackSide,
+    pub u_location: usize,
+}
+
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetPortDto {
@@ -124,7 +132,7 @@ pub struct AssetPortDto {
 impl fmt::Display for AssetPortDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let asset_port_record = format!(
-            r#"
+            r"
 id: {}
 name: {}
 parent_id: {}
@@ -133,7 +141,7 @@ port_side: {}
 port_side_value_id: {}
 connector_type_value_id: {}
 port_type_value_id: {}
-"#,
+",
             self.id,
             self.name,
             self.parent_id,
@@ -144,6 +152,6 @@ port_type_value_id: {}
             self.port_type_value_id.clone().unwrap_or_default()
         );
 
-        write!(f, "{}", asset_port_record)
+        write!(f, "{asset_port_record}")
     }
 }

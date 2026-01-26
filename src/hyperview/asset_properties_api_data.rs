@@ -39,11 +39,10 @@ pub struct AssetPropertyDto {
 
 impl fmt::Display for AssetPropertyDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let id = if self.id.is_some() {
-            &self.id.unwrap().to_string()
-        } else {
-            "---- UNSET ----"
-        };
+        let mut id = "---- UNSET ----".to_string();
+        if let Some(x) = self.id {
+            id = x.to_string();
+        }
 
         let created_at = if self.created_date_time.is_some() {
             &self.created_date_time.clone().unwrap()
@@ -77,7 +76,7 @@ impl fmt::Display for AssetPropertyDto {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AssetSerialNumberImportDto {
+pub struct AssetPropertyImportDto {
     pub asset_id: Uuid,
-    pub serial_number: String,
+    pub new_value: String,
 }

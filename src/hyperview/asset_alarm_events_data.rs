@@ -46,7 +46,7 @@ pub struct AlarmEventDto {
 impl fmt::Display for AlarmEventDto {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let asset_record = format!(
-            r#"
+            r"
 id                     : {},
 severity               : {},
 asset_name             : {},
@@ -63,7 +63,7 @@ alarm_event_category   : {},
 is_active              : {},
 property_values        : {},
 text_template          : {},
-"#,
+",
             self.id,
             self.severity,
             self.asset_name,
@@ -82,7 +82,7 @@ text_template          : {},
             self.text_template,
         );
 
-        write!(f, "{}", asset_record)
+        write!(f, "{asset_record}")
     }
 }
 

@@ -7,20 +7,113 @@ use serde_json::{Value, json};
 use std::str::FromStr;
 use uuid::Uuid;
 
-use crate::hyperview::cli_data::ListAnyOfArgs;
+use crate::hyperview::asset_api_data::AddRackAccessoryRecord;
 
 use super::{
     api_constants::{
         ASSET_ASSETS_API_PREFIX, ASSET_LOCATION_API_PREFIX, ASSET_PORTS_API_PREFIX,
-        ASSET_SEARCH_API_PREFIX,
+        ASSET_SEARCH_API_PREFIX, RACK_PANEL_API_PREFIX,
     },
     app_errors::AppError,
     asset_api_data::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
     asset_properties_api_functions::get_named_asset_property_async,
-    cli_data::{AppConfig, ListAssetPortsArgs, SearchAssetsArgs, UpdateAssetLocationArgs},
+    cli_data::{
+        AppConfig, ListAnyOfArgs, ListAssetPortsArgs, RackPanelType, RackSide, SearchAssetsArgs,
+        UpdateAssetLocationArgs,
+    },
 };
+
+pub async fn bulk_add_rack_accessory(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: &String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+    while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
+        debug!("Adding rack accessory to rack_id {}", record.id);
+        add_rack_accessory(
+            config,
+            req,
+            auth_header,
+            &record.id,
+            &record.panel_type,
+            &record.side,
+            record.u_location,
+        )
+        .await?;
+    }
+
+    Ok(())
+}
+
+pub async fn add_rack_accessory(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    rack_id: &Uuid,
+    rack_panel_type: &RackPanelType,
+    rack_side: &RackSide,
+    rack_u_location: usize,
+) -> color_eyre::Result<()> {
+    let target_url = format!("{}{}", config.instance_url, RACK_PANEL_API_PREFIX);
+    debug!("Request URL: {target_url}");
+
+    let display_name_annotation = match rack_side {
+        RackSide::Rear => "(R)",
+        _ => "",
+    };
+
+    let display_name = match rack_panel_type {
+        RackPanelType::BlankingPanel => {
+            format!("Blanking Panel at {rack_u_location}U{display_name_annotation}")
+        }
+
+        RackPanelType::CableManagement => {
+            format!("Cable Management at {rack_u_location}U{display_name_annotation}")
+        }
+    };
+
+    let panel = match rack_panel_type {
+        RackPanelType::BlankingPanel => "blankingPanel",
+        RackPanelType::CableManagement => "cableManagement",
+    };
+
+    let side = match rack_side {
+        RackSide::Front => "front",
+        RackSide::Rear => "rear",
+        RackSide::Unknown => "",
+    };
+
+    let payload = serde_json::json!({
+        "panelType": panel,
+        "rackId": rack_id,
+        "rackSide": side,
+        "rackPanelDataCollection": [
+            {
+                "rackUnit": rack_u_location,
+                "displayName": display_name,
+            }
+        ]
+    });
+    trace!(
+        "Add rack accessory payload: {}",
+        serde_json::to_string_pretty(&payload)?
+    );
+
+    let resp = req
+        .post(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&payload)
+        .send()
+        .await?;
+
+    trace!("Server response: {}", resp.status());
+
+    Ok(())
+}
 
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
@@ -40,7 +133,7 @@ pub async fn bulk_update_ports_async(
                 "{}{}/patchPanel/{}",
                 config.instance_url, ASSET_PORTS_API_PREFIX, record.id
             );
-            debug!("Request URL: {}", target_url);
+            debug!("Request URL: {target_url}");
 
             let payload = json!({
               "id": record.id,
@@ -64,7 +157,7 @@ pub async fn bulk_update_ports_async(
             "{}{}/{}",
             config.instance_url, ASSET_PORTS_API_PREFIX, record.id
         );
-        debug!("Request URL: {}", target_url);
+        debug!("Request URL: {target_url}");
 
         let payload = json!({
           "id": record.id,
@@ -117,7 +210,7 @@ pub async fn list_asset_ports_async(
         config.instance_url, ASSET_PORTS_API_PREFIX, list_asset_ports_args.id
     );
 
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let resp = req
         .get(target_url)
@@ -129,37 +222,45 @@ pub async fn list_asset_ports_async(
 
     let mut asset_ports = Vec::new();
 
-    resp.into_iter().for_each(|v| {
+    for record in resp {
         let mut port = AssetPortDto {
             ..Default::default()
         };
-        if let Some(id) = v["id"].as_str() {
+
+        if let Some(id) = record["id"].as_str() {
             port.id = Uuid::parse_str(id).unwrap();
-        };
-        if let Some(name) = v["name"].as_str() {
+        }
+
+        if let Some(name) = record["name"].as_str() {
             port.name = name.to_string();
-        };
-        if let Some(parent_id) = v["parentId"].as_str() {
+        }
+
+        if let Some(parent_id) = record["parentId"].as_str() {
             port.parent_id = parent_id.to_string();
-        };
-        if let Some(port_number) = v["portNumber"].as_i64() {
+        }
+
+        if let Some(port_number) = record["portNumber"].as_i64() {
             port.port_number = port_number;
-        };
-        if let Some(port_side) = v["portSide"].as_str() {
+        }
+
+        if let Some(port_side) = record["portSide"].as_str() {
             port.port_side = Some(port_side.to_string());
-        };
-        if let Some(port_side_value_id) = v["portSideValueId"].as_str() {
+        }
+
+        if let Some(port_side_value_id) = record["portSideValueId"].as_str() {
             port.port_side_value_id = Some(port_side_value_id.to_string());
-        };
-        if let Some(connector_type_value_id) = v["connectorTypeValueId"].as_str() {
+        }
+
+        if let Some(connector_type_value_id) = record["connectorTypeValueId"].as_str() {
             port.connector_type_value_id = Some(connector_type_value_id.to_string());
-        };
-        if let Some(port_type_value_id) = v["portTypeValueId"].as_str() {
+        }
+
+        if let Some(port_type_value_id) = record["portTypeValueId"].as_str() {
             port.port_type_value_id = Some(port_type_value_id.to_string());
-        };
+        }
 
         asset_ports.push(port);
-    });
+    }
 
     Ok(asset_ports)
 }
@@ -178,7 +279,7 @@ pub async fn update_asset_location_async(
         update_location_data.id
     );
 
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let asset_location_dto = AssetLocationDTO {
         parent_id: update_location_data.new_location_id,
@@ -266,7 +367,7 @@ pub async fn update_asset_name_by_id_async(
     new_name: String,
 ) -> color_eyre::Result<()> {
     let target_url = format!("{}{}/{}", config.instance_url, ASSET_ASSETS_API_PREFIX, id);
-    debug!("Request URL: {}", target_url);
+    debug!("Request URL: {target_url}");
 
     let mut asset_value = get_raw_asset_by_id_async(config, req, auth_header, &id).await?;
 
@@ -334,10 +435,10 @@ pub async fn list_any_of_async(
     options: ListAnyOfArgs,
 ) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
-    debug!("Request URL: {}", target_url);
-    debug!("Options: {:#?}", options);
+    debug!("Request URL: {target_url}");
+    debug!("Options: {options:#?}");
 
-    let search_query = compose_any_of_query(options.clone())?;
+    let search_query = compose_any_of_query(options.clone());
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -364,7 +465,7 @@ pub async fn list_any_of_async(
         .as_u64()
         .unwrap();
 
-    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    info!("Meta Data: | Total: {total} | Limit: {limit} |");
 
     let mut asset_list = Vec::new();
 
@@ -393,7 +494,7 @@ pub async fn list_any_of_async(
                     .get("delimitedPath")
                     .unwrap()
                     .to_string()
-                    .replace("~", "/"),
+                    .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
                     .and_then(|v| v.as_array())
@@ -404,7 +505,7 @@ pub async fn list_any_of_async(
 
             asset_list.push(asset);
         });
-    };
+    }
 
     if let Some(property_type) = options.show_property {
         for a in &mut asset_list {
@@ -430,7 +531,7 @@ pub async fn list_any_of_async(
     Ok(asset_list)
 }
 
-fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
+fn compose_any_of_query(options: ListAnyOfArgs) -> serde_json::Value {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -462,12 +563,12 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
 
     if let Some(t) = options.asset_type {
         let asset_type = t.to_string();
-        filters.push(format!("assetType = '{}'", asset_type));
+        filters.push(format!("assetType = '{asset_type}'"));
     }
 
     if let Some(p) = options.location_path {
-        let prepared_path = p.replace('/', "~").to_string();
-        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = p.replace('/', "~").clone();
+        filters.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
     }
 
     if let Some(custom_properties) = options.custom_properties {
@@ -484,25 +585,24 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
                 ));
             } else {
                 error!(
-                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
-                    custom_property
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{custom_property}'"
                 );
             }
         }
     }
 
     if let Some(id_guid) = options.id {
-        let id_query = format!("id = '{}'", id_guid);
+        let id_query = format!("id = '{id_guid}'");
         filters.push(id_query);
     }
 
     if let Some(manufacturer) = options.manufacturer {
-        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        let manufacturer_name_query = format!("manufacturerName = '{manufacturer}'");
         filters.push(manufacturer_name_query);
     }
 
     if let Some(product) = options.product {
-        let product_name_query = format!("productName CONTAINS '{}'", product);
+        let product_name_query = format!("productName CONTAINS '{product}'");
         filters.push(product_name_query);
     }
 
@@ -512,7 +612,7 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> color_eyre::Result<Value> {
         *filter_field = Value::String(filter_str);
     }
 
-    Ok(search_query)
+    search_query
 }
 
 pub async fn search_assets_async(
@@ -522,10 +622,19 @@ pub async fn search_assets_async(
     options: SearchAssetsArgs,
 ) -> color_eyre::Result<Vec<AssetDto>> {
     let target_url = format!("{}{}", config.instance_url, ASSET_SEARCH_API_PREFIX);
-    debug!("Request URL: {}", target_url);
-    debug!("Options: {:#?}", options);
+    debug!("Request URL: {target_url}");
+    debug!("Options: {options:#?}");
 
-    let search_query = compose_search_query(options.clone())?;
+    let all_location_uuid = Uuid::parse_str("11223344-5566-7788-99aa-bbccddeeff00")?;
+    let all_location =
+        get_raw_asset_by_id_async(config, req, auth_header, &all_location_uuid).await?;
+    let all_location_name = all_location
+        .get("name")
+        .expect("All location did not have a name")
+        .as_str()
+        .expect("Unable to parse location name as str");
+
+    let search_query = compose_search_query(options.clone(), all_location_name);
 
     trace!("{}", serde_json::to_string_pretty(&search_query).unwrap());
 
@@ -552,7 +661,7 @@ pub async fn search_assets_async(
         .as_u64()
         .unwrap();
 
-    info!("Meta Data: | Total: {} | Limit: {} |", total, limit);
+    info!("Meta Data: | Total: {total} | Limit: {limit} |");
 
     let mut asset_list = Vec::new();
 
@@ -581,7 +690,7 @@ pub async fn search_assets_async(
                     .get("delimitedPath")
                     .unwrap()
                     .to_string()
-                    .replace("~", "/"),
+                    .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
                     .and_then(|v| v.as_array())
@@ -592,7 +701,7 @@ pub async fn search_assets_async(
 
             asset_list.push(asset);
         });
-    };
+    }
 
     if let Some(property_type) = options.show_property {
         for a in &mut asset_list {
@@ -618,7 +727,7 @@ pub async fn search_assets_async(
     Ok(asset_list)
 }
 
-fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> {
+fn compose_search_query(options: SearchAssetsArgs, all_location_name: &str) -> serde_json::Value {
     let mut search_query = json!({
       "limit": options.limit,
       "offset": options.skip,
@@ -646,13 +755,15 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
 
     if let Some(t) = options.asset_type {
         let asset_type = t.to_string();
-        filters.push(format!("assetType = '{}'", asset_type));
+        filters.push(format!("assetType = '{asset_type}'"));
     }
 
+    let mut path_filter = format!("delimitedPath STARTS WITH '{all_location_name}~'");
     if let Some(p) = options.location_path {
-        let prepared_path = p.replace('/', "~").to_string();
-        filters.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = p.replace('/', "~");
+        path_filter = format!("delimitedPath STARTS WITH '{prepared_path}'");
     }
+    filters.push(path_filter);
 
     if let Some(properties) = options.properties {
         for property in properties {
@@ -664,10 +775,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
                     property_key_value.trim()
                 ));
             } else {
-                error!(
-                    "Asset property filter was formatted incorrectly. Skipping... '{}'",
-                    property
-                );
+                error!("Asset property filter was formatted incorrectly. Skipping... '{property}'");
             }
         }
     }
@@ -686,25 +794,24 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
                 ));
             } else {
                 error!(
-                    "Custom asset property filter was formatted incorrectly. Skipping... '{}'",
-                    custom_property
+                    "Custom asset property filter was formatted incorrectly. Skipping... '{custom_property}'"
                 );
             }
         }
     }
 
     if let Some(id_guid) = options.id {
-        let id_query = format!("id = '{}'", id_guid);
+        let id_query = format!("id = '{id_guid}'");
         filters.push(id_query);
     }
 
     if let Some(manufacturer) = options.manufacturer {
-        let manufacturer_name_query = format!("manufacturerName = '{}'", manufacturer);
+        let manufacturer_name_query = format!("manufacturerName = '{manufacturer}'");
         filters.push(manufacturer_name_query);
     }
 
     if let Some(product) = options.product {
-        let product_name_query = format!("productName CONTAINS '{}'", product);
+        let product_name_query = format!("productName CONTAINS '{product}'");
         filters.push(product_name_query);
     }
 
@@ -714,7 +821,7 @@ fn compose_search_query(options: SearchAssetsArgs) -> color_eyre::Result<Value> 
         *filter_field = Value::String(filter_str);
     }
 
-    Ok(search_query)
+    search_query
 }
 
 #[cfg(test)]
@@ -748,11 +855,11 @@ mod tests {
                 "assetProperty_serialNumber"
             ],
             "q": "search_pattern",
-            "filter": ""
+            "filter": "delimitedPath STARTS WITH 'All~'"
         });
 
         let mut options = SearchAssetsArgs {
-            search_pattern: "search_pattern".to_string(),
+            search_pattern: Some("search_pattern".to_string()),
             asset_type: None,
             location_path: None,
             properties: None,
@@ -767,7 +874,7 @@ mod tests {
             show_property: None,
         };
 
-        assert_eq!(compose_search_query(options.clone()).unwrap(), query1);
+        assert_eq!(compose_search_query(options.clone(), "All"), query1);
 
         // Test with asset type and location set
         let mut filter = Vec::new();
@@ -787,7 +894,7 @@ mod tests {
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
 
-        assert_eq!(compose_search_query(options).unwrap(), query1);
+        assert_eq!(compose_search_query(options, "All"), query1);
     }
 
     #[tokio::test]
@@ -812,7 +919,7 @@ mod tests {
         let auth_header = "Bearer test_token".to_string();
 
         let options = SearchAssetsArgs {
-            search_pattern: "labworker16".to_string(),
+            search_pattern: Some("labworker16".to_string()),
             asset_type: None,
             location_path: None,
             properties: None,

@@ -3,16 +3,14 @@ use reqwest::{Client, header::AUTHORIZATION};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::hyperview::{
+use super::{
+    api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
+    cli_data::AppConfig,
+    custom_asset_properties_api_data::CustomAssetPropertyDto,
     custom_asset_properties_api_data::{
         CustomAssetPropertyFileImportDto, CustomAssetPropertyUpdateDto,
     },
-};
-
-use super::{
-    api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX, cli_data::AppConfig,
-    custom_asset_properties_api_data::CustomAssetPropertyDto,
 };
 
 pub async fn get_custom_asset_property_list_async(
@@ -25,7 +23,7 @@ pub async fn get_custom_asset_property_list_async(
         "{}{}/{}",
         config.instance_url, CUSTOM_ASSET_PROPERTIES_API_PREFIX, asset_id
     );
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {target_url:?}");
 
     let resp = req
         .get(target_url)
@@ -69,7 +67,7 @@ pub async fn update_custom_property_by_name_async(
         CUSTOM_ASSET_PROPERTIES_API_PREFIX,
         custom_property.id.clone()
     );
-    debug!("Request URL: {:?}", target_url);
+    debug!("Request URL: {target_url:?}");
 
     let update_dto = CustomAssetPropertyUpdateDto {
         custom_asset_property_key_id: custom_property.custom_asset_property_key_id.clone(),
