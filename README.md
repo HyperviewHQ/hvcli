@@ -35,8 +35,6 @@ instance_url = 'https://example.hyperviewhq.com'
 
 ```bash
 $ hvcli --help
-A command line interface to interact with asset data stored in Hyperview
-
 Usage: hvcli [OPTIONS] <COMMAND>
 
 Commands:
@@ -50,6 +48,10 @@ Commands:
   bulk-update-asset-location         Bulk update asset location
   update-asset-serial-number         Update asset serial number. This applies to manually created assets and assets discovered without a serial number
   bulk-update-asset-serial-number    Bulk update asset serial number. This applies to manually created assets and assets discovered without a serial number
+  update-asset-tag                   Update asset "asset tag" Property
+  bulk-update-asset-tag              Bulk update asset "asset tag" Property
+  update-power-design-value          Update asset power "design value" Property Applies to Rack and Location asset types
+  bulk-update-power-design-value     Bulk update asset power "design value" Property Applies to Rack and Location asset types
   list-asset-ports                   List asset ports
   bulk-update-patch-panel-ports      Bulk update patch panel port names
   bulk-update-asset-ports            Bulk update asset port names
@@ -57,6 +59,8 @@ Commands:
   bulk-update-custom-asset-property  Bulk  update asset custom property
   list-alarms                        List alarm events
   manage-alarms                      Acknowledge or close alarm events using the CSV output from the list-alarms command
+  add-rack-accessory                 Add a blanking panel or cable management panel to a rack
+  bulk-add-rack-accessory            Bulk add a blanking panel or cable management panel to a rack
   help                               Print this message or the help of the given subcommand(s)
 
 Options:
@@ -98,26 +102,44 @@ This subcommand will update asset serial number. Applies to manually created ass
 ### 10. bulk-update-asset-serial-number
 This subcommand will update the serial number for multiple assets  using a _CSV_ input file. Example input is in the **example_input** folder in this repo.
 
-### 11. list-asset-ports
+### 11. update-asset-tag
+Update asset "asset tag" Property.
+
+### 12. bulk-update-asset-tag
+Bulk update asset "asset tag" Property. Example input is in the **example_input** folder.
+
+### 13. update-power-design-value
+Update asset power "design value" Property Applies to Rack and Location asset types.
+
+### 14. bulk-update-power-design-value
+Bulk update asset power "design value" Property Applies to Rack and Location asset types. Example input is in the **example_input** folder.
+
+### 15. list-asset-ports
 This subcommand will List asset physical network ports.
 
-### 12. bulk-update-patch-panel-ports
+### 16. bulk-update-patch-panel-ports
 This subcommand will bulk update **patch panel** physical network port names using a _CSV_ input file. Example input is in the **example_input** folder.
 
-### 13. bulk-update-asset-ports
+### 17. bulk-update-asset-ports
 This subcommand will bulk update **other asset** physical network port names, E.g. a network switch. Example input is in the example_input folder.
 
-### 14. update-custom-asset-property
+### 19. update-custom-asset-property
 This subcommand will update the value of an asset custom property.
 
-### 15. bulk-update-custom-asset-property
+### 20. bulk-update-custom-asset-property
 This subcommand will bulk update the custom property value for a list of assets using a _CSV_ input file. Example input is in the **example_input** folder.
 
-### 16. list-alarms
+### 21. list-alarms
 This subcommand will list alarm events. By default it will list _active_ events and it can also list _unacknowledged_ events via a command line toggle.
 
-### 17. manage-alarms
+### 22. manage-alarms
 This subcommand will _acknowledge_ or _close_ alarm events using _CSV_ file output from the list-alarms command. By default this command will close event and it can also acknowledge events via a command line toggle.
+
+### 23. add-rack-accessory
+Add a blanking panel or cable management panel to a rack.
+
+### 24. bulk-add-rack-accessory
+Bulk add a blanking panel or cable management panel to a rack. Example input is in the **example_input** folder.
 
 ### Help
 Use `--help` to explore the various options available within the main command and each subcommand.

@@ -191,10 +191,10 @@ pub enum AppArgsSubcommands {
     /// Acknowledge or close alarm events using the CSV output from the list-alarms command
     ManageAlarms(ManageAlarmsArgs),
 
-    // Add a blanking panel or cable management panel to a rack
+    /// Add a blanking panel or cable management panel to a rack
     AddRackAccessory(AddRackAccessoryArgs),
 
-    // Bulk add a blanking panel or cable management panel to a rack
+    /// Bulk add a blanking panel or cable management panel to a rack
     BulkAddRackAccessory(BulkUpdateSingleInputFileArgs),
 }
 
