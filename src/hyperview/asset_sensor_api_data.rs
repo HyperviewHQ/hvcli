@@ -1,12 +1,12 @@
 use std::fmt;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_with::{DefaultOnNull, serde_as};
 
 use crate::hyperview::common_types::MultiTypeValue;
 
 #[serde_as]
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct AssetSensorDto {
     pub id: String,
 

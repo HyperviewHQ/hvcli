@@ -17,6 +17,7 @@ use crate::hyperview::{
         bulk_update_asset_property_async, get_asset_property_list_async,
         update_asset_property_async,
     },
+    asset_sensor_api_functions::get_asset_sensor_list_async,
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
@@ -248,6 +249,15 @@ async fn main() -> color_eyre::Result<()> {
 
         AppArgsSubcommands::BulkAddRackAccessory(options) => {
             bulk_add_rack_accessory(&config, &req, &auth_header, &options.filename).await?;
+        }
+
+        AppArgsSubcommands::ListAssetSensors(options) => {
+            let id = options.id;
+            let output_type = options.output_type;
+
+            let resp = get_asset_sensor_list_async(&config, &req, &auth_header, id).await?;
+
+            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
         }
     }
 

@@ -20,8 +20,8 @@ use super::{
     },
     asset_properties_api_functions::get_named_asset_property_async,
     cli_data::{
-        AppConfig, ListAnyOfArgs, ListAssetPortsArgs, RackPanelType, RackSide, SearchAssetsArgs,
-        UpdateAssetLocationArgs,
+        AppConfig, ListAnyOfArgs, ListRecordsByAssetIdArgs, RackPanelType, RackSide,
+        SearchAssetsArgs, UpdateAssetLocationArgs,
     },
 };
 
@@ -203,7 +203,7 @@ pub async fn list_asset_ports_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    list_asset_ports_args: ListAssetPortsArgs,
+    list_asset_ports_args: ListRecordsByAssetIdArgs,
 ) -> color_eyre::Result<Vec<AssetPortDto>> {
     let target_url = format!(
         "{}{}/detailed/{}",
