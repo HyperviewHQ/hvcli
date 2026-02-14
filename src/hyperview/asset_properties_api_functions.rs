@@ -136,7 +136,7 @@ pub async fn get_asset_property_list_async(
         "{}{}/{}",
         config.instance_url, ASSET_PROPERTIES_API_PREFIX, id
     );
-    debug!("Request URL: {target_url:?}");
+    debug!("Request URL: {target_url}");
 
     let resp = req
         .get(target_url)

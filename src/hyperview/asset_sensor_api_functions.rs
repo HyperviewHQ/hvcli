@@ -112,7 +112,7 @@ pub async fn get_asset_sensor_list_async(
     id: Uuid,
 ) -> color_eyre::Result<Vec<AssetSensorDto>> {
     let target_url = format!("{}{}/{}", config.instance_url, SENSOR_API_PREFIX, id);
-    debug!("Request URL: {target_url:?}");
+    debug!("Request URL: {target_url}");
 
     let resp = req
         .get(target_url)
