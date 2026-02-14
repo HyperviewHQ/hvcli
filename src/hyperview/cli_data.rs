@@ -124,10 +124,10 @@ pub enum AlarmEventFilterOptions {
 #[derive(Subcommand)]
 pub enum AppArgsSubcommands {
     /// List asset properties
-    ListAssetProperties(ListPropertiesArgs),
+    ListAssetProperties(ListRecordsByAssetIdArgs),
 
     /// List asset custom properties
-    ListCustomAssetProperties(ListPropertiesArgs),
+    ListCustomAssetProperties(ListRecordsByAssetIdArgs),
 
     /// Search assets
     #[clap(alias = "list-assets")]
@@ -171,7 +171,7 @@ pub enum AppArgsSubcommands {
     BulkUpdatePowerDesignValue(BulkUpdateSingleInputFileArgs),
 
     /// List asset ports
-    ListAssetPorts(ListAssetPortsArgs),
+    ListAssetPorts(ListRecordsByAssetIdArgs),
 
     /// Bulk update patch panel port names
     BulkUpdatePatchPanelPorts(BulkUpdateSingleInputFileArgs),
@@ -196,6 +196,16 @@ pub enum AppArgsSubcommands {
 
     /// Bulk add a blanking panel or cable management panel to a rack
     BulkAddRackAccessory(BulkUpdateSingleInputFileArgs),
+
+    /// List asset sensors
+    ListAssetSensors(ListRecordsByAssetIdArgs),
+
+    /// Bulk update asset sensor name and access policy.
+    /// IMPORTANT:
+    /// Keep access policy field empty to maintain original
+    /// and only change the name.
+    /// Use the NIL UUID (00000000-0000-0000-0000-000000000000) to reset to parent access policy
+    BulkUpdateAssetSensor(BulkUpdateSingleInputFileArgs),
 }
 
 #[derive(Args, Debug, Clone)]
@@ -250,17 +260,17 @@ pub struct ListAlarmsArgs {
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999), e.g. 100",
-        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
     )]
     pub skip: u32,
 
     #[arg(
         short,
         long,
-        help = "Record limit (1 -> 100000), e.g. 100",
+        help = "Record limit (1 -> 100_000), e.g. 100",
         default_value = "100",
-        value_parser(value_parser!(u32).range(1..100001))
+        value_parser(value_parser!(u32).range(1..=100_000))
     )]
     pub limit: u32,
 
@@ -305,7 +315,7 @@ pub struct UpdateCustomAssetPropertyArgs {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct ListAssetPortsArgs {
+pub struct ListRecordsByAssetIdArgs {
     #[arg(
         short,
         long,
@@ -393,27 +403,6 @@ pub struct UpdateAssetNameArgs {
     pub new_name: String,
 }
 
-#[derive(Args, Debug)]
-pub struct ListPropertiesArgs {
-    #[arg(
-        short,
-        long,
-        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
-    )]
-    pub id: Uuid,
-
-    #[arg(
-        short,
-        long,
-        help = "Output type, e.g. csv-file",
-        default_value = "record"
-    )]
-    pub output_type: OutputOptions,
-
-    #[arg(short, long, help = "Output filename, e.g. output.csv")]
-    pub filename: Option<String>,
-}
-
 #[derive(Args, Debug, Clone)]
 pub struct ListAnyOfArgs {
     #[arg(
@@ -467,8 +456,8 @@ pub struct ListAnyOfArgs {
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999), e.g. 100",
-        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
     )]
     pub skip: u32,
 
@@ -477,7 +466,7 @@ pub struct ListAnyOfArgs {
         long,
         help = "Record limit (1 -> 1000), e.g. 100",
         default_value = "100",
-        value_parser(value_parser!(u32).range(1..1001))
+        value_parser(value_parser!(u32).range(1..=1000))
     )]
     pub limit: u32,
 
@@ -541,8 +530,8 @@ pub struct SearchAssetsArgs {
     #[arg(
         short,
         long,
-        help = "Number of records to skip (0 -> 99999), e.g. 100",
-        default_value = "0", value_parser(value_parser!(u32).range(0..100000))
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
     )]
     pub skip: u32,
 
@@ -551,7 +540,7 @@ pub struct SearchAssetsArgs {
         long,
         help = "Record limit (1 -> 1000), e.g. 100",
         default_value = "100",
-        value_parser(value_parser!(u32).range(1..1001))
+        value_parser(value_parser!(u32).range(1..=1000))
     )]
     pub limit: u32,
 

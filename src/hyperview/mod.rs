@@ -6,6 +6,8 @@ pub mod asset_api_data;
 pub mod asset_api_functions;
 pub mod asset_properties_api_data;
 pub mod asset_properties_api_functions;
+pub mod asset_sensor_api_data;
+pub mod asset_sensor_api_functions;
 pub mod auth;
 pub mod cli_data;
 pub mod cli_functions;

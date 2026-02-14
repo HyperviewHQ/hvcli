@@ -20,12 +20,12 @@ use super::{
     },
     asset_properties_api_functions::get_named_asset_property_async,
     cli_data::{
-        AppConfig, ListAnyOfArgs, ListAssetPortsArgs, RackPanelType, RackSide, SearchAssetsArgs,
-        UpdateAssetLocationArgs,
+        AppConfig, ListAnyOfArgs, ListRecordsByAssetIdArgs, RackPanelType, RackSide,
+        SearchAssetsArgs, UpdateAssetLocationArgs,
     },
 };
 
-pub async fn bulk_add_rack_accessory(
+pub async fn bulk_add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
@@ -34,7 +34,7 @@ pub async fn bulk_add_rack_accessory(
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
         debug!("Adding rack accessory to rack_id {}", record.id);
-        add_rack_accessory(
+        add_rack_accessory_async(
             config,
             req,
             auth_header,
@@ -49,7 +49,7 @@ pub async fn bulk_add_rack_accessory(
     Ok(())
 }
 
-pub async fn add_rack_accessory(
+pub async fn add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
@@ -203,7 +203,7 @@ pub async fn list_asset_ports_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    list_asset_ports_args: ListAssetPortsArgs,
+    list_asset_ports_args: ListRecordsByAssetIdArgs,
 ) -> color_eyre::Result<Vec<AssetPortDto>> {
     let target_url = format!(
         "{}{}/detailed/{}",

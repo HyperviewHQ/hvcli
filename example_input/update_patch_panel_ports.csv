@@ -1,4 +1,4 @@
-id,name,parentId,portNumber,portSide,portSideValueId,connectorTypeValueId,portTypeValueId
+id,name,parent_id,port_number,port_side,port_side_value_id,connector_type_value_id,port_type_value_id
 01725152-05d7-4d63-aaec-a082144ef6f5,Mod 0 Port 7,a51fa529-a0f0-4cb2-9e72-44fbc1d6bed3,7,rear,84134665-0f9b-483d-ae04-368be59fbf4f,baf79855-7eff-4d32-8789-c26dab743184,
 0b8ffb03-04b0-4cc3-955a-0aba45505c43,Mod 0 Port 8,a51fa529-a0f0-4cb2-9e72-44fbc1d6bed3,8,front,07bccb2c-cd7f-4a18-bc47-8c32dfefd245,baf79855-7eff-4d32-8789-c26dab743184,
 0d0c35d0-7671-4eda-bf3f-5f8db4238ad3,Mod 0 Port 2,a51fa529-a0f0-4cb2-9e72-44fbc1d6bed3,2,front,07bccb2c-cd7f-4a18-bc47-8c32dfefd245,baf79855-7eff-4d32-8789-c26dab743184,

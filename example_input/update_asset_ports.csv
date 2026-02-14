@@ -1,4 +1,4 @@
-id,name,parentId,portNumber,portSide,portSideValueId,connectorTypeValueId,portTypeValueId
+id,name,parent_id,port_number,port_side,port_side_value_id,connector_type_value_id,port_type_value_id
 7e2800fd-e9ce-4de4-9bd4-ea9d43b1a853,eth 3,eb94e710-9600-40ba-a758-c3c153863ac7,3,,,,a6060edb-3ded-4147-99b0-2ce02f04df8a
 d013d117-26f6-43c9-a1a8-8d35c55cdb63,eth 4,eb94e710-9600-40ba-a758-c3c153863ac7,4,,,,a6060edb-3ded-4147-99b0-2ce02f04df8a
 17402160-1174-4439-941a-bca8b75c5cdc,eth 5,eb94e710-9600-40ba-a758-c3c153863ac7,5,,,,a6060edb-3ded-4147-99b0-2ce02f04df8a

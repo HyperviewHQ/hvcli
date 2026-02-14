@@ -1,0 +1,27 @@
+sensor_id,asset_id,access_policy_id,sensor_name
+db907d47-f8ae-4764-b44a-b651baecd444,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_pue2
+b46311be-c822-4c0f-a7f6-3f3921880dfd,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_averageKwhByHour
+8196e628-bfe5-4a58-bbcb-5c93d45c57bf,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_peakKwhByDay
+09636056-1468-40f9-9559-bfa55163aad7,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_pue1
+db91713c-ccc0-4b46-8f09-94907bf11364,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_powerUtilizationPercentage
+4df80d73-5450-4468-96ab-0fdd7215fe93,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_averageKwhByDay
+0976f226-8841-4893-9370-d3cd86a97e76,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_scope2CarbonEmissionEquivalentWithOffset
+c457769c-8778-4fd8-ae4c-cf8b06da7e95,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_medianAvailableRackSpaceEfficiency
+5442d443-36bc-4857-b4be-10f23ebbe1ac,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_averageLargestAvailableContiguousRackSpace
+34893cdf-f0e7-48f9-ae1b-56636c884f58,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_medianLargestAvailableContiguousRackSpace
+63054203-a1a8-431f-8cdc-1006adbb4436,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_averageRackUtilization
+22f1cf3f-854d-4d9f-b0bf-b496ff69671b,11223344-5566-7788-99aa-bbccddeeff00,eea77bbe-c1fb-464e-841c-bce66ae5beb4,ALL_medianRackUtilization
+62c460c1-5387-4708-afd4-197a44ecef9f,11223344-5566-7788-99aa-bbccddeeff00,00000000-0000-0000-0000-000000000000,ALL_averageTotalAvailableRackSpace
+fdb83e21-d6d3-421e-9841-b2e2d022e8fd,11223344-5566-7788-99aa-bbccddeeff00,00000000-0000-0000-0000-000000000000,ALL_medianTotalAvailableRackSpace
+8b816914-1a5a-4723-9564-00c04f3e9e73,11223344-5566-7788-99aa-bbccddeeff00,00000000-0000-0000-0000-000000000000,ALL_averageAvailableRackSpaceEfficiency
+a8dd4f76-c148-4b8a-8f6b-6441e1867c12,11223344-5566-7788-99aa-bbccddeeff00,00000000-0000-0000-0000-000000000000,ALL_itEnergyBasedOnPduOutputTotalPower
+51b56001-0450-447c-b64b-ee8459d98126,11223344-5566-7788-99aa-bbccddeeff00,,ALL_itEnergyBasedOnUpsOutputTotalPower
+7dd55245-1aa8-4f10-bd0b-bae3fb6f3f7c,11223344-5566-7788-99aa-bbccddeeff00,,ALL_totalRackSpace
+0507a029-e358-4b38-bb43-a44e7ce49ab5,11223344-5566-7788-99aa-bbccddeeff00,,ALL_totalOccupiedRackSpace
+fc0e4e90-0b3d-4ff3-af3b-bb7f0b4be310,11223344-5566-7788-99aa-bbccddeeff00,,ALL_itEnergy
+bf6849cb-3181-4991-a737-7db43e67adba,11223344-5566-7788-99aa-bbccddeeff00,,ALL_PUE
+89fe2e90-99dc-4845-aa0c-814821d98a47,11223344-5566-7788-99aa-bbccddeeff00,,ALL_peakKwhByHour
+531f8867-962c-4eb2-9b03-d7f58afc2176,11223344-5566-7788-99aa-bbccddeeff00,,ALL_pue3
+a8f371d1-d447-4a0e-b256-cf5bafae5943,11223344-5566-7788-99aa-bbccddeeff00,,ALL_scope2CarbonEmissionEquivalent
+c35b4d1f-7903-4953-b6ba-2bf999c847a2,11223344-5566-7788-99aa-bbccddeeff00,,ALL_IT Energy Based On Rack Total Power
+35aeb50e-fd69-4f3e-a832-4b2bf006c69c,11223344-5566-7788-99aa-bbccddeeff00,,ALL_Total Facility Power
