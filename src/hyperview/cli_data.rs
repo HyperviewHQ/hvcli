@@ -199,6 +199,9 @@ pub enum AppArgsSubcommands {
 
     /// List asset sensors
     ListAssetSensors(ListRecordsByAssetIdArgs),
+
+    /// Bulk update asset sensor name
+    BulkUpdateAssetSensor(BulkUpdateSingleInputFileArgs),
 }
 
 #[derive(Args, Debug, Clone)]

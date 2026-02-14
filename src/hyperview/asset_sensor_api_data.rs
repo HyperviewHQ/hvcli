@@ -1,7 +1,7 @@
-use std::fmt;
-
 use serde::{Deserialize, Serialize};
 use serde_with::{DefaultOnNull, serde_as};
+use std::fmt;
+use uuid::Uuid;
 
 use crate::hyperview::common_types::MultiTypeValue;
 
@@ -47,14 +47,8 @@ pub struct AssetSensorDto {
     #[serde_as(deserialize_as = "DefaultOnNull")]
     pub last_value_update: String,
 
-    #[serde(alias = "sourceAssetDisplayName")]
-    pub source_asset_display_name: String,
-
-    #[serde(alias = "sourceAssetId")]
-    pub source_asset_id: String,
-
     #[serde(alias = "sourceDeviceAssetId")]
-    pub source_device_asset_id: String,
+    pub asset_id: String,
 
     #[serde(alias = "sensorAssociationType")]
     pub sensor_association_type: String,
@@ -91,9 +85,7 @@ data_source                : {}
 data_collector_id          : {}
 data_collector_name        : {}
 last_value_update          : {}
-source_asset_display_name  : {}
-source_asset_id            : {}
-source_device_asset_id     : {}
+asset_id                   : {}
 sensor_association_type    : {}
 is_numeric                 : {}
 access_policy_id           : {}
@@ -113,9 +105,7 @@ access_policy_is_inherited : {}
             self.data_collector_id,
             self.data_collector_name,
             self.last_value_update,
-            self.source_asset_display_name,
-            self.source_asset_id,
-            self.source_device_asset_id,
+            self.asset_id,
             self.sensor_association_type,
             self.is_numeric,
             self.access_policy_id,
@@ -126,4 +116,13 @@ access_policy_is_inherited : {}
 
         write!(f, "{asset_sensor_dto}")
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all(serialize = "camelCase", deserialize = "snake_case"))]
+pub struct AssetSensorUpdateDto {
+    pub asset_id: Uuid,
+    pub sensor_id: Uuid,
+    pub sensor_name: String,
+    pub access_policy_id: Option<Uuid>,
 }

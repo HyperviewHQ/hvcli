@@ -25,7 +25,7 @@ use super::{
     },
 };
 
-pub async fn bulk_add_rack_accessory(
+pub async fn bulk_add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
@@ -34,7 +34,7 @@ pub async fn bulk_add_rack_accessory(
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
         debug!("Adding rack accessory to rack_id {}", record.id);
-        add_rack_accessory(
+        add_rack_accessory_async(
             config,
             req,
             auth_header,
@@ -49,7 +49,7 @@ pub async fn bulk_add_rack_accessory(
     Ok(())
 }
 
-pub async fn add_rack_accessory(
+pub async fn add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,

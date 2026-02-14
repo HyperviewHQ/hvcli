@@ -8,7 +8,7 @@ use crate::hyperview::{
     },
     asset_alarm_events_functions::{list_alarm_events_async, manage_asset_alarm_events_async},
     asset_api_functions::{
-        add_rack_accessory, bulk_add_rack_accessory, bulk_update_asset_location_async,
+        add_rack_accessory_async, bulk_add_rack_accessory_async, bulk_update_asset_location_async,
         bulk_update_asset_name_async, bulk_update_ports_async, list_any_of_async,
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
@@ -17,7 +17,7 @@ use crate::hyperview::{
         bulk_update_asset_property_async, get_asset_property_list_async,
         update_asset_property_async,
     },
-    asset_sensor_api_functions::get_asset_sensor_list_async,
+    asset_sensor_api_functions::{bulk_update_asset_sensor_async, get_asset_sensor_list_async},
     auth::get_auth_header_async,
     cli_data::{AppArgs, AppArgsSubcommands, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, handle_output_choice},
@@ -235,7 +235,7 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::AddRackAccessory(options) => {
-            add_rack_accessory(
+            add_rack_accessory_async(
                 &config,
                 &req,
                 &auth_header,
@@ -248,7 +248,7 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::BulkAddRackAccessory(options) => {
-            bulk_add_rack_accessory(&config, &req, &auth_header, &options.filename).await?;
+            bulk_add_rack_accessory_async(&config, &req, &auth_header, &options.filename).await?;
         }
 
         AppArgsSubcommands::ListAssetSensors(options) => {
@@ -258,6 +258,10 @@ async fn main() -> color_eyre::Result<()> {
             let resp = get_asset_sensor_list_async(&config, &req, &auth_header, id).await?;
 
             handle_output_choice(output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::BulkUpdateAssetSensor(options) => {
+            bulk_update_asset_sensor_async(&config, &req, &auth_header, &options.filename).await?;
         }
     }
 
