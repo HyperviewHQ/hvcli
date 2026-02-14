@@ -98,6 +98,7 @@ async fn update_asset_sensor_async(
     let _resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
+        .json(&sensor)
         .send()
         .await?;
 
