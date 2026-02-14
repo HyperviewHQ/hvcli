@@ -111,7 +111,7 @@ pub struct AddRackAccessoryRecord {
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "camelCase", deserialize = "snake_case"))]
 pub struct AssetPortDto {
     pub id: Uuid,
     pub name: String,

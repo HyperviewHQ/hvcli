@@ -200,7 +200,11 @@ pub enum AppArgsSubcommands {
     /// List asset sensors
     ListAssetSensors(ListRecordsByAssetIdArgs),
 
-    /// Bulk update asset sensor name
+    /// Bulk update asset sensor name and access policy.
+    /// IMPORTANT:
+    /// Keep access policy field empty to maintain original
+    /// and only change the name.
+    /// Use the NIL UUID (00000000-0000-0000-0000-000000000000) to reset to parent access policy
     BulkUpdateAssetSensor(BulkUpdateSingleInputFileArgs),
 }
 

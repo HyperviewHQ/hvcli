@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::hyperview::common_types::MultiTypeValue;
 
 #[serde_as]
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize, Clone)]
 pub struct AssetSensorDto {
     pub id: String,
 
