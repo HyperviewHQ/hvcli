@@ -13,6 +13,7 @@ use crate::hyperview::{
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
     },
+    asset_power_api_functions::get_rack_pdu_outlets_async,
     asset_properties_api_functions::{
         bulk_update_asset_property_async, get_asset_property_list_async,
         update_asset_property_async,
@@ -47,21 +48,17 @@ async fn main() -> color_eyre::Result<()> {
 
     match &args.command {
         AppArgsSubcommands::ListAssetProperties(options) => {
-            let id = options.id;
-            let output_type = options.output_type;
-
-            let resp = get_asset_property_list_async(&config, &req, &auth_header, id).await?;
-            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
+            let resp =
+                get_asset_property_list_async(&config, &req, &auth_header, options.id).await?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
-            let id = options.id;
-            let output_type = options.output_type;
-
             let resp =
-                get_custom_asset_property_list_async(&config, &req, &auth_header, id).await?;
+                get_custom_asset_property_list_async(&config, &req, &auth_header, options.id)
+                    .await?;
 
-            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
@@ -252,16 +249,19 @@ async fn main() -> color_eyre::Result<()> {
         }
 
         AppArgsSubcommands::ListAssetSensors(options) => {
-            let id = options.id;
-            let output_type = options.output_type;
+            let resp = get_asset_sensor_list_async(&config, &req, &auth_header, options.id).await?;
 
-            let resp = get_asset_sensor_list_async(&config, &req, &auth_header, id).await?;
-
-            handle_output_choice(output_type, options.filename.as_ref(), resp)?;
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetSensor(options) => {
             bulk_update_asset_sensor_async(&config, &req, &auth_header, &options.filename).await?;
+        }
+
+        AppArgsSubcommands::ListRackPduOutlets(options) => {
+            let resp = get_rack_pdu_outlets_async(&config, &req, &auth_header, options.id).await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
     }
 

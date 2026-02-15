@@ -11,6 +11,7 @@ pub const ASSET_SEARCH_API_PREFIX: &str = "/api/asset/search";
 pub const BULK_ACTION_BATCH_SIZE: usize = 100;
 pub const CUSTOM_ASSET_PROPERTIES_API_PREFIX: &str = "/api/asset/customAssetProperties";
 pub const RACK_PANEL_API_PREFIX: &str = "/api/asset/rackPanel";
+pub const RACK_PDU_OUTLETS_API_PREFIX: &str = "/api/asset/availablePowerSources/outlets";
 pub const SENSOR_API_PREFIX: &str = "/api/asset/sensors";
 
 // Asset property name constants

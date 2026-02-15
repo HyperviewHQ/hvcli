@@ -4,6 +4,8 @@ pub mod asset_alarm_events_data;
 pub mod asset_alarm_events_functions;
 pub mod asset_api_data;
 pub mod asset_api_functions;
+pub mod asset_power_api_data;
+pub mod asset_power_api_functions;
 pub mod asset_properties_api_data;
 pub mod asset_properties_api_functions;
 pub mod asset_sensor_api_data;
