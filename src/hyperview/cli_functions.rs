@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{MAIN_SEPARATOR_STR, Path};
 
+use crate::hyperview::asset_power_api_functions::add_power_association_async;
+
 use super::{
     api_constants::{
         ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_DESIGN_VALUE, ASSET_PROPERTY_SERIAL_NUMBER,
@@ -75,7 +77,7 @@ pub fn handle_output_choice<T: Display + Serialize>(
             return Err(AppError::FileExists.into());
         }
 
-        outfile = f.to_owned();
+        f.clone_into(&mut outfile);
     }
 
     match output_type {
@@ -116,6 +118,7 @@ pub fn handle_output_choice<T: Display + Serialize>(
     Ok(())
 }
 
+#[allow(clippy::too_many_lines)]
 pub async fn route_command_async(
     command: AppArgsSubcommands,
     config: AppConfig,
@@ -338,7 +341,19 @@ pub async fn route_command_async(
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
+
+        AppArgsSubcommands::AddPowerAssociation(options) => {
+            add_power_association_async(
+                &config,
+                &req,
+                &auth_header,
+                options.power_consuming_asset_id,
+                options.power_providing_asset_id,
+            )
+            .await?;
+        }
     }
+
     Ok(())
 }
 

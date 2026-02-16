@@ -23,3 +23,10 @@ outlet_number : {}
         )
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all(serialize = "camelCase", deserialize = "snake_case"))]
+pub struct PowerAssociationCreateDto {
+    pub consuming_destination_asset_id: Uuid,
+    pub providing_source_asset_id: Uuid,
+}

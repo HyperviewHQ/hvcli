@@ -209,12 +209,53 @@ pub enum AppArgsSubcommands {
 
     /// List Rack PDU outlets
     ListRackPduOutlets(ListRecordsByAssetIdArgs),
+
+    /// Add power association
+    AddPowerAssociation(AddPowerAssociationArgs),
 }
 
 #[derive(Args, Debug, Clone)]
 pub struct BulkUpdateSingleInputFileArgs {
     #[arg(short, long, help = "Input filename, e.g. input.csv")]
     pub filename: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListRecordsByAssetIdArgs {
+    #[arg(
+        short,
+        long,
+        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct AddPowerAssociationArgs {
+    #[arg(
+        short = 'c',
+        long,
+        help = "Power consuming asset id, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub power_consuming_asset_id: Uuid,
+
+    #[arg(
+        short = 'p',
+        long,
+        help = "Power providing asset id, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196. Use the component id if associating with a specific outlet, tap-off, or breaker."
+    )]
+    pub power_providing_asset_id: Uuid,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -315,27 +356,6 @@ pub struct UpdateCustomAssetPropertyArgs {
 
     #[arg(short = 'D', long, help = "New custom property value, e.g. testValue")]
     pub new_custom_property_value: String,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct ListRecordsByAssetIdArgs {
-    #[arg(
-        short,
-        long,
-        help = "Asset ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
-    )]
-    pub id: Uuid,
-
-    #[arg(
-        short,
-        long,
-        help = "Output type, e.g. csv-file",
-        default_value = "record"
-    )]
-    pub output_type: OutputOptions,
-
-    #[arg(short, long, help = "Output filename, e.g. output.csv")]
-    pub filename: Option<String>,
 }
 
 #[derive(Args, Debug, Clone)]
