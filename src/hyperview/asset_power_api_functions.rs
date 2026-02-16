@@ -1,34 +1,69 @@
 use log::debug;
-use reqwest::{Client, header::AUTHORIZATION};
+use reqwest::{
+    Client,
+    header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
+};
+use serde_json::Map;
 use uuid::Uuid;
 
+use crate::hyperview::api_constants::PDU_RPP_BREAKERS_API_PREFIX;
+
 use super::{
-    api_constants::{POWER_ASSOCIATION_API_PREFIX, RACK_PDU_OUTLETS_API_PREFIX},
-    asset_power_api_data::{PowerAssociationCreateDto, RackPduOutletDto},
+    api_constants::POWER_ASSOCIATION_API_PREFIX,
+    asset_power_api_data::{
+        BulkPowerAssociationCreateDto, PowerAssociationCreateDto, PowerProviderComponentDto,
+    },
     cli_data::AppConfig,
 };
 
-pub async fn get_rack_pdu_outlets_async(
+pub async fn get_power_provider_components_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
+    api_path: &str,
     id: Uuid,
-) -> color_eyre::Result<Vec<RackPduOutletDto>> {
-    let target_url = format!(
-        "{}{}/{}",
-        config.instance_url, RACK_PDU_OUTLETS_API_PREFIX, id
-    );
+) -> color_eyre::Result<Vec<PowerProviderComponentDto>> {
+    let mut query_params = Map::new();
+
+    let target_url = if api_path == PDU_RPP_BREAKERS_API_PREFIX {
+        query_params.insert(
+            "assetId".to_string(),
+            serde_json::Value::String(id.to_string()),
+        );
+        format!("{}{}", config.instance_url, api_path)
+    } else {
+        format!("{}{}/{}", config.instance_url, api_path, id)
+    };
+
     debug!("Request URL: {target_url}");
 
     let resp = req
         .get(target_url)
+        .query(&query_params)
         .header(AUTHORIZATION, auth_header)
+        .header(CONTENT_TYPE, "application/json")
+        .header(ACCEPT, "application/json")
         .send()
         .await?
-        .json::<Vec<RackPduOutletDto>>()
+        .json::<Vec<PowerProviderComponentDto>>()
         .await?;
 
     Ok(resp)
+}
+
+pub async fn bulk_add_power_association_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    filename: &String,
+) -> color_eyre::Result<()> {
+    let mut reader = csv::Reader::from_path(filename)?;
+
+    while let Some(Ok(record)) = reader.deserialize::<BulkPowerAssociationCreateDto>().next() {
+        debug!("updating asset id {}", record.asset_id);
+    }
+
+    Ok(())
 }
 
 pub async fn add_power_association_async(

@@ -210,8 +210,17 @@ pub enum AppArgsSubcommands {
     /// List Rack PDU outlets
     ListRackPduOutlets(ListRecordsByAssetIdArgs),
 
+    /// List busway tap-offs
+    ListBuswayTapoffs(ListRecordsByAssetIdArgs),
+
+    /// List PDU/RPP Breakers
+    ListPduRppBreakers(ListRecordsByAssetIdArgs),
+
     /// Add power association
     AddPowerAssociation(AddPowerAssociationArgs),
+
+    /// Bulk add power power association
+    BulkAddPowerAssociation(BulkUpdateSingleInputFileArgs),
 }
 
 #[derive(Args, Debug, Clone)]

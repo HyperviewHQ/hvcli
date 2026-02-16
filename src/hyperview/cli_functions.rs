@@ -6,7 +6,12 @@ use std::fs::File;
 use std::io::Write;
 use std::path::{MAIN_SEPARATOR_STR, Path};
 
-use crate::hyperview::asset_power_api_functions::add_power_association_async;
+use crate::hyperview::api_constants::{
+    BUSWAY_TAPOFF_API_PREFIX, PDU_RPP_BREAKERS_API_PREFIX, RACK_PDU_OUTLETS_API_PREFIX,
+};
+use crate::hyperview::asset_power_api_functions::{
+    add_power_association_async, bulk_add_power_association_async,
+};
 
 use super::{
     api_constants::{
@@ -20,7 +25,7 @@ use super::{
         list_asset_ports_async, search_assets_async, update_asset_location_async,
         update_asset_name_by_id_async,
     },
-    asset_power_api_functions::get_rack_pdu_outlets_async,
+    asset_power_api_functions::get_power_provider_components_async,
     asset_properties_api_functions::{
         bulk_update_asset_property_async, get_asset_property_list_async,
         update_asset_property_async,
@@ -337,7 +342,40 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::ListRackPduOutlets(options) => {
-            let resp = get_rack_pdu_outlets_async(&config, &req, &auth_header, options.id).await?;
+            let resp = get_power_provider_components_async(
+                &config,
+                &req,
+                &auth_header,
+                RACK_PDU_OUTLETS_API_PREFIX,
+                options.id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListBuswayTapoffs(options) => {
+            let resp = get_power_provider_components_async(
+                &config,
+                &req,
+                &auth_header,
+                BUSWAY_TAPOFF_API_PREFIX,
+                options.id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListPduRppBreakers(options) => {
+            let resp = get_power_provider_components_async(
+                &config,
+                &req,
+                &auth_header,
+                PDU_RPP_BREAKERS_API_PREFIX,
+                options.id,
+            )
+            .await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
@@ -351,6 +389,11 @@ pub async fn route_command_async(
                 options.power_providing_asset_id,
             )
             .await?;
+        }
+
+        AppArgsSubcommands::BulkAddPowerAssociation(options) => {
+            bulk_add_power_association_async(&config, &req, &auth_header, &options.filename)
+                .await?;
         }
     }
 
