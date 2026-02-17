@@ -1,2 +1,5 @@
-asset_id,provider_asset_id,provider_component_number,provider_panel_number
-019c5e87-ecf2-74d9-8cb1-3abb969e7776,622eb346-2e0e-479a-8435-d9770836ae85,2,
+asset_id,provider_asset_id,provider_asset_type,provider_component_number,provider_panel_number
+019c5e87-ecf2-74d9-8cb1-3abb969e7776,622eb346-2e0e-479a-8435-d9770836ae85,RackPdu,2,
+019c5e87-ecf2-74d9-8cb1-3abb969e7776,54f62918-cbec-4aad-831e-24f96535a25f,Busway,1,
+019c5e87-ecf2-74d9-8cb1-3abb969e7776,bbd5750e-9a36-4d17-ba7c-055b40768750,PduAndRpp,1,2
+e0452ddf-506a-4b1e-84c1-66be2ab8f6bb,bbd5750e-9a36-4d17-ba7c-055b40768750,PduAndRpp,1,1

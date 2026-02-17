@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
 
+use super::cli_data::AssetTypes;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PowerProviderComponentDto {
     pub id: Uuid,
@@ -48,6 +50,7 @@ pub struct PowerAssociationCreateDto {
 pub struct BulkPowerAssociationCreateDto {
     pub asset_id: Uuid,
     pub provider_asset_id: Uuid,
+    pub provider_asset_type: AssetTypes,
     pub provider_component_number: Option<u64>,
     pub provider_panel_number: Option<u64>,
 }

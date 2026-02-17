@@ -31,7 +31,7 @@ pub enum OutputOptions {
     Record,
 }
 
-#[derive(Debug, ValueEnum, Clone)]
+#[derive(Debug, ValueEnum, Clone, Serialize, Deserialize)]
 #[clap(rename_all = "PascalCase")]
 pub enum AssetTypes {
     BladeEnclosure,
