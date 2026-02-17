@@ -82,115 +82,115 @@ Options:
 
 ### 1. list-asset-properties
 
-This subcommand lists all available properties for an asset identified by its unique id.
+List all available properties for an asset identified by its unique id.
 
 ### 2. list-custom-asset-properties
 
-This subcommand lists all available custom properties for an asset  identified by its unique id.
+List all available custom properties for an asset  identified by its unique id.
 
 ### 3. search-assets
 
-This subcommand provides methods for searching for assets in Hyperview.
+Search for assets in Hyperview.
 
 ### 4. list-any-of
 
-This subcommand will list assets that match a specific set of property values. For example, a list of serial numbers. Please note that the matches are exact.
+List assets that match a specific set of property values. For example, a list of serial numbers. Please note that the matches are exact.
 
 ### 5. update-asset-name
 
-This subcommand will update the display name of a single asset.
+Update the display name of an asset identified by its unique id.
 
 ### 6. bulk-update-asset-name
 
-This subcommand updates multiple assets from a CSV file. Example data is in the example_input folder.
+Update multiple assets from a CSV file. Example data is in the **example_input** folder.
 
 ### 7. update-asset-location
 
-This subcommand will update the location of a single asset.
+Update the location of an asset identified by its unique id.
 
 ### 8. bulk-update-asset-location
 
-This subcommand updates the location of multiple assets from a CSV file. Example Data is in the example_input folder.
+Update the location of multiple assets from a CSV file. Example Data is in the **example_input** folder.
 
 ### 9. update-asset-serial-number
 
-This subcommand updates the asset serial number. Applies to manually created assets and assets discovered without a serial number.
+Update the serial number of an asset identified by its unique id. Applies to manually created assets and assets discovered without a serial number.
 
 ### 10. bulk-update-asset-serial-number
 
-This subcommand updates the serial numbers of multiple assets from a CSV file. Example data is in the example_input folder.
+Update the serial numbers of multiple assets from a CSV file. Applies to manually created assets and assets discovered without a serial number. Example data is in the **example_input** folder.
 
 ### 11. update-asset-tag
 
-Update asset “asset tag” Property.
+Update the asset tag of an asset identified by its unique id.
 
 ### 12. bulk-update-asset-tag
 
-This subcommand updates the asset tag of multiple assets from a CSV file. Example data is in the example_input folder.
+Update the asset tag of multiple assets from a CSV file. Example data is in the **example_input** folder.
 
 ### 13. update-power-design-value
 
-Update the asset power “design value” property. This applies to Rack and Location asset types.
+Update the power “design value” property of an asset identified by its unique id. This applies to Rack and Location asset types.
 
 ### 14. bulk-update-power-design-value
 
-This subcommand updates the asset power “design value” property of multiple assets from a CSV file. This applies to Rack and Location asset types. Example data is in the example_input folder.
+Update the power “design value” property of multiple assets from a CSV file. This applies to Rack and Location asset types. Example data is in the **example_input** folder.
 
 ### 15. list-asset-ports
 
-This subcommand will list asset physical network ports.
+List the physical network ports of an asset identified by its unique id.
 
 ### 16. bulk-update-patch-panel-ports
 
-This subcommand bulk updates the physical network port names of patch panels from a CSV file. Example data is in the example_input folder.
+Update the physical network port names of patch panel assets from a CSV file. Example data is in the **example_input** folder.
 
 ### 17. bulk-update-asset-ports
 
-This subcommand updates non-patch panel asset physical network port names, E.g. a network switch. Example data is in the example_input folder.
+Update the physical network port names of other (non-patch-panel) assets from a CSV file, E.g. a network switch. Example data is in the **example_input** folder.
 
 ### 18. update-custom-asset-property
 
-This subcommand will update the value of an asset custom property.
+Update the value of a custom property of an asset identified by its unique id.
 
 ### 19. bulk-update-custom-asset-property
 
-This subcommand updates the custom property value of multiple assets using a CSV file. Example data is in the example_input folder.
+Update the custom property value of multiple assets using a CSV file. Example data is in the **example_input** folder.
 
 ### 22. list-alarms
 
-This subcommand lists alarm events. By default, it will list active events. It can also list unacknowledged events via a command-line option.
+List alarm events. By default, it will list active events. It can also list unacknowledged events via a command-line option.
 
 ### 21. manage-alarms
 
-This subcommand either acknowledges or closes alarm events using a CSV file generated by the list-alarms command. By default, this command closes the events; it can also acknowledge them via a command-line option.
+Acknowledge or close alarm events using a CSV file **generated by the list-alarms command**. By default, this command closes the events; it can also acknowledge them via a command-line option.
 
 ### 22. add-rack-accessory
 
-Add a blanking panel or cable management panel to a rack.
+Add a blanking panel or cable management panel to a rack by its unique id.
 
 ### 23. bulk-add-rack-accessory
 
-Add blanking panels or cable management panels to multiple racks using a CSV file. Example data is in the example_input folder.
+Add blanking panels or cable management panels to multiple racks using a CSV file. Example data is in the **example_input** folder.
 
 ### 24. list-asset-sensors
 
-List asset sensors for an asset  identified by its unique id.
+List sensors for an asset identified by its unique id.
 
 ### 25. bulk-update-asset-sensor
 
-Bulk update asset sensor name and access policy. IMPORTANT: Keep the access policy field empty to maintain the original and only change the name. Use a NIL UUID (00000000-0000-0000-0000-000000000000) to reset to the parent access policy. Example data is in the example_input folder.
+Update asset sensor name and/or access policy using a CSV file. IMPORTANT: Keep the access policy field empty to maintain the original and only change the name. Use a NIL UUID (00000000-0000-0000-0000-000000000000) to reset to the parent access policy. Example data is in the **example_input** folder.
 
 ### 26. list-rack-pdu-outlets
 
-List Rack PDU outlets for an asset  identified by its unique id.
+List Rack PDU outlets for an asset identified by its unique id.
 
 ### 27. list-busway-tapoffs
 
-List busway tap-offs for an asset  identified by its unique id.
+List busway tap-offs for an asset identified by its unique id.
 
 ### 28. list-pdu-rpp-breakers
 
-List PDU/RPP Breakers for an asset  identified by its unique id.
+List PDU/RPP Breakers for an asset identified by its unique id.
 
 ### 29. add-power-association
 
@@ -198,7 +198,7 @@ Add power association. Note that associations are asset-to-asset. For example, w
 
 ### 30. bulk-add-power-association
 
-Bulk add power associations between assets using a CSV. Example data is in the example_input folder.
+Add power associations between assets using a CSV. Example data is in the **example_input** folder.
 
 > [!NOTE]
 > Use --help to explore the various options available within the main command and each subcommand.
