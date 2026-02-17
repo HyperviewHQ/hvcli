@@ -33,52 +33,13 @@ instance_url = 'https://example.hyperviewhq.com'
 
 # Usage
 
+Run the command with the `--help` option to get usage information.
+
 ```bash
-$ hvcli --help
-Usage: hvcli [OPTIONS] <COMMAND>
-
-Commands:
-  list-asset-properties              List asset properties
-  list-custom-asset-properties       List asset custom properties
-  search-assets                      Search assets
-  list-any-of                        List assets matching any of the provided property values
-  update-asset-name                  Update asset name
-  bulk-update-asset-name             Bulk update asset name
-  update-asset-location              Update asset location
-  bulk-update-asset-location         Bulk update asset location
-  update-asset-serial-number         Update asset serial number. This applies to manually created assets and assets discovered without a serial number
-  bulk-update-asset-serial-number    Bulk update asset serial number. This applies to manually created assets and assets discovered without a serial number
-  update-asset-tag                   Update asset "asset tag" Property
-  bulk-update-asset-tag              Bulk update asset "asset tag" Property
-  update-power-design-value          Update asset power "design value" Property Applies to Rack and Location asset types
-  bulk-update-power-design-value     Bulk update asset power "design value" Property Applies to Rack and Location asset types
-  list-asset-ports                   List asset ports
-  bulk-update-patch-panel-ports      Bulk update patch panel port names
-  bulk-update-asset-ports            Bulk update asset port names
-  update-custom-asset-property       Update asset custom property
-  bulk-update-custom-asset-property  Bulk  update asset custom property
-  list-alarms                        List alarm events
-  manage-alarms                      Acknowledge or close alarm events using the CSV output from the list-alarms command
-  add-rack-accessory                 Add a blanking panel or cable management panel to a rack
-  bulk-add-rack-accessory            Bulk add a blanking panel or cable management panel to a rack
-  list-asset-sensors                 List asset sensors
-  bulk-update-asset-sensor           Bulk update asset sensor name and access policy.
-                                     IMPORTANT: Keep access policy field empty to maintain original and only change the name.
-                                     Use a NIL UUID (00000000-0000-0000-0000-000000000000) to reset to parent access policy
-  list-rack-pdu-outlets              List Rack PDU outlets
-  list-busway-tapoffs                List busway tap-offs
-  list-pdu-rpp-breakers              List PDU/RPP Breakers
-  add-power-association              Add power association
-  bulk-add-power-association         Bulk add power power association
-  help                               Print this message or the help of the given subcommand(s)
-
-Options:
-  -d, --debug-level <DEBUG_LEVEL>  Debug level [default: error] [possible values: error, warn, info, debug, trace]
-  -h, --help                       Print help
-  -V, --version                    Print version
+hvcli --help
 ```
 
-## Subcommands
+## Commands
 
 ### 1. list-asset-properties
 
@@ -203,7 +164,11 @@ Add power associations between assets using a CSV. Example data is in the **exam
 > [!NOTE]
 > Use --help to explore the various options available within the main command and each subcommand.
 
-#### Subcommand help examples
+## Command help
+
+Every command has a `--help` option to get further information.
+
+### Examples
 
 ```bash
 $ hvcli list-alarms --help
@@ -232,14 +197,18 @@ Options:
   -V, --version                        Print version
 ```
 
+## Debugging
+
 For troubleshooting, a master debug level can be set to troubleshoot issues using `-d` or `--debug-level`.
+
+## Output options
 
 Some subcommands allow the user to set to output to `record`, `json` or `csv-file`. Refer to the command help for more
 information.
 
-## Output examples
+### Output examples
 
-### Search by property (JSON output)
+#### Search by property (JSON output)
 
 ```bash
 $ hvcli search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
@@ -264,7 +233,7 @@ $ hvcli search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 
 ```
 
-### Search by text pattern (record output)
+#### Search by text pattern (record output)
 
 ```bash
 $ hvcli search-assets -p "UpsExampl*"
@@ -285,7 +254,7 @@ path: "All/Simulated SNMP Devices/UpsExample"
 serial_number: ["SERIALNUMBEREXAMPLE1234"]
 ```
 
-### Combination search (JSON output)
+#### Combination search (JSON output)
 
 ```bash
 $ hvcli search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
