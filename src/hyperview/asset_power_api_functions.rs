@@ -115,7 +115,7 @@ pub async fn bulk_add_power_association_async(
             && let Some(component_id) = component_map.get(&(
                 record
                     .provider_component_number
-                    .expect("Expect component number to be ser"),
+                    .expect("Expect component number to be set"),
                 record.provider_panel_number,
             ))
         {
