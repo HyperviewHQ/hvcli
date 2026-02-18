@@ -1,21 +1,21 @@
 # Hyperview CLI
 
 > [!NOTE]
-> This project is under active development. Please remember to check for new release.
+> This project is under active development. Please remember to check for new releases often.
 
-Hyperview CLI (hvcli) is a command line program to interact with data within Hyperview. 
+Hyperview CLI (hvcli) is a command-line program for interacting with data in Hyperview. 
 
 ** Important Reminders **
 
-> - _Powerful Capabilities_: This tool can make changes to data in Hyperview. Please take the time to familiarize yourself with its features.
+> - _Powerful Capabilities_: This tool can make modify data in Hyperview. Please take the time to familiarize yourself with its features.
 > - _Check Twice, Act Once_: Ensure that all your inputs are accurate. A small oversight can lead to unintended consequences.
-> - _Test with a small sample first_: Test and verify bulk changes with a small sample before proceeding to make big changes.
+> - _Test with a small sample first_: Test and verify bulk changes with a small sample before making big changes.
 
 Your success is important to us! Enjoy using the Hyperview CLI (hvcli), and remember to proceed with caution! 
 
 # Download
 
-To use this tool simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/hvcli/releases) section.
+To use this tool, simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/hvcli/releases) section.
 
 # Configuration
 A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`
@@ -166,7 +166,7 @@ Add power associations between assets using a CSV. Example data is in the **exam
 
 ## Command help
 
-Every command has a `--help` option to get further information.
+Every command has a `--help` option for more information.
 
 ### Examples
 
@@ -199,12 +199,11 @@ Options:
 
 ## Debugging
 
-For troubleshooting, a master debug level can be set to troubleshoot issues using `-d` or `--debug-level`.
+For troubleshooting, a master debug level can be set using `-d` or `--debug-level`.
 
 ## Output options
 
-Some subcommands allow the user to set to output to `record`, `json` or `csv-file`. Refer to the command help for more
-information.
+Some commands allow the user to set the output to `record`, `json` or `csv-file`. Refer to the command help for more information.
 
 ### Output examples
 
@@ -280,7 +279,7 @@ $ hvcli search-assets -p "UpsExample" --location-path "All/Simulated SNMP Device
 
 # Building from source
 
-## Linux, Windows and MacOS
+## Linux, Windows, and macOS
 
 ### Debug build 
 
@@ -314,7 +313,7 @@ docker build --tag hvcli:latest -f docker/Dockerfile .
 
 ### Running the Docker image
 
-To run the docker image generated you need to: 
+To run the Docker image generated, you need to: 
 
 1. Map the application configuration directory to the container.
 2. Optional, map an output folder to the container
@@ -328,7 +327,7 @@ docker run -v /home/albert/.hyperview:/root/.hyperview hvcli search-assets
 
 ```
 
-If you are planing to output to csv
+If you are planning to output to csv
 
 ```
 docker run -v /home/albert/.hyperview:/root/.hyperview -v /tmp:/output hvcli search-assets -o csv-file -f /output/assets.csv
