@@ -180,3 +180,254 @@ pub async fn manage_asset_alarm_events_async(
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use httpmock::prelude::*;
+    use serde_json::json;
+    use std::io::Write;
+    use std::time::Duration;
+
+    fn auth_token() -> AuthToken {
+        AuthToken::for_test("Bearer test_token", Duration::from_hours(1))
+    }
+
+    fn write_alarm_csv(ids: &[&str]) -> tempfile::NamedTempFile {
+        let mut tmp = tempfile::NamedTempFile::new().unwrap();
+        // AlarmEventDto deserialization keys (camelCase via serde rename_all).
+        writeln!(
+            tmp,
+            "id,severity,assetName,assetLocationPath,alarmEventSettingId,assetId,startTimestamp,endTimestamp,acknowledgementState,acknowledgedBy,acknowledgedTimestamp,closedBy,alarmEventCategory,isActive,propertyValues,textTemplate"
+        )
+        .unwrap();
+        for id in ids {
+            writeln!(
+                tmp,
+                "{id},critical,assetname,path,setting,assetid,2026-01-01,,unacknowledged,,,,cat,true,{{}},template"
+            )
+            .unwrap();
+        }
+        tmp.flush().unwrap();
+        tmp
+    }
+
+    #[tokio::test]
+    async fn test_list_alarm_events_sets_unacknowledged_filter_query() {
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET)
+                .path(ASSET_ALARM_EVENT_LIST_API_PREFIX)
+                .query_param("skip", "0")
+                .query_param("take", "10")
+                .query_param(
+                    "filter",
+                    "[\"acknowledgementState\", \"=\", \"unacknowledged\"]",
+                );
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({
+                    "data": [],
+                    "groupCount": 0,
+                    "totalCount": 0
+                }));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let auth = "Bearer t".to_string();
+
+        let result = list_alarm_events_async(
+            &config,
+            &client,
+            &auth,
+            0,
+            10,
+            AlarmEventFilterOptions::Unacknowledged,
+        )
+        .await
+        .unwrap();
+
+        m.assert();
+        assert!(result.data.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_list_alarm_events_sets_active_filter_query() {
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET)
+                .path(ASSET_ALARM_EVENT_LIST_API_PREFIX)
+                .query_param("filter", "[\"isActive\", \"=\", true]");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({ "data": [], "groupCount": 0, "totalCount": 0 }));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        list_alarm_events_async(
+            &config,
+            &client,
+            &"Bearer t".to_string(),
+            0,
+            10,
+            AlarmEventFilterOptions::Active,
+        )
+        .await
+        .unwrap();
+
+        m.assert();
+    }
+
+    #[tokio::test]
+    async fn test_manage_close_sends_single_batch_when_under_batch_size() {
+        let server = MockServer::start();
+        let close_mock = server.mock(|when, then| {
+            when.method(PUT)
+                .path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX)
+                .body_includes("alarm-1")
+                .body_includes("alarm-2");
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+        let csv = write_alarm_csv(&["alarm-1", "alarm-2"]);
+
+        manage_asset_alarm_events_async(
+            &config,
+            &client,
+            &mut token,
+            csv.path().to_string_lossy().to_string(),
+            ManageActionOptions::Close,
+        )
+        .await
+        .unwrap();
+
+        close_mock.assert_calls(1);
+    }
+
+    #[tokio::test]
+    async fn test_manage_acknowledge_uses_alarm_event_ids_payload() {
+        let server = MockServer::start();
+        let ack_mock = server.mock(|when, then| {
+            when.method(PUT)
+                .path(ASSET_ALARM_EVENT_BULK_ACKNOWLEDGE_API_PREFIX)
+                .body_includes("alarmEventIds")
+                .body_includes("acknowledged")
+                .body_includes("alarm-x");
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+        let csv = write_alarm_csv(&["alarm-x"]);
+
+        manage_asset_alarm_events_async(
+            &config,
+            &client,
+            &mut token,
+            csv.path().to_string_lossy().to_string(),
+            ManageActionOptions::Acknowledge,
+        )
+        .await
+        .unwrap();
+
+        ack_mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_manage_close_splits_into_multiple_batches_at_batch_size_boundary() {
+        // BULK_ACTION_BATCH_SIZE rows in one batch + 1 leftover triggers a second batch.
+        let mut ids: Vec<String> = (0..=BULK_ACTION_BATCH_SIZE)
+            .map(|i| format!("alarm-{i}"))
+            .collect();
+        let id_refs: Vec<&str> = ids.iter_mut().map(|s| s.as_str()).collect();
+
+        let server = MockServer::start();
+        let close_mock = server.mock(|when, then| {
+            when.method(PUT).path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX);
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+        let csv = write_alarm_csv(&id_refs);
+
+        manage_asset_alarm_events_async(
+            &config,
+            &client,
+            &mut token,
+            csv.path().to_string_lossy().to_string(),
+            ManageActionOptions::Close,
+        )
+        .await
+        .unwrap();
+
+        close_mock.assert_calls(2);
+    }
+
+    #[tokio::test]
+    async fn test_manage_close_continues_after_batch_error() {
+        // Two batches: first 500s, second 200. The whole call must still complete Ok(()).
+        let mut ids: Vec<String> = (0..=BULK_ACTION_BATCH_SIZE)
+            .map(|i| format!("alarm-{i}"))
+            .collect();
+        let id_refs: Vec<&str> = ids.iter_mut().map(|s| s.as_str()).collect();
+
+        let server = MockServer::start();
+        // First batch includes alarm-0, second batch only contains alarm-100.
+        let fail_mock = server.mock(|when, then| {
+            when.method(PUT)
+                .path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX)
+                .body_includes("alarm-0");
+            then.status(500);
+        });
+        let ok_mock = server.mock(|when, then| {
+            when.method(PUT)
+                .path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX)
+                .body_includes(format!("alarm-{BULK_ACTION_BATCH_SIZE}"));
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+        let csv = write_alarm_csv(&id_refs);
+
+        manage_asset_alarm_events_async(
+            &config,
+            &client,
+            &mut token,
+            csv.path().to_string_lossy().to_string(),
+            ManageActionOptions::Close,
+        )
+        .await
+        .expect("manage alarm events must not abort on a per-batch 500");
+
+        fail_mock.assert();
+        ok_mock.assert();
+    }
+}

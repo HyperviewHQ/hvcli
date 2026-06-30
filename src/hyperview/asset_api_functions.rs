@@ -1010,4 +1010,54 @@ mod tests {
         assert_eq!(assets[0].name, "\"labworker16\"".to_string());
         assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string());
     }
+
+    #[tokio::test]
+    async fn test_bulk_add_rack_accessory_async_continues_after_row_error() {
+        use crate::hyperview::auth::AuthToken;
+        use std::io::Write;
+        use std::time::Duration;
+
+        let rack_fail = Uuid::new_v4();
+        let rack_ok = Uuid::new_v4();
+
+        let server = MockServer::start();
+        // First POST returns 500; second POST returns 200. The bulk call must reach the second.
+        let fail_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path(RACK_PANEL_API_PREFIX)
+                .body_includes(rack_fail.to_string());
+            then.status(500);
+        });
+        let ok_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path(RACK_PANEL_API_PREFIX)
+                .body_includes(rack_ok.to_string());
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let mut token = AuthToken::for_test("Bearer t", Duration::from_hours(1));
+
+        let mut tmp = tempfile::NamedTempFile::new().unwrap();
+        writeln!(tmp, "id,panel_type,side,u_location").unwrap();
+        writeln!(tmp, "{rack_fail},BlankingPanel,Front,1").unwrap();
+        writeln!(tmp, "{rack_ok},BlankingPanel,Front,2").unwrap();
+        tmp.flush().unwrap();
+
+        bulk_add_rack_accessory_async(
+            &config,
+            &client,
+            &mut token,
+            &tmp.path().to_string_lossy().to_string(),
+        )
+        .await
+        .expect("bulk add must not abort on a per-row 500");
+
+        fail_mock.assert();
+        ok_mock.assert();
+    }
 }

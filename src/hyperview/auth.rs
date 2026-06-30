@@ -61,6 +61,17 @@ impl AuthToken {
 
         Ok(())
     }
+
+    /// Test-only constructor: builds a token with the given header that does not expire for
+    /// `lifetime`. Lets sibling modules' tests construct an `AuthToken` without touching the
+    /// private `expires_at` field.
+    #[cfg(test)]
+    pub fn for_test(header: impl Into<String>, lifetime: Duration) -> Self {
+        Self {
+            header: header.into(),
+            expires_at: Instant::now() + lifetime,
+        }
+    }
 }
 
 /// True if `err` wraps a `reqwest::Error` carrying a `401 Unauthorized` response status.
