@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, error};
 use reqwest::{
     Client,
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
@@ -13,12 +13,14 @@ use crate::hyperview::{
     },
     cli_data::AssetTypes,
 };
+use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::POWER_ASSOCIATION_API_PREFIX,
     asset_power_api_data::{
         BulkPowerAssociationCreateDto, PowerAssociationCreateDto, PowerProviderComponentDto,
     },
+    auth::AuthToken,
     cli_data::AppConfig,
 };
 
@@ -51,6 +53,7 @@ pub async fn get_power_provider_components_async(
         .header(ACCEPT, "application/json")
         .send()
         .await?
+        .error_for_status()?
         .json::<Vec<PowerProviderComponentDto>>()
         .await?;
 
@@ -60,7 +63,7 @@ pub async fn get_power_provider_components_async(
 pub async fn bulk_add_power_association_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: &String,
 ) -> color_eyre::Result<()> {
     // Asset ID : (Component Number, Optional Panel Number): Component Id
@@ -70,18 +73,29 @@ pub async fn bulk_add_power_association_async(
     let mut reader = csv::Reader::from_path(filename)?;
 
     while let Some(Ok(record)) = reader.deserialize::<BulkPowerAssociationCreateDto>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("updating asset id {}", record.asset_id);
 
         if record.provider_component_number.is_none() {
             debug!("Component number is not asset, assuming direct asset to asset association");
-            add_power_association_async(
+            if let Err(e) = retry_on_unauthorized_async!(
                 config,
-                req,
-                auth_header,
-                record.asset_id,
-                record.provider_asset_id,
-            )
-            .await?;
+                auth_token,
+                add_power_association_async(
+                    config,
+                    req,
+                    &auth_token.header,
+                    record.asset_id,
+                    record.provider_asset_id,
+                )
+                .await
+            ) {
+                error!(
+                    "Failed to add power association for asset id {}: {e}",
+                    record.asset_id
+                );
+            }
 
             continue;
         }
@@ -99,15 +113,25 @@ pub async fn bulk_add_power_association_async(
                 continue;
             }
 
-            get_provider_component_map_async(
+            if let Err(e) = retry_on_unauthorized_async!(
                 config,
-                req,
-                auth_header,
-                record.provider_asset_id,
-                api_path.expect("Expect API path variable to be set at this point"),
-                &mut power_provider_component_map,
-            )
-            .await?;
+                auth_token,
+                get_provider_component_map_async(
+                    config,
+                    req,
+                    &auth_token.header,
+                    record.provider_asset_id,
+                    api_path.expect("Expect API path variable to be set at this point"),
+                    &mut power_provider_component_map,
+                )
+                .await
+            ) {
+                error!(
+                    "Failed to fetch power provider components for asset id {}: {e}",
+                    record.provider_asset_id
+                );
+                continue;
+            }
         }
 
         // Add power association
@@ -118,9 +142,23 @@ pub async fn bulk_add_power_association_async(
                     .expect("Expect component number to be set"),
                 record.provider_panel_number,
             ))
+            && let Err(e) = retry_on_unauthorized_async!(
+                config,
+                auth_token,
+                add_power_association_async(
+                    config,
+                    req,
+                    &auth_token.header,
+                    record.asset_id,
+                    *component_id,
+                )
+                .await
+            )
         {
-            add_power_association_async(config, req, auth_header, record.asset_id, *component_id)
-                .await?;
+            error!(
+                "Failed to add power association for asset id {}: {e}",
+                record.asset_id
+            );
         }
     }
 
@@ -165,12 +203,12 @@ pub async fn add_power_association_async(
         providing_source_asset_id: power_providing_asset_id,
     };
 
-    let _resp = req
-        .post(target_url)
+    req.post(target_url)
         .header(AUTHORIZATION, auth_header)
         .json(&association_data)
         .send()
-        .await?;
+        .await?
+        .error_for_status()?;
 
     Ok(())
 }

@@ -1,9 +1,11 @@
-use log::debug;
+use log::{debug, error};
 use reqwest::{
     Client,
     header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
 };
 use serde_json::{Map, Value, json};
+
+use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::{
@@ -11,6 +13,7 @@ use super::{
         ASSET_ALARM_EVENT_LIST_API_PREFIX, BULK_ACTION_BATCH_SIZE,
     },
     asset_alarm_events_data::{AlarmEventDto, AlarmListResponse},
+    auth::AuthToken,
     cli_data::{AlarmEventFilterOptions, AppConfig, ManageActionOptions},
 };
 
@@ -62,16 +65,54 @@ pub async fn list_alarm_events_async(
         .header(ACCEPT, "application/json")
         .send()
         .await?
+        .error_for_status()?
         .json::<AlarmListResponse>()
         .await?;
 
     Ok(resp)
 }
 
+async fn close_alarm_batch_async(
+    req: &Client,
+    auth_header: &String,
+    target_url: &str,
+    batch: &[String],
+) -> color_eyre::Result<()> {
+    req.put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(batch)
+        .send()
+        .await?
+        .error_for_status()?;
+
+    Ok(())
+}
+
+async fn acknowledge_alarm_batch_async(
+    req: &Client,
+    auth_header: &String,
+    target_url: &str,
+    batch: &[String],
+) -> color_eyre::Result<()> {
+    let payload = json!({
+        "alarmEventIds": batch,
+        "acknowledgementState": "acknowledged"
+    });
+
+    req.put(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .json(&payload)
+        .send()
+        .await?
+        .error_for_status()?;
+
+    Ok(())
+}
+
 pub async fn manage_asset_alarm_events_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
     manage_action_options: ManageActionOptions,
 ) -> color_eyre::Result<()> {
@@ -103,12 +144,15 @@ pub async fn manage_asset_alarm_events_async(
             debug!("Request URL: {target_url}");
 
             for batch in work_batches {
-                let _resp = &req
-                    .put(&target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&batch)
-                    .send()
-                    .await?;
+                auth_token.refresh_if_needed_async(config).await?;
+
+                if let Err(e) = retry_on_unauthorized_async!(
+                    config,
+                    auth_token,
+                    close_alarm_batch_async(req, &auth_token.header, &target_url, &batch).await
+                ) {
+                    error!("Failed to close alarm event batch {batch:?}: {e}");
+                }
             }
         }
 
@@ -120,17 +164,16 @@ pub async fn manage_asset_alarm_events_async(
             debug!("Request URL: {target_url}");
 
             for batch in work_batches {
-                let payload = json!({
-                    "alarmEventIds": batch,
-                    "acknowledgementState": "acknowledged"
-                });
+                auth_token.refresh_if_needed_async(config).await?;
 
-                let _resp = &req
-                    .put(&target_url)
-                    .header(AUTHORIZATION, auth_header)
-                    .json(&payload)
-                    .send()
-                    .await?;
+                if let Err(e) = retry_on_unauthorized_async!(
+                    config,
+                    auth_token,
+                    acknowledge_alarm_batch_async(req, &auth_token.header, &target_url, &batch)
+                        .await
+                ) {
+                    error!("Failed to acknowledge alarm event batch {batch:?}: {e}");
+                }
             }
         }
     }

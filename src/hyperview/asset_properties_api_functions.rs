@@ -1,11 +1,14 @@
-use log::{debug, trace};
+use log::{debug, error, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use uuid::Uuid;
+
+use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
     asset_properties_api_data::{AssetPropertyDto, AssetPropertyImportDto},
+    auth::AuthToken,
     cli_data::AppConfig,
     common_types::MultiTypeValue,
 };
@@ -13,22 +16,33 @@ use super::{
 pub async fn bulk_update_asset_property_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
     asset_property_type: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
 
     while let Some(Ok(record)) = reader.deserialize::<AssetPropertyImportDto>().next() {
-        update_asset_property_async(
+        auth_token.refresh_if_needed_async(config).await?;
+
+        if let Err(e) = retry_on_unauthorized_async!(
             config,
-            req,
-            auth_header,
-            record.asset_id,
-            record.new_value,
-            asset_property_type.clone(),
-        )
-        .await?;
+            auth_token,
+            update_asset_property_async(
+                config,
+                req,
+                &auth_token.header,
+                record.asset_id,
+                record.new_value.clone(),
+                asset_property_type.clone(),
+            )
+            .await
+        ) {
+            error!(
+                "Failed to update {asset_property_type} for asset id {}: {e}",
+                record.asset_id
+            );
+        }
     }
     Ok(())
 }
@@ -92,6 +106,7 @@ pub async fn update_asset_property_async(
                 .json(&payload)
                 .send()
                 .await?
+                .error_for_status()?
                 .json::<serde_json::Value>()
                 .await?;
 
@@ -113,6 +128,7 @@ pub async fn update_asset_property_async(
                 .json(&payload)
                 .send()
                 .await?
+                .error_for_status()?
                 .json::<serde_json::Value>()
                 .await?;
 
@@ -143,6 +159,7 @@ pub async fn get_asset_property_list_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
+        .error_for_status()?
         .json::<Vec<AssetPropertyDto>>()
         .await?;
 

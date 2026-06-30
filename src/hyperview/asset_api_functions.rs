@@ -8,6 +8,7 @@ use std::str::FromStr;
 use uuid::Uuid;
 
 use crate::hyperview::asset_api_data::AddRackAccessoryRecord;
+use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::{
@@ -19,6 +20,7 @@ use super::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
     asset_properties_api_functions::get_named_asset_property_async,
+    auth::AuthToken,
     cli_data::{
         AppConfig, ListAnyOfArgs, ListRecordsByAssetIdArgs, RackPanelType, RackSide,
         SearchAssetsArgs, UpdateAssetLocationArgs,
@@ -28,22 +30,30 @@ use super::{
 pub async fn bulk_add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: &String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("Adding rack accessory to rack_id {}", record.id);
-        add_rack_accessory_async(
+        if let Err(e) = retry_on_unauthorized_async!(
             config,
-            req,
-            auth_header,
-            &record.id,
-            &record.panel_type,
-            &record.side,
-            record.u_location,
-        )
-        .await?;
+            auth_token,
+            add_rack_accessory_async(
+                config,
+                req,
+                &auth_token.header,
+                &record.id,
+                &record.panel_type,
+                &record.side,
+                record.u_location,
+            )
+            .await
+        ) {
+            error!("Failed to add rack accessory to rack_id {}: {e}", record.id);
+        }
     }
 
     Ok(())
@@ -108,7 +118,8 @@ pub async fn add_rack_accessory_async(
         .header(AUTHORIZATION, auth_header)
         .json(&payload)
         .send()
-        .await?;
+        .await?
+        .error_for_status()?;
 
     trace!("Server response: {}", resp.status());
 
@@ -118,12 +129,14 @@ pub async fn add_rack_accessory_async(
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
     is_patchpanel: bool,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("Updating port id: {}", record.id);
 
         // Patch panel flow
@@ -145,7 +158,13 @@ pub async fn bulk_update_ports_async(
             });
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(req, auth_header, target_url, payload).await?;
+            if let Err(e) = retry_on_unauthorized_async!(
+                config,
+                auth_token,
+                update_port_async(req, &auth_token.header, &target_url, &payload).await
+            ) {
+                error!("Failed to update patch panel port id {}: {e}", record.id);
+            }
 
             // Go to next record
             continue;
@@ -170,7 +189,13 @@ pub async fn bulk_update_ports_async(
 
         debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        update_port_async(req, auth_header, target_url, payload).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_port_async(req, &auth_token.header, &target_url, &payload).await
+        ) {
+            error!("Failed to update asset port id {}: {e}", record.id);
+        }
     }
 
     Ok(())
@@ -179,15 +204,16 @@ pub async fn bulk_update_ports_async(
 async fn update_port_async(
     req: &Client,
     auth_header: &String,
-    target_url: String,
-    payload: Value,
+    target_url: &str,
+    payload: &Value,
 ) -> color_eyre::Result<()> {
     let resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
-        .json(&payload)
+        .json(payload)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -299,6 +325,7 @@ pub async fn update_asset_location_async(
         .json(&asset_location_dto)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -313,11 +340,13 @@ pub async fn update_asset_location_async(
 pub async fn bulk_update_asset_location_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!(
             "Updating asset id: {} with new location: {}",
             record.asset_id, record.new_location_id
@@ -334,7 +363,19 @@ pub async fn bulk_update_asset_location_async(
             rack_u_location: record.rack_u_location,
         };
 
-        update_asset_location_async(config, req, auth_header, update_location_data).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_asset_location_async(
+                config,
+                req,
+                &auth_token.header,
+                update_location_data.clone(),
+            )
+            .await
+        ) {
+            error!("Failed to update location for asset id {id}: {e}");
+        }
     }
 
     Ok(())
@@ -353,6 +394,7 @@ async fn get_raw_asset_by_id_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -388,12 +430,12 @@ pub async fn update_asset_name_by_id_async(
                 *name_string = new_name;
             }
 
-            let _resp = req
-                .put(target_url)
+            req.put(target_url)
                 .header(AUTHORIZATION, auth_header)
                 .json(&asset_value)
                 .send()
-                .await?;
+                .await?
+                .error_for_status()?;
 
             Ok(())
         }
@@ -405,11 +447,13 @@ pub async fn update_asset_name_by_id_async(
 pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!(
             "Updating asset id: {} with new name: {}",
             record.asset_id, record.new_name
@@ -422,7 +466,20 @@ pub async fn bulk_update_asset_name_async(
             continue;
         }
 
-        update_asset_name_by_id_async(config, req, auth_header, record.asset_id, new_name).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_asset_name_by_id_async(
+                config,
+                req,
+                &auth_token.header,
+                record.asset_id,
+                new_name.clone(),
+            )
+            .await
+        ) {
+            error!("Failed to update name for asset id {}: {e}", record.asset_id);
+        }
     }
 
     Ok(())

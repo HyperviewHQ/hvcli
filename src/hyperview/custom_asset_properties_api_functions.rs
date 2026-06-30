@@ -1,11 +1,14 @@
-use log::{debug, trace};
+use log::{debug, error, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use serde_json::Value;
 use uuid::Uuid;
 
+use crate::retry_on_unauthorized_async;
+
 use super::{
     api_constants::CUSTOM_ASSET_PROPERTIES_API_PREFIX,
     app_errors::AppError,
+    auth::AuthToken,
     cli_data::AppConfig,
     custom_asset_properties_api_data::CustomAssetPropertyDto,
     custom_asset_properties_api_data::{
@@ -30,6 +33,7 @@ pub async fn get_custom_asset_property_list_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
+        .error_for_status()?
         .json::<Vec<CustomAssetPropertyDto>>()
         .await?;
 
@@ -87,6 +91,7 @@ pub async fn update_custom_property_by_name_async(
         .json(&update_dto)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -102,7 +107,7 @@ pub async fn update_custom_property_by_name_async(
 pub async fn bulk_update_custom_property_by_name_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
@@ -110,16 +115,27 @@ pub async fn bulk_update_custom_property_by_name_async(
         .deserialize::<CustomAssetPropertyFileImportDto>()
         .next()
     {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("Update custom asset property record: {record:?}");
-        update_custom_property_by_name_async(
+        if let Err(e) = retry_on_unauthorized_async!(
             config,
-            req,
-            auth_header,
-            record.asset_id,
-            record.custom_asset_property_name.clone(),
-            record.new_custom_property_value.clone(),
-        )
-        .await?;
+            auth_token,
+            update_custom_property_by_name_async(
+                config,
+                req,
+                &auth_token.header,
+                record.asset_id,
+                record.custom_asset_property_name.clone(),
+                record.new_custom_property_value.clone(),
+            )
+            .await
+        ) {
+            error!(
+                "Failed to update custom property '{}' for asset id {}: {e}",
+                record.custom_asset_property_name, record.asset_id
+            );
+        }
     }
     Ok(())
 }

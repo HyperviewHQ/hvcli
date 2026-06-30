@@ -1,30 +1,38 @@
-use log::{debug, trace};
+use log::{debug, error, trace};
 use reqwest::{Client, header::AUTHORIZATION};
 use std::{collections::HashMap, str::FromStr};
 use uuid::Uuid;
 
+use crate::retry_on_unauthorized_async;
+
 use super::{
     api_constants::SENSOR_API_PREFIX,
     asset_sensor_api_data::{AssetSensorDto, AssetSensorUpdateDto},
+    auth::AuthToken,
     cli_data::AppConfig,
 };
 
 pub async fn bulk_update_asset_sensor_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: &String,
 ) -> color_eyre::Result<()> {
     let mut asset_sensors_map: HashMap<String, HashMap<String, AssetSensorDto>> = HashMap::new();
     let mut reader = csv::Reader::from_path(filename)?;
 
     while let Some(Ok(mut record)) = reader.deserialize::<AssetSensorUpdateDto>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("updating sensor_id {}", record.sensor_id);
 
         // if the asset is not mapped, lookup and cache sensor mapping
         if !asset_sensors_map.contains_key(&record.asset_id.to_string())
-            && let Ok(sensors) =
-                get_asset_sensor_list_async(config, req, auth_header, record.asset_id).await
+            && let Ok(sensors) = retry_on_unauthorized_async!(
+                config,
+                auth_token,
+                get_asset_sensor_list_async(config, req, &auth_token.header, record.asset_id).await
+            )
         {
             map_asset_sensors(record.asset_id.to_string(), sensors, &mut asset_sensors_map);
         }
@@ -52,7 +60,13 @@ pub async fn bulk_update_asset_sensor_async(
 
         trace!("Sensor record: {}", serde_json::to_string(&record)?);
 
-        update_asset_sensor_async(config, req, auth_header, record).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_asset_sensor_async(config, req, &auth_token.header, &record).await
+        ) {
+            error!("Failed to update sensor id {}: {e}", record.sensor_id);
+        }
     }
 
     Ok(())
@@ -90,17 +104,17 @@ async fn update_asset_sensor_async(
     config: &AppConfig,
     req: &Client,
     auth_header: &String,
-    sensor: AssetSensorUpdateDto,
+    sensor: &AssetSensorUpdateDto,
 ) -> color_eyre::Result<()> {
     let target_url = format!("{}{}", config.instance_url, SENSOR_API_PREFIX);
     debug!("Request URL: {target_url}");
 
-    let _resp = req
-        .put(target_url)
+    req.put(target_url)
         .header(AUTHORIZATION, auth_header)
-        .json(&sensor)
+        .json(sensor)
         .send()
-        .await?;
+        .await?
+        .error_for_status()?;
 
     Ok(())
 }
@@ -119,6 +133,7 @@ pub async fn get_asset_sensor_list_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
+        .error_for_status()?
         .json::<Vec<AssetSensorDto>>()
         .await?;
 
