@@ -177,7 +177,7 @@ mod tests {
     async fn test_get_asset_property_list_async() {
         // Arrange
         let asset_id = Uuid::from_str("3a6c3022-6140-4e85-a64f-bf868766c4c8").unwrap();
-        let url_path = format!("{}/{}", ASSET_PROPERTIES_API_PREFIX, asset_id);
+        let url_path = format!("{ASSET_PROPERTIES_API_PREFIX}/{asset_id}");
 
         let server = MockServer::start();
         let m = server.mock(|when, then| {

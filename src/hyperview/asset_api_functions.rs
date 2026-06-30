@@ -882,8 +882,8 @@ mod tests {
         filter.push(format!("assetType = '{}'", "Server"));
 
         let input_path = "All/".to_string();
-        let prepared_path = input_path.replace('/', "~").to_string();
-        filter.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = input_path.replace('/', "~").clone();
+        filter.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
 
         let filter_str = filter.join(" AND ");
 
@@ -909,6 +909,14 @@ mod tests {
             then.status(200)
                 .header("Content-Type", "application/json")
                 .body(search_resp1);
+        });
+        let all_location_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"));
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({"name": "All"}));
         });
 
         let config = AppConfig {
@@ -938,10 +946,11 @@ mod tests {
 
         // Assert
         m.assert();
+        all_location_mock.assert();
         assert!(result.is_ok());
         let assets = result.unwrap();
         assert_eq!(assets.len(), 1);
         assert_eq!(assets[0].name, "\"labworker16\"".to_string());
-        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string())
+        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string());
     }
 }
