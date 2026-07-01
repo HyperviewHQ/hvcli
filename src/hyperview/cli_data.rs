@@ -514,7 +514,11 @@ pub struct GenerateSensorReportArgs {
     #[arg(short = 't', long, help = "Asset type to include, e.g. Rack")]
     pub asset_type: AssetTypes,
 
-    #[arg(short = 's', long, help = "Sensor name to report on, e.g. averageKwhByHour")]
+    #[arg(
+        short = 's',
+        long,
+        help = "Sensor name to report on, e.g. averageKwhByHour"
+    )]
     pub sensor: String,
 
     #[arg(
@@ -561,10 +565,18 @@ pub struct GenerateSensorReportArgs {
     )]
     pub location_path: Option<String>,
 
-    #[arg(short = 'M', long, help = "Optional manufacturer name filter, e.g. dell")]
+    #[arg(
+        short = 'M',
+        long,
+        help = "Optional manufacturer name filter, e.g. dell"
+    )]
     pub manufacturer: Option<String>,
 
-    #[arg(short = 'R', long, help = "Optional product name filter, e.g. poweredge")]
+    #[arg(
+        short = 'R',
+        long,
+        help = "Optional product name filter, e.g. poweredge"
+    )]
     pub product: Option<String>,
 
     #[arg(

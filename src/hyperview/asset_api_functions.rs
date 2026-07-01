@@ -478,7 +478,10 @@ pub async fn bulk_update_asset_name_async(
             )
             .await
         ) {
-            error!("Failed to update name for asset id {}: {e}", record.asset_id);
+            error!(
+                "Failed to update name for asset id {}: {e}",
+                record.asset_id
+            );
         }
     }
 
@@ -537,13 +540,38 @@ pub async fn list_any_of_async(
             let asset = AssetDto {
                 id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
                 name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().as_str().unwrap().to_string(),
+                asset_lifecycle_state: a
+                    .get("assetLifecycleState")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().as_str().unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().as_str().unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().as_str().unwrap().to_string(),
+                manufacturer_id: a
+                    .get("manufacturerId")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+                manufacturer_name: a
+                    .get("manufacturerName")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+                monitoring_state: a
+                    .get("monitoringState")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().as_str().unwrap().to_string(),
+                parent_name: a
+                    .get("parentDisplayName")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
                 product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
                 status: a.get("status").unwrap().as_str().unwrap().to_string(),
@@ -734,13 +762,38 @@ pub async fn search_assets_async(
             let asset = AssetDto {
                 id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
                 name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().as_str().unwrap().to_string(),
+                asset_lifecycle_state: a
+                    .get("assetLifecycleState")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().as_str().unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().as_str().unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().as_str().unwrap().to_string(),
+                manufacturer_id: a
+                    .get("manufacturerId")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+                manufacturer_name: a
+                    .get("manufacturerName")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+                monitoring_state: a
+                    .get("monitoringState")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().as_str().unwrap().to_string(),
+                parent_name: a
+                    .get("parentDisplayName")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
                 product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
                 status: a.get("status").unwrap().as_str().unwrap().to_string(),
@@ -970,8 +1023,9 @@ mod tests {
                 .body(search_resp1);
         });
         let all_location_mock = server.mock(|when, then| {
-            when.method(GET)
-                .path(format!("{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"));
+            when.method(GET).path(format!(
+                "{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"
+            ));
 
             then.status(200)
                 .header("Content-Type", "application/json")

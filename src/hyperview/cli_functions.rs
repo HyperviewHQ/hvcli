@@ -134,20 +134,15 @@ pub async fn route_command_async(
 ) -> color_eyre::Result<()> {
     match command {
         AppArgsSubcommands::ListAssetProperties(options) => {
-            let resp =
-                get_asset_property_list_async(&config, &req, &auth_token.header, options.id)
-                    .await?;
+            let resp = get_asset_property_list_async(&config, &req, &auth_token.header, options.id)
+                .await?;
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
-            let resp = get_custom_asset_property_list_async(
-                &config,
-                &req,
-                &auth_token.header,
-                options.id,
-            )
-            .await?;
+            let resp =
+                get_custom_asset_property_list_async(&config, &req, &auth_token.header, options.id)
+                    .await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
@@ -160,7 +155,8 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::ListAnyOf(options) => {
-            let resp = list_any_of_async(&config, &req, &auth_token.header, options.clone()).await?;
+            let resp =
+                list_any_of_async(&config, &req, &auth_token.header, options.clone()).await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }

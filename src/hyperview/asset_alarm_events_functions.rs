@@ -361,7 +361,8 @@ mod tests {
 
         let server = MockServer::start();
         let close_mock = server.mock(|when, then| {
-            when.method(PUT).path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX);
+            when.method(PUT)
+                .path(ASSET_ALARM_EVENT_BULK_CLOSE_API_PREFIX);
             then.status(200);
         });
 

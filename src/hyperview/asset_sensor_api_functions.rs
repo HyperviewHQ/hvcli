@@ -7,9 +7,7 @@ use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::{SENSOR_API_PREFIX, SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX},
-    asset_sensor_api_data::{
-        AssetSensorDto, AssetSensorUpdateDto, NumericSensorDailySummaryDto,
-    },
+    asset_sensor_api_data::{AssetSensorDto, AssetSensorUpdateDto, NumericSensorDailySummaryDto},
     auth::AuthToken,
     cli_data::AppConfig,
 };
@@ -170,8 +168,14 @@ pub async fn get_numeric_sensor_daily_summaries_async(
         .iter()
         .map(|id| ("sensorIds", id.to_string()))
         .collect();
-    query.push(("startTime", format!("{}T00:00:00.000", start.format("%Y-%m-%d"))));
-    query.push(("endTime", format!("{}T00:00:00.000", end.format("%Y-%m-%d"))));
+    query.push((
+        "startTime",
+        format!("{}T00:00:00.000", start.format("%Y-%m-%d")),
+    ));
+    query.push((
+        "endTime",
+        format!("{}T00:00:00.000", end.format("%Y-%m-%d")),
+    ));
 
     let resp = req
         .get(target_url)
@@ -217,8 +221,14 @@ mod tests {
 
         let sensor_map = map.get(&asset_id).expect("asset entry present");
         assert_eq!(sensor_map.len(), 2);
-        assert_eq!(sensor_map.get("sensor-a").unwrap().access_policy_id, "policy-1");
-        assert_eq!(sensor_map.get("sensor-b").unwrap().access_policy_id, "policy-2");
+        assert_eq!(
+            sensor_map.get("sensor-a").unwrap().access_policy_id,
+            "policy-1"
+        );
+        assert_eq!(
+            sensor_map.get("sensor-b").unwrap().access_policy_id,
+            "policy-2"
+        );
     }
 
     #[test]
@@ -239,8 +249,7 @@ mod tests {
     #[test]
     fn test_get_sensor_record_returns_none_when_asset_missing() {
         let map = HashMap::new();
-        let result =
-            get_sensor_record(&"missing".to_string(), &"sensor-a".to_string(), &map);
+        let result = get_sensor_record(&"missing".to_string(), &"sensor-a".to_string(), &map);
         assert!(result.is_none());
     }
 
@@ -541,7 +550,8 @@ mod tests {
 
         let server = MockServer::start();
         let m = server.mock(|when, then| {
-            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([]));
@@ -577,7 +587,8 @@ mod tests {
 
         let server = MockServer::start();
         let m = server.mock(|when, then| {
-            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
             then.status(500);
         });
 

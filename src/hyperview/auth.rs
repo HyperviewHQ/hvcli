@@ -188,9 +188,7 @@ mod tests {
 
         let mut token = AuthToken {
             header: "Bearer expired".to_string(),
-            expires_at: Instant::now()
-                .checked_sub(Duration::from_secs(1))
-                .unwrap(),
+            expires_at: Instant::now().checked_sub(Duration::from_secs(1)).unwrap(),
         };
 
         token.refresh_if_needed_async(&config).await.unwrap();
@@ -242,8 +240,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_retry_on_unauthorized_async_refreshes_token_and_retries()
-    -> color_eyre::Result<()> {
+    async fn test_retry_on_unauthorized_async_refreshes_token_and_retries() -> color_eyre::Result<()>
+    {
         let api_server = MockServer::start();
         let unauthorized_mock = api_server.mock(|when, then| {
             when.method(GET)

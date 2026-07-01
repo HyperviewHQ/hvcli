@@ -309,8 +309,18 @@ mod tests {
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([
-                    property_json("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "assetTag", &json!("tag-1"), "string"),
-                    property_json("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "serialNumber", &json!("SN-1"), "string"),
+                    property_json(
+                        "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                        "assetTag",
+                        &json!("tag-1"),
+                        "string"
+                    ),
+                    property_json(
+                        "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                        "serialNumber",
+                        &json!("SN-1"),
+                        "string"
+                    ),
                 ]));
         });
 
@@ -488,8 +498,18 @@ mod tests {
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([
-                    property_json("11111111-1111-1111-1111-111111111111", "assetTag", &json!("a"), "string"),
-                    property_json("22222222-2222-2222-2222-222222222222", "assetTag", &json!("b"), "string"),
+                    property_json(
+                        "11111111-1111-1111-1111-111111111111",
+                        "assetTag",
+                        &json!("a"),
+                        "string"
+                    ),
+                    property_json(
+                        "22222222-2222-2222-2222-222222222222",
+                        "assetTag",
+                        &json!("b"),
+                        "string"
+                    ),
                 ]));
         });
 

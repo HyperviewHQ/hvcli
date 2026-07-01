@@ -149,8 +149,10 @@ pub async fn generate_sensor_report_async(
         });
     }
 
-    let mut data_points_by_sensor: HashMap<String, Vec<super::asset_sensor_api_data::NumericSensorDailySummaryDataPoint>> =
-        HashMap::new();
+    let mut data_points_by_sensor: HashMap<
+        String,
+        Vec<super::asset_sensor_api_data::NumericSensorDailySummaryDataPoint>,
+    > = HashMap::new();
 
     for chunk in contexts
         .iter()
@@ -230,10 +232,7 @@ fn resolve_date_range(
             .start
             .as_ref()
             .ok_or(AppError::InvalidDateRangeArgs)?;
-        let end_str = options
-            .end
-            .as_ref()
-            .ok_or(AppError::InvalidDateRangeArgs)?;
+        let end_str = options.end.as_ref().ok_or(AppError::InvalidDateRangeArgs)?;
         let start = NaiveDate::parse_from_str(start_str, "%Y-%m-%d")
             .map_err(|_| AppError::InvalidDateFormat(start_str.clone()))?;
         let end = NaiveDate::parse_from_str(end_str, "%Y-%m-%d")
@@ -436,11 +435,11 @@ mod tests {
         let sensor_id = Uuid::new_v4();
 
         let server = MockServer::start();
-        let (all_mock, search_mock) =
-            mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
+        let (all_mock, search_mock) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
 
         let sensors_mock = server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -509,7 +508,8 @@ mod tests {
         let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
 
         server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -520,7 +520,8 @@ mod tests {
                 )]));
         });
         let summaries_should_not_fire = server.mock(|when, then| {
-            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([]));
@@ -555,7 +556,8 @@ mod tests {
         let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
 
         server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -566,7 +568,8 @@ mod tests {
                 )]));
         });
         let summaries_should_not_fire = server.mock(|when, then| {
-            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([]));
@@ -613,7 +616,8 @@ mod tests {
             then.status(500);
         });
         server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_ok}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_ok}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -667,7 +671,8 @@ mod tests {
         let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
 
         server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -728,7 +733,8 @@ mod tests {
         let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
 
         server.mock(|when, then| {
-            when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([sensor_body(
@@ -796,7 +802,8 @@ mod tests {
             let asset_id = *aid;
             let sensor_id = *sid;
             server.mock(|when, then| {
-                when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+                when.method(GET)
+                    .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
                 then.status(200)
                     .header("Content-Type", "application/json")
                     .json_body(json!([sensor_body(
@@ -810,7 +817,8 @@ mod tests {
 
         // Return an empty summary array for both batches — we only care about call counts here.
         let summaries_mock = server.mock(|when, then| {
-            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
             then.status(200)
                 .header("Content-Type", "application/json")
                 .json_body(json!([]));
@@ -855,7 +863,8 @@ mod tests {
             let asset_id = *aid;
             let sensor_id = *sid;
             server.mock(|when, then| {
-                when.method(GET).path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+                when.method(GET)
+                    .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
                 then.status(200)
                     .header("Content-Type", "application/json")
                     .json_body(json!([sensor_body(
@@ -915,4 +924,3 @@ mod tests {
         assert!((rows[0].avg - 42.0).abs() < f64::EPSILON);
     }
 }
-
