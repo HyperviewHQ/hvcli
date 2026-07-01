@@ -344,8 +344,11 @@ pub async fn bulk_update_asset_location_async(
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
+    let mut total: usize = 0;
+    let mut failed: usize = 0;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
         auth_token.refresh_if_needed_async(config).await?;
+        total += 1;
 
         debug!(
             "Updating asset id: {} with new location: {}",
@@ -375,9 +378,13 @@ pub async fn bulk_update_asset_location_async(
             .await
         ) {
             error!("Failed to update location for asset id {id}: {e}");
+            failed += 1;
         }
     }
 
+    if failed > 0 {
+        return Err(AppError::BulkOperationFailures { failed, total }.into());
+    }
     Ok(())
 }
 
@@ -426,9 +433,9 @@ pub async fn update_asset_name_by_id_async(
                 new_name
             );
 
-            if let Value::String(name_string) = name {
-                *name_string = new_name;
-            }
+            // Overwrite unconditionally: a fresh asset can come back with `"name": null`,
+            // and matching only on `Value::String` used to silently PUT the untouched body.
+            *name = Value::String(new_name);
 
             req.put(target_url)
                 .header(AUTHORIZATION, auth_header)
@@ -488,6 +495,45 @@ pub async fn bulk_update_asset_name_async(
     Ok(())
 }
 
+/// Extracts a JSON string field from a search hit, returning an empty string when the field is
+/// missing, null, or a non-string type. Matches the tolerance the search endpoint requires.
+fn hit_string_field(hit: &Value, key: &str) -> String {
+    hit.get(key)
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string()
+}
+
+/// Converts one search hit into an `AssetDto`. Returns `None` when the hit has no parseable `id`
+/// (so the caller can skip and log rather than panicking mid-iteration).
+fn hit_to_asset_dto(hit: &Value) -> Option<AssetDto> {
+    let id = hit
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|s| Uuid::from_str(s).ok())?;
+    Some(AssetDto {
+        id,
+        name: hit_string_field(hit, "displayName"),
+        asset_lifecycle_state: hit_string_field(hit, "assetLifecycleState"),
+        asset_type_id: hit_string_field(hit, "assetType"),
+        manufacturer_id: hit_string_field(hit, "manufacturerId"),
+        manufacturer_name: hit_string_field(hit, "manufacturerName"),
+        monitoring_state: hit_string_field(hit, "monitoringState"),
+        parent_id: hit_string_field(hit, "parentId"),
+        parent_name: hit_string_field(hit, "parentDisplayName"),
+        product_id: hit_string_field(hit, "productId"),
+        product_name: hit_string_field(hit, "productName"),
+        status: hit_string_field(hit, "status"),
+        path: hit_string_field(hit, "delimitedPath").replace('~', "/"),
+        serial_number: hit
+            .get("assetProperty_serialNumber")
+            .and_then(|v| v.as_array())
+            .and_then(|arr| serde_json::to_string(arr).ok())
+            .unwrap_or_else(|| "[]".to_string()),
+        property: None,
+    })
+}
+
 pub async fn list_any_of_async(
     config: &AppConfig,
     req: &Client,
@@ -510,6 +556,7 @@ pub async fn list_any_of_async(
         .json(&search_query)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -536,60 +583,13 @@ pub async fn list_any_of_async(
     if let Some(assets) = resp.get("hits") {
         assets.as_array().unwrap().iter().for_each(|a| {
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
-
-            let asset = AssetDto {
-                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
-                asset_lifecycle_state: a
-                    .get("assetLifecycleState")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
-                manufacturer_id: a
-                    .get("manufacturerId")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                manufacturer_name: a
-                    .get("manufacturerName")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                monitoring_state: a
-                    .get("monitoringState")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
-                parent_name: a
-                    .get("parentDisplayName")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
-                product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
-                status: a.get("status").unwrap().as_str().unwrap().to_string(),
-                path: a
-                    .get("delimitedPath")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .replace('~', "/"),
-                serial_number: a
-                    .get("assetProperty_serialNumber")
-                    .and_then(|v| v.as_array())
-                    .and_then(|arr| serde_json::to_string(arr).ok())
-                    .unwrap_or_else(|| "[]".to_string()),
-                property: None,
-            };
-
-            asset_list.push(asset);
+            match hit_to_asset_dto(a) {
+                Some(asset) => asset_list.push(asset),
+                None => error!(
+                    "Skipping hit with missing or malformed id: {}",
+                    serde_json::to_string(a).unwrap_or_else(|_| "<unrenderable>".to_string())
+                ),
+            }
         });
     }
 
@@ -732,6 +732,7 @@ pub async fn search_assets_async(
         .json(&search_query)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -758,60 +759,13 @@ pub async fn search_assets_async(
     if let Some(assets) = resp.get("hits") {
         assets.as_array().unwrap().iter().for_each(|a| {
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
-
-            let asset = AssetDto {
-                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
-                asset_lifecycle_state: a
-                    .get("assetLifecycleState")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
-                manufacturer_id: a
-                    .get("manufacturerId")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                manufacturer_name: a
-                    .get("manufacturerName")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                monitoring_state: a
-                    .get("monitoringState")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
-                parent_name: a
-                    .get("parentDisplayName")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-                product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
-                product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
-                status: a.get("status").unwrap().as_str().unwrap().to_string(),
-                path: a
-                    .get("delimitedPath")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .replace('~', "/"),
-                serial_number: a
-                    .get("assetProperty_serialNumber")
-                    .and_then(|v| v.as_array())
-                    .and_then(|arr| serde_json::to_string(arr).ok())
-                    .unwrap_or_else(|| "[]".to_string()),
-                property: None,
-            };
-
-            asset_list.push(asset);
+            match hit_to_asset_dto(a) {
+                Some(asset) => asset_list.push(asset),
+                None => error!(
+                    "Skipping hit with missing or malformed id: {}",
+                    serde_json::to_string(a).unwrap_or_else(|_| "<unrenderable>".to_string())
+                ),
+            }
         });
     }
 
@@ -1065,6 +1019,89 @@ mod tests {
         assert_eq!(assets.len(), 1);
         assert_eq!(assets[0].name, "labworker16".to_string());
         assert_eq!(assets[0].asset_type_id, "Server".to_string());
+    }
+
+    #[tokio::test]
+    async fn test_search_assets_async_tolerates_null_fields() {
+        let asset_id = "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb";
+        let search_resp = json!({
+            "estimatedTotalHits": 1,
+            "limit": 100,
+            "hits": [{
+                "id": asset_id,
+                "displayName": "rack-01",
+                "assetLifecycleState": null,
+                "assetType": "Rack",
+                "manufacturerId": null,
+                "manufacturerName": null,
+                "monitoringState": null,
+                "parentId": null,
+                "parentDisplayName": null,
+                "productId": null,
+                "productName": null,
+                "status": null,
+                "delimitedPath": null,
+                "assetProperty_serialNumber": null
+            }]
+        });
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(POST).path(ASSET_SEARCH_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(search_resp);
+        });
+        let all_location_mock = server.mock(|when, then| {
+            when.method(GET).path(format!(
+                "{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"
+            ));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({"name": "All"}));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let options = SearchAssetsArgs {
+            search_pattern: Some("rack".to_string()),
+            asset_type: None,
+            location_path: None,
+            properties: None,
+            custom_properties: None,
+            id: None,
+            manufacturer: None,
+            product: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: OutputOptions::Record,
+            show_property: None,
+        };
+
+        let result = search_assets_async(&config, &client, &auth_header, options).await;
+
+        m.assert();
+        all_location_mock.assert();
+        let assets = result.expect("search_assets_async must not panic on null fields");
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].name, "rack-01");
+        assert_eq!(assets[0].asset_type_id, "Rack");
+        assert!(assets[0].manufacturer_id.is_empty());
+        assert!(assets[0].manufacturer_name.is_empty());
+        assert!(assets[0].parent_id.is_empty());
+        assert!(assets[0].parent_name.is_empty());
+        assert!(assets[0].product_id.is_empty());
+        assert!(assets[0].product_name.is_empty());
+        assert!(assets[0].path.is_empty());
+        assert!(assets[0].asset_lifecycle_state.is_empty());
+        assert!(assets[0].monitoring_state.is_empty());
+        assert!(assets[0].status.is_empty());
     }
 
     #[tokio::test]

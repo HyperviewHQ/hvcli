@@ -20,21 +20,37 @@ pub async fn bulk_update_asset_sensor_async(
 ) -> color_eyre::Result<()> {
     let mut asset_sensors_map: HashMap<String, HashMap<String, AssetSensorDto>> = HashMap::new();
     let mut reader = csv::Reader::from_path(filename)?;
+    let mut total: usize = 0;
+    let mut failed: usize = 0;
 
     while let Some(Ok(mut record)) = reader.deserialize::<AssetSensorUpdateDto>().next() {
         auth_token.refresh_if_needed_async(config).await?;
+        total += 1;
 
         debug!("updating sensor_id {}", record.sensor_id);
 
         // if the asset is not mapped, lookup and cache sensor mapping
-        if !asset_sensors_map.contains_key(&record.asset_id.to_string())
-            && let Ok(sensors) = retry_on_unauthorized_async!(
+        if !asset_sensors_map.contains_key(&record.asset_id.to_string()) {
+            match retry_on_unauthorized_async!(
                 config,
                 auth_token,
                 get_asset_sensor_list_async(config, req, &auth_token.header, record.asset_id).await
-            )
-        {
-            map_asset_sensors(record.asset_id.to_string(), sensors, &mut asset_sensors_map);
+            ) {
+                Ok(sensors) => {
+                    map_asset_sensors(record.asset_id.to_string(), sensors, &mut asset_sensors_map)
+                }
+                Err(e) => {
+                    // Without the sensor list we can't tell whether to preserve or reset the
+                    // access policy, so PUTting the CSV row's (often None) value would silently
+                    // reset the sensor's ACL to its parent. Skip this row instead.
+                    error!(
+                        "Failed to fetch sensor list for asset {}: {e}; skipping sensor {}",
+                        record.asset_id, record.sensor_id
+                    );
+                    failed += 1;
+                    continue;
+                }
+            }
         }
 
         // If the sensor exists update name and access policy
@@ -57,6 +73,7 @@ pub async fn bulk_update_asset_sensor_async(
                             "Failed to parse access policy id {:?} for sensor {}: {e}",
                             sensor.access_policy_id, record.sensor_id
                         );
+                        failed += 1;
                         continue;
                     }
                 }
@@ -76,9 +93,13 @@ pub async fn bulk_update_asset_sensor_async(
             update_asset_sensor_async(config, req, &auth_token.header, &record).await
         ) {
             error!("Failed to update sensor id {}: {e}", record.sensor_id);
+            failed += 1;
         }
     }
 
+    if failed > 0 {
+        return Err(super::app_errors::AppError::BulkOperationFailures { failed, total }.into());
+    }
     Ok(())
 }
 
@@ -476,18 +497,34 @@ mod tests {
             (asset_id, sensor_id_ok, "ok-new", Some(Uuid::new_v4())),
         ]);
 
-        bulk_update_asset_sensor_async(
+        let result = bulk_update_asset_sensor_async(
             &config,
             &client,
             &mut token,
             &csv.path().to_string_lossy().to_string(),
         )
-        .await
-        .expect("bulk update should not abort on a per-row error");
+        .await;
 
+        // Every mock must have been called: the bulk op processed both rows despite the failure.
         list_mock.assert();
         put_fail_mock.assert();
         put_ok_mock.assert();
+
+        // ... AND the failure was surfaced back to the caller (non-zero exit code for automation).
+        let err = result.expect_err("expected BulkOperationFailures when one row's PUT failed");
+        let app_err = err
+            .downcast_ref::<crate::hyperview::app_errors::AppError>()
+            .expect("expected AppError root cause");
+        assert!(
+            matches!(
+                app_err,
+                crate::hyperview::app_errors::AppError::BulkOperationFailures {
+                    failed: 1,
+                    total: 2,
+                },
+            ),
+            "unexpected error variant: {app_err:?}",
+        );
     }
 
     #[tokio::test]
@@ -661,17 +698,32 @@ mod tests {
         // Empty access_policy_id triggers the "keep original" branch that parses the cached id.
         let csv = write_csv(&[(asset_id, sensor_id, "New name", None)]);
 
-        // Must not abort the whole bulk run on a bad cached UUID.
-        bulk_update_asset_sensor_async(
+        // Must not abort the whole bulk run on a bad cached UUID, and must not fire the PUT.
+        let result = bulk_update_asset_sensor_async(
             &config,
             &client,
             &mut token,
             &csv.path().to_string_lossy().to_string(),
         )
-        .await
-        .expect("bulk update must not abort on a malformed cached UUID");
+        .await;
 
         list_mock.assert();
         put_should_not_fire.assert_calls(0);
+
+        // The one skipped row still needs to surface as a BulkOperationFailures error.
+        let err = result.expect_err("expected BulkOperationFailures when the only row was skipped");
+        let app_err = err
+            .downcast_ref::<crate::hyperview::app_errors::AppError>()
+            .expect("expected AppError root cause");
+        assert!(
+            matches!(
+                app_err,
+                crate::hyperview::app_errors::AppError::BulkOperationFailures {
+                    failed: 1,
+                    total: 1,
+                },
+            ),
+            "unexpected error variant: {app_err:?}",
+        );
     }
 }

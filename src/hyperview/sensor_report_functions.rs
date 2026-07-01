@@ -149,8 +149,10 @@ pub async fn generate_sensor_report_async(
         });
     }
 
+    // Key by `Uuid` (not String) so uppercase/braced UUIDs from the server still match the
+    // lowercase-canonical form produced by `Uuid::to_string()`.
     let mut data_points_by_sensor: HashMap<
-        String,
+        Uuid,
         Vec<super::asset_sensor_api_data::NumericSensorDailySummaryDataPoint>,
     > = HashMap::new();
 
@@ -177,10 +179,21 @@ pub async fn generate_sensor_report_async(
         ) {
             Ok(summaries) => {
                 for summary in summaries {
-                    data_points_by_sensor
-                        .entry(summary.sensor_id)
-                        .or_default()
-                        .extend(summary.sensor_data_points);
+                    match Uuid::parse_str(&summary.sensor_id) {
+                        Ok(sensor_uuid) => {
+                            data_points_by_sensor
+                                .entry(sensor_uuid)
+                                .or_default()
+                                .extend(summary.sensor_data_points);
+                        }
+                        Err(e) => {
+                            error!(
+                                "Server returned malformed sensor_id {:?}: {e}. Dropping {} data point(s).",
+                                summary.sensor_id,
+                                summary.sensor_data_points.len()
+                            );
+                        }
+                    }
                 }
             }
             Err(e) => {
@@ -194,7 +207,7 @@ pub async fn generate_sensor_report_async(
 
     let mut rows: Vec<SensorReportRow> = Vec::new();
     for ctx in contexts {
-        let Some(points) = data_points_by_sensor.get(&ctx.sensor_id.to_string()) else {
+        let Some(points) = data_points_by_sensor.get(&ctx.sensor_id) else {
             continue;
         };
         for point in points {

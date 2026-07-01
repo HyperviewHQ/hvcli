@@ -24,4 +24,9 @@ pub enum AppError {
 
     #[error("Invalid date format: {0}. Expected YYYY-MM-DD.")]
     InvalidDateFormat(String),
+
+    #[error(
+        "Bulk operation completed with {failed} failure(s) out of {total} row(s); see log for details."
+    )]
+    BulkOperationFailures { failed: usize, total: usize },
 }

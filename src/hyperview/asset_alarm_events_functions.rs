@@ -123,17 +123,11 @@ pub async fn manage_asset_alarm_events_async(
         work.push(record.id);
     }
 
-    let mut work_batches: Vec<Vec<String>> = Vec::new();
-    work_batches.push(Vec::new());
-    let mut work_queue_index = 0;
-
-    work.into_iter().enumerate().for_each(|(e, id)| {
-        if e > 0 && (e % BULK_ACTION_BATCH_SIZE) == 0 {
-            work_batches.push(Vec::new());
-            work_queue_index += 1;
-        }
-        work_batches[work_queue_index].push(id);
-    });
+    // chunks(...) yields zero batches for an empty CSV, so we never send a spurious empty PUT.
+    let work_batches: Vec<Vec<String>> = work
+        .chunks(BULK_ACTION_BATCH_SIZE)
+        .map(<[String]>::to_vec)
+        .collect();
 
     match manage_action_options {
         ManageActionOptions::Close => {
