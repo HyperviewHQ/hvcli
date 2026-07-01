@@ -35,6 +35,9 @@ impl fmt::Display for Definition {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SensorType {
+    // Field name mirrors the API's `sensorTypeId`; renaming to drop the type prefix would
+    // require a `#[serde(rename)]` for no real gain.
+    #[allow(clippy::struct_field_names)]
     pub sensor_type_id: String,
     // Nullable in the API; tolerate null/absent so one catalog entry with no description doesn't
     // fail the whole list (matches the unit fields below).
@@ -57,7 +60,7 @@ impl fmt::Display for SensorType {
 }
 
 /// A single text/value pair used by non-numeric (enum) sensor definitions, e.g. `{ "text":
-/// "Active", "value": 1 }`. Shared between the BACnet and Modbus non-numeric sensor DTOs.
+/// "Active", "value": 1 }`. Shared between the `BACnet` and Modbus non-numeric sensor DTOs.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ValueMapping {
     pub text: String,

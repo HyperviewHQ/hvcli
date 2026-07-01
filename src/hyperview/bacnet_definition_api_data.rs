@@ -52,7 +52,7 @@ impl fmt::Display for BacnetNumericSensorDefinitionDto {
     }
 }
 
-/// CSV-import (snake_case) and outgoing request-body (camelCase) shape for a numeric sensor
+/// CSV-import (`snake_case`) and outgoing request-body (`camelCase`) shape for a numeric sensor
 /// definition. `id: None` means create a new sensor; `id: Some(_)` means update that sensor.
 /// `offset`/`order_of_operations` are optional columns; when absent they are omitted from the
 /// request so the API applies its own defaults.

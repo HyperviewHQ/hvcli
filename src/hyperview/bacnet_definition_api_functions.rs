@@ -340,6 +340,8 @@ mod tests {
     }
 
     #[tokio::test]
+    // offset is asserted against an exact deserialized sentinel (0.0), so an exact compare is fine.
+    #[allow(clippy::float_cmp)]
     async fn test_list_bacnet_numeric_sensor_definitions_async_returns_dtos() {
         let definition_id = Uuid::new_v4();
         let sensor_id = Uuid::new_v4();

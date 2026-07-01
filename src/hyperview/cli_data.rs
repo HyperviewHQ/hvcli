@@ -239,22 +239,22 @@ pub enum AppArgsSubcommands {
     /// Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type, optionally enriched with a custom-property value.
     GenerateSensorReport(GenerateSensorReportArgs),
 
-    /// List current BACnet IP sensor definitions
+    /// List current `BACnet IP` sensor definitions
     ListBacnetDefinitions(ListDefinitionsArgs),
 
-    /// Add a new BACnet IP sensor definition
+    /// Add a new `BACnet IP` sensor definition
     AddBacnetDefinition(AddDefinitionArgs),
 
-    /// List numeric sensors for a BACnet IP sensor definition
+    /// List numeric sensors for a `BACnet IP` sensor definition
     ListBacnetNumericSensorDefinitions(ListSensorDefinitionsArgs),
 
-    /// List non-numeric sensors for a BACnet IP sensor definition
+    /// List non-numeric sensors for a `BACnet IP` sensor definition
     ListBacnetNonNumericSensorDefinitions(ListSensorDefinitionsArgs),
 
-    /// Bulk create or update numeric sensors on a BACnet IP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    /// Bulk create or update numeric sensors on a `BACnet IP` sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
     BulkImportBacnetNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
 
-    /// Bulk create or update non-numeric sensors on a BACnet IP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    /// Bulk create or update non-numeric sensors on a `BACnet IP` sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
     BulkImportBacnetNonNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
 
     /// List current Modbus TCP sensor definitions
@@ -290,13 +290,13 @@ pub enum AppArgsSubcommands {
     /// Delete a component from a Modbus TCP sensor definition
     DeleteModbusComponent(DeleteModbusComponentArgs),
 
-    /// Get a single BACnet IP sensor definition by its id
+    /// Get a single `BACnet IP` sensor definition by its id
     GetBacnetDefinition(GetDefinitionArgs),
 
-    /// Update the name, asset type, and description of a BACnet IP sensor definition
+    /// Update the name, asset type, and description of a `BACnet IP` sensor definition
     UpdateBacnetDefinition(UpdateDefinitionArgs),
 
-    /// Delete a BACnet IP sensor definition by its id
+    /// Delete a `BACnet IP` sensor definition by its id
     DeleteBacnetDefinition(DeleteDefinitionArgs),
 
     /// Get a single Modbus TCP sensor definition by its id
@@ -308,10 +308,10 @@ pub enum AppArgsSubcommands {
     /// Delete a Modbus TCP sensor definition by its id
     DeleteModbusDefinition(DeleteDefinitionArgs),
 
-    /// Delete a numeric sensor from a BACnet IP sensor definition
+    /// Delete a numeric sensor from a `BACnet IP` sensor definition
     DeleteBacnetNumericSensorDefinition(DeleteSensorDefinitionArgs),
 
-    /// Delete a non-numeric sensor from a BACnet IP sensor definition
+    /// Delete a non-numeric sensor from a `BACnet IP` sensor definition
     DeleteBacnetNonNumericSensorDefinition(DeleteSensorDefinitionArgs),
 
     /// Delete a numeric sensor from a Modbus TCP sensor definition

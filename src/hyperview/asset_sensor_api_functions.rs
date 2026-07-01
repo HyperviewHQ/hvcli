@@ -37,7 +37,7 @@ pub async fn bulk_update_asset_sensor_async(
                 get_asset_sensor_list_async(config, req, &auth_token.header, record.asset_id).await
             ) {
                 Ok(sensors) => {
-                    map_asset_sensors(record.asset_id.to_string(), sensors, &mut asset_sensors_map)
+                    map_asset_sensors(record.asset_id.to_string(), sensors, &mut asset_sensors_map);
                 }
                 Err(e) => {
                     // Without the sensor list we can't tell whether to preserve or reset the
