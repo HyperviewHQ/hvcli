@@ -3,24 +3,25 @@
 > [!NOTE]
 > This project is under active development. Please remember to check for new releases often.
 
-Hyperview CLI (hvcli) is a command-line program for interacting with data in Hyperview. 
+Hyperview CLI (hvcli) is a command-line program for interacting with data in Hyperview.
 
-** Important Reminders **
+**Important Reminders**
 
-> - _Powerful Capabilities_: This tool can make modify data in Hyperview. Please take the time to familiarize yourself with its features.
+> - _Powerful Capabilities_: This tool can modify data in Hyperview. Please take the time to familiarize yourself with its features.
 > - _Check Twice, Act Once_: Ensure that all your inputs are accurate. A small oversight can lead to unintended consequences.
 > - _Test with a small sample first_: Test and verify bulk changes with a small sample before making big changes.
 
-Your success is important to us! Enjoy using the Hyperview CLI (hvcli), and remember to proceed with caution! 
+Your success is important to us! Enjoy using the Hyperview CLI (hvcli), and remember to proceed with caution!
 
-# Download
+## Download
 
 To use this tool, simply download a pre-built binary from the [Releases](https://github.com/HyperviewHQ/hvcli/releases) section.
 
-# Configuration
-A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`
+## Configuration
 
-## Example
+A valid Hyperview API client must be used. The API client must have the appropriate access. The configuration file must be placed in `$HOME/.hyperview/hyperview.toml`.
+
+### Example
 
 ```toml
 client_id = 'c33472d0-c66b-4659-a8f8-73c289ba4dbe'
@@ -31,7 +32,7 @@ token_url = 'https://example.hyperviewhq.com/connect/token'
 instance_url = 'https://example.hyperviewhq.com'
 ```
 
-# Usage
+## Usage
 
 Run the command with the `--help` option to get usage information.
 
@@ -39,249 +40,258 @@ Run the command with the `--help` option to get usage information.
 hvcli --help
 ```
 
-## Commands
+### Commands
 
-### 1. list-asset-properties
+#### 1. list-asset-properties
 
 List all available properties for an asset identified by its unique id.
 
-### 2. list-custom-asset-properties
+#### 2. list-custom-asset-properties
 
-List all available custom properties for an asset  identified by its unique id.
+List all available custom properties for an asset identified by its unique id.
 
-### 3. search-assets
+#### 3. search-assets
 
-Search for assets in Hyperview.
+Search for assets in Hyperview. Also available as the alias `list-assets`.
 
-### 4. list-any-of
+#### 4. list-any-of
 
 List assets that match a specific set of property values. For example, a list of serial numbers. Please note that the matches are exact.
 
-### 5. update-asset-name
+#### 5. update-asset-name
 
 Update the display name of an asset identified by its unique id.
 
-### 6. bulk-update-asset-name
+#### 6. bulk-update-asset-name
 
 Update multiple assets from a CSV file. Example data is in the **example_input** folder.
 
-### 7. update-asset-location
+#### 7. update-asset-location
 
 Update the location of an asset identified by its unique id.
 
-### 8. bulk-update-asset-location
+#### 8. bulk-update-asset-location
 
-Update the location of multiple assets from a CSV file. Example Data is in the **example_input** folder.
+Update the location of multiple assets from a CSV file. Example data is in the **example_input** folder.
 
-### 9. update-asset-serial-number
+#### 9. update-asset-serial-number
 
 Update the serial number of an asset identified by its unique id. Applies to manually created assets and assets discovered without a serial number.
 
-### 10. bulk-update-asset-serial-number
+#### 10. bulk-update-asset-serial-number
 
 Update the serial numbers of multiple assets from a CSV file. Applies to manually created assets and assets discovered without a serial number. Example data is in the **example_input** folder.
 
-### 11. update-asset-tag
+#### 11. update-asset-tag
 
 Update the asset tag of an asset identified by its unique id.
 
-### 12. bulk-update-asset-tag
+#### 12. bulk-update-asset-tag
 
 Update the asset tag of multiple assets from a CSV file. Example data is in the **example_input** folder.
 
-### 13. update-power-design-value
+#### 13. update-power-design-value
 
 Update the power design value property of an asset identified by its unique id. This applies to Rack and Location asset types.
 
-### 14. bulk-update-power-design-value
+#### 14. bulk-update-power-design-value
 
 Update the power “design value” property of multiple assets from a CSV file. This applies to Rack and Location asset types. Example data is in the **example_input** folder.
 
-### 15. list-asset-ports
+#### 15. list-asset-ports
 
 List the physical network ports of an asset identified by its unique id.
 
-### 16. bulk-update-patch-panel-ports
+#### 16. bulk-update-patch-panel-ports
 
 Update the physical network port names of patch panel assets from a CSV file. Example data is in the **example_input** folder.
 
-### 17. bulk-update-asset-ports
+#### 17. bulk-update-asset-ports
 
-Update the physical network port names of other (non-patch-panel) assets from a CSV file, E.g. a network switch. Example data is in the **example_input** folder.
+Update the physical network port names of other (non-patch-panel) assets from a CSV file, e.g. a network switch. Example data is in the **example_input** folder.
 
-### 18. update-custom-asset-property
+#### 18. update-custom-asset-property
 
 Update the value of a custom property of an asset identified by its unique id.
 
-### 19. bulk-update-custom-asset-property
+#### 19. bulk-update-custom-asset-property
 
 Update the custom property value of multiple assets using a CSV file. Example data is in the **example_input** folder.
 
-### 22. list-alarms
+#### 20. list-alarms
 
 List alarm events. By default, it will list active events. It can also list unacknowledged events via a command-line option.
 
-### 21. manage-alarms
+#### 21. manage-alarms
 
 Acknowledge or close alarm events using a CSV file **generated by the list-alarms command**. By default, this command closes the events; it can also acknowledge them via a command-line option.
 
-### 22. add-rack-accessory
+#### 22. add-rack-accessory
 
 Add a blanking panel or cable management panel to a rack identified by its unique id.
 
-### 23. bulk-add-rack-accessory
+#### 23. bulk-add-rack-accessory
 
 Add blanking panels or cable management panels to multiple racks using a CSV file. Example data is in the **example_input** folder.
 
-### 24. list-asset-sensors
+#### 24. list-asset-sensors
 
 List sensors for an asset identified by its unique id.
 
-### 25. bulk-update-asset-sensor
+#### 25. bulk-update-asset-sensor
 
 Update asset sensor name and/or access policy using a CSV file. IMPORTANT: Keep the access policy field empty to maintain the original and only change the name. Use a NIL UUID (00000000-0000-0000-0000-000000000000) to reset to the parent access policy. Example data is in the **example_input** folder.
 
-### 26. list-rack-pdu-outlets
+#### 26. list-rack-pdu-outlets
 
 List Rack PDU outlets for an asset identified by its unique id.
 
-### 27. list-busway-tapoffs
+#### 27. list-busway-tapoffs
 
 List busway tap-offs for an asset identified by its unique id.
 
-### 28. list-pdu-rpp-breakers
+#### 28. list-pdu-rpp-breakers
 
 List PDU/RPP Breakers for an asset identified by its unique id.
 
-### 29. add-power-association
+#### 29. add-power-association
 
 Add power association. Note that associations are asset-to-asset. For example, when associating with a specific outlet or tap-off, you need its id.
 
-### 30. bulk-add-power-association
+#### 30. bulk-add-power-association
 
 Add power associations between assets using a CSV. Example data is in the **example_input** folder.
+
+#### 31. generate-sensor-report
+
+Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type. Optionally enrich each row with a custom-property value. Defaults to CSV output.
 
 > [!NOTE]
 > Use --help to explore the various options available within the main command and each subcommand.
 
-## Command help
+### Command help
 
 Every command has a `--help` option for more information.
 
-### Examples
+#### Examples
 
 ```bash
 $ hvcli list-alarms --help
-List alarm events
+List alarm events. By default, it will list active events. It can also list unacknowledged events via a command-line option
 
 Usage: hvcli list-alarms [OPTIONS]
 
 Options:
-  -s, --skip <SKIP>                  Number of records to skip (0 -> 99999), e.g. 100 [default: 0]
-  -l, --limit <LIMIT>                Record limit (1 -> 100000), e.g. 100 [default: 100]
+  -s, --skip <SKIP>                  Number of records to skip (0 -> 1_000_000_000), e.g. 100 [default: 0]
+  -l, --limit <LIMIT>                Record limit (1 -> 100_000), e.g. 100 [default: 100]
   -a, --alarm-filter <ALARM_FILTER>  Asset alarm event filter option, e.g. active [default: active] [possible values: unacknowledged, active]
   -o, --output-type <OUTPUT_TYPE>    Output type, e.g. csv-file [default: record] [possible values: csv-file, json, record]
   -f, --filename <FILENAME>          Output filename, e.g. output.csv
   -h, --help                         Print help
   -V, --version                      Print version
 
-$  hvcli manage-alarms --help
-Acknowledge or close alarm events using CSV file output from the list-alarms command
+$ hvcli manage-alarms --help
+Acknowledge or close alarm events using a CSV file generated by the list-alarms command. By default, this command closes the events; it can also acknowledge them via a command-line option
 
 Usage: hvcli manage-alarms [OPTIONS] --filename <FILENAME>
 
 Options:
-  -f, --filename <FILENAME>            Input filename, e.g. port_name_update.csv
+  -f, --filename <FILENAME>            Input filename, e.g. input.csv
   -m, --manage-action <MANAGE_ACTION>  Manage action to use, e.g. close [default: close] [possible values: acknowledge, close]
   -h, --help                           Print help
   -V, --version                        Print version
 ```
 
-## Debugging
+### Debugging
 
-For troubleshooting, a master debug level can be set using `-d` or `--debug-level`.
+For troubleshooting, a master debug level can be set using `-d` or `--debug-level`. Accepted values are `error` (default), `warn`, `info`, `debug`, and `trace`.
 
-## Output options
+### Output options
 
-Some commands allow the user to set the output to `record`, `json` or `csv-file`. Refer to the command help for more information.
+Some commands allow the user to set the output to `record`, `json`, or `csv-file`. Refer to the command help for more information.
 
-### Output examples
+#### Output examples
 
-#### Search by property (JSON output)
+The following samples were captured against a live Hyperview instance and have been anonymized. Identifiers and hostnames are placeholders; brand names are preserved so the shape of a real response is easy to recognize.
+
+##### Search by property (JSON output)
 
 ```bash
 $ hvcli search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
 [
   {
-    "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
-    "name": "\"UpsExample\"",
-    "assetLifecycleState": "\"Active\"",
-    "assetTypeId": "\"Ups\"",
-    "manufacturerId": "\"cd85e92d-869c-470a-a3ba-df8b2b7196e3\"",
-    "manufacturerName": "\"Liebert\"",
-    "monitoringState": "\"On\"",
-    "parentId": "\"9a877a93-1f21-4895-a078-5c67f531ea0b\"",
-    "parentName": "\"Simulated SNMP Devices\"",
-    "productId": "\"aedbd4b9-06ae-4768-ba4a-64847b60d334\"",
-    "productName": "\"eXM\"",
-    "status": "\"Normal\"",
-    "path": "\"All/Simulated SNMP Devices/UpsExample\"",
-    "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
+    "id": "aaaaaaaa-0000-0000-0000-000000000001",
+    "name": "UpsExample",
+    "assetLifecycleState": "active",
+    "assetTypeId": "ups",
+    "manufacturerId": "bbbbbbbb-0000-0000-0000-000000000001",
+    "manufacturerName": "Liebert",
+    "monitoringState": "on",
+    "parentId": "cccccccc-0000-0000-0000-000000000001",
+    "parentName": "DatacenterExample",
+    "productId": "dddddddd-0000-0000-0000-000000000001",
+    "productName": "eXM",
+    "status": "normal",
+    "path": "All/DatacenterExample/",
+    "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]",
+    "property": null
   }
 ]
-
 ```
 
-#### Search by text pattern (record output)
+##### Search by text pattern (record output)
 
 ```bash
 $ hvcli search-assets -p "UpsExampl*"
 ---- [0] ----
-id: "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb"
-name: "UpsExample"
-asset_lifecycle_state: "Active"
-asset_type_id: "Ups"
-manufacturer_id: "cd85e92d-869c-470a-a3ba-df8b2b7196e3"
-manufacturer_name: "Liebert"
-monitoring_state: "On"
-parent_id: "9a877a93-1f21-4895-a078-5c67f531ea0b"
-parent_name: "Simulated SNMP Devices"
-product_id: "aedbd4b9-06ae-4768-ba4a-64847b60d334"
-product_name: "eXM"
-status: "Normal"
-path: "All/Simulated SNMP Devices/UpsExample"
-serial_number: ["SERIALNUMBEREXAMPLE1234"]
+
+id                    : aaaaaaaa-0000-0000-0000-000000000001
+name                  : UpsExample
+asset_lifecycle_state : active
+asset_type_id         : ups
+manufacturer_id       : bbbbbbbb-0000-0000-0000-000000000001
+manufacturer_name     : Liebert
+monitoring_state      : on
+parent_id             : cccccccc-0000-0000-0000-000000000001
+parent_name           : DatacenterExample
+product_id            : dddddddd-0000-0000-0000-000000000001
+product_name          : eXM
+status                : normal
+path                  : All/DatacenterExample/
+serial_number         : ["SERIALNUMBEREXAMPLE1234"]
+property              :
 ```
 
-#### Combination search (JSON output)
+##### Combination search (JSON output)
 
 ```bash
-$ hvcli search-assets -p "UpsExample" --location-path "All/Simulated SNMP Devices/" -M "Liebert" -o json
+$ hvcli search-assets -p "UpsExample" --location-path "All/DatacenterExample/" -M "Liebert" -o json
 [
   {
-    "id": "\"58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb\"",
-    "name": "\"UpsExample\"",
-    "assetLifecycleState": "\"Active\"",
-    "assetTypeId": "\"Ups\"",
-    "manufacturerId": "\"cd85e92d-869c-470a-a3ba-df8b2b7196e3\"",
-    "manufacturerName": "\"Liebert\"",
-    "monitoringState": "\"On\"",
-    "parentId": "\"9a877a93-1f21-4895-a078-5c67f531ea0b\"",
-    "parentName": "\"Simulated SNMP Devices\"",
-    "productId": "\"aedbd4b9-06ae-4768-ba4a-64847b60d334\"",
-    "productName": "\"eXM\"",
-    "status": "\"Normal\"",
-    "path": "\"All/Simulated SNMP Devices/UpsExample\"",
-    "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]"
+    "id": "aaaaaaaa-0000-0000-0000-000000000001",
+    "name": "UpsExample",
+    "assetLifecycleState": "active",
+    "assetTypeId": "ups",
+    "manufacturerId": "bbbbbbbb-0000-0000-0000-000000000001",
+    "manufacturerName": "Liebert",
+    "monitoringState": "on",
+    "parentId": "cccccccc-0000-0000-0000-000000000001",
+    "parentName": "DatacenterExample",
+    "productId": "dddddddd-0000-0000-0000-000000000001",
+    "productName": "eXM",
+    "status": "normal",
+    "path": "All/DatacenterExample/",
+    "serialNumber": "[]",
+    "property": null
   }
 ]
 ```
 
-# Building from source
+## Building from source
 
-## Linux, Windows, and macOS
+### Linux, Windows, and macOS
 
-### Debug build 
+#### Debug build
 
 ```
 cargo build
@@ -289,7 +299,7 @@ cargo build
 
 The binary will be under `target/debug/hvcli`.
 
-### Release build
+#### Release build
 
 ```
 cargo build --release
@@ -297,7 +307,7 @@ cargo build --release
 
 The binary will be under `target/release/hvcli`.
 
-## Linux static binary
+### Linux static binary
 
 Install the **x86_64-unknown-linux-musl** target and run the command to build a statically-linked version:
 
@@ -305,29 +315,28 @@ Install the **x86_64-unknown-linux-musl** target and run the command to build a 
 PKG_CONFIG_SYSROOT_DIR=/ RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-unknown-linux-musl --release
 ```
 
-## Docker
+### Docker
 
 ```
 docker build --tag hvcli:latest -f docker/Dockerfile .
 ```
 
-### Running the Docker image
+#### Running the Docker image
 
-To run the Docker image generated, you need to: 
+To run the Docker image generated, you need to:
 
 1. Map the application configuration directory to the container.
-2. Optional, map an output folder to the container
+2. Optional, map an output folder to the container.
 
-#### Example
+##### Example
 
-Assuming the username is **albert**
+Assuming the username is **albert**:
 
 ```
 docker run -v /home/albert/.hyperview:/root/.hyperview hvcli search-assets
-
 ```
 
-If you are planning to output to csv
+If you are planning to output to csv:
 
 ```
 docker run -v /home/albert/.hyperview:/root/.hyperview -v /tmp:/output hvcli search-assets -o csv-file -f /output/assets.csv

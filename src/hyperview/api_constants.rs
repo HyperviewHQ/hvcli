@@ -16,6 +16,8 @@ pub const POWER_ASSOCIATION_API_PREFIX: &str = "/api/asset/powerSourceAssociatio
 pub const RACK_PANEL_API_PREFIX: &str = "/api/asset/rackPanel";
 pub const RACK_PDU_OUTLETS_API_PREFIX: &str = "/api/asset/availablePowerSources/outlets";
 pub const SENSOR_API_PREFIX: &str = "/api/asset/sensors";
+pub const SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX: &str =
+    "/api/asset/sensorsDailySummaries/numeric";
 
 // Asset property name constants
 pub const ASSET_PROPERTY_ASSET_TAG: &str = "assetTag";

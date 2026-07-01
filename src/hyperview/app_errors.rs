@@ -16,4 +16,12 @@ pub enum AppError {
 
     #[error("Unable to continue with operation; Asset does not have a property named {0}")]
     AssetDoesNotHavePropertyName(String),
+
+    #[error(
+        "Invalid date range arguments. Provide either --year and --month, or --start and --end (both)."
+    )]
+    InvalidDateRangeArgs,
+
+    #[error("Invalid date format: {0}. Expected YYYY-MM-DD.")]
+    InvalidDateFormat(String),
 }

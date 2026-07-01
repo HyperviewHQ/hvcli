@@ -536,21 +536,22 @@ pub async fn list_any_of_async(
 
             let asset = AssetDto {
                 id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
-                asset_type_id: a.get("assetType").unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                parent_id: a.get("parentId").unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().to_string(),
-                product_id: a.get("productId").unwrap().to_string(),
-                product_name: a.get("productName").unwrap().to_string(),
-                status: a.get("status").unwrap().to_string(),
+                name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
+                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().as_str().unwrap().to_string(),
+                asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
+                manufacturer_id: a.get("manufacturerId").unwrap().as_str().unwrap().to_string(),
+                manufacturer_name: a.get("manufacturerName").unwrap().as_str().unwrap().to_string(),
+                monitoring_state: a.get("monitoringState").unwrap().as_str().unwrap().to_string(),
+                parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
+                parent_name: a.get("parentDisplayName").unwrap().as_str().unwrap().to_string(),
+                product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
+                product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
+                status: a.get("status").unwrap().as_str().unwrap().to_string(),
                 path: a
                     .get("delimitedPath")
                     .unwrap()
-                    .to_string()
+                    .as_str()
+                    .unwrap()
                     .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
@@ -732,21 +733,22 @@ pub async fn search_assets_async(
 
             let asset = AssetDto {
                 id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
-                asset_type_id: a.get("assetType").unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                parent_id: a.get("parentId").unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().to_string(),
-                product_id: a.get("productId").unwrap().to_string(),
-                product_name: a.get("productName").unwrap().to_string(),
-                status: a.get("status").unwrap().to_string(),
+                name: a.get("displayName").unwrap().as_str().unwrap().to_string(),
+                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().as_str().unwrap().to_string(),
+                asset_type_id: a.get("assetType").unwrap().as_str().unwrap().to_string(),
+                manufacturer_id: a.get("manufacturerId").unwrap().as_str().unwrap().to_string(),
+                manufacturer_name: a.get("manufacturerName").unwrap().as_str().unwrap().to_string(),
+                monitoring_state: a.get("monitoringState").unwrap().as_str().unwrap().to_string(),
+                parent_id: a.get("parentId").unwrap().as_str().unwrap().to_string(),
+                parent_name: a.get("parentDisplayName").unwrap().as_str().unwrap().to_string(),
+                product_id: a.get("productId").unwrap().as_str().unwrap().to_string(),
+                product_name: a.get("productName").unwrap().as_str().unwrap().to_string(),
+                status: a.get("status").unwrap().as_str().unwrap().to_string(),
                 path: a
                     .get("delimitedPath")
                     .unwrap()
-                    .to_string()
+                    .as_str()
+                    .unwrap()
                     .replace('~', "/"),
                 serial_number: a
                     .get("assetProperty_serialNumber")
@@ -1007,8 +1009,8 @@ mod tests {
         assert!(result.is_ok());
         let assets = result.unwrap();
         assert_eq!(assets.len(), 1);
-        assert_eq!(assets[0].name, "\"labworker16\"".to_string());
-        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string());
+        assert_eq!(assets[0].name, "labworker16".to_string());
+        assert_eq!(assets[0].asset_type_id, "Server".to_string());
     }
 
     #[tokio::test]

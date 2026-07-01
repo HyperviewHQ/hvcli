@@ -16,3 +16,5 @@ pub mod cli_functions;
 pub mod common_types;
 pub mod custom_asset_properties_api_data;
 pub mod custom_asset_properties_api_functions;
+pub mod sensor_report_data;
+pub mod sensor_report_functions;

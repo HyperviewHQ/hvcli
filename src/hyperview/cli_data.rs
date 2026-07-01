@@ -213,6 +213,9 @@ pub enum AppArgsSubcommands {
 
     /// Add power associations between assets using a CSV
     BulkAddPowerAssociation(BulkUpdateSingleInputFileArgs),
+
+    /// Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type, optionally enriched with a custom-property value.
+    GenerateSensorReport(GenerateSensorReportArgs),
 }
 
 #[derive(Args, Debug, Clone)]
@@ -503,6 +506,91 @@ pub struct ListAnyOfArgs {
     pub output_type: OutputOptions,
 
     #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct GenerateSensorReportArgs {
+    #[arg(short = 't', long, help = "Asset type to include, e.g. Rack")]
+    pub asset_type: AssetTypes,
+
+    #[arg(short = 's', long, help = "Sensor name to report on, e.g. averageKwhByHour")]
+    pub sensor: String,
+
+    #[arg(
+        short = 'y',
+        long,
+        help = "Year for the report month (2020-2029). Required unless --start and --end are supplied.",
+        value_parser(value_parser!(i32).range(2020..=2029))
+    )]
+    pub year: Option<i32>,
+
+    #[arg(
+        short = 'm',
+        long,
+        help = "Month for the report (1-12). Required unless --start and --end are supplied.",
+        value_parser(value_parser!(u32).range(1..=12))
+    )]
+    pub month: Option<u32>,
+
+    #[arg(
+        short = 'S',
+        long,
+        help = "Optional start date (YYYY-MM-DD, inclusive). Must be paired with --end and mutually exclusive with --year/--month."
+    )]
+    pub start: Option<String>,
+
+    #[arg(
+        short = 'E',
+        long,
+        help = "Optional end date (YYYY-MM-DD, exclusive). Must be paired with --start and mutually exclusive with --year/--month."
+    )]
+    pub end: Option<String>,
+
+    #[arg(
+        short = 'c',
+        long,
+        help = "Optional custom property name whose value is added as a column, e.g. \"Business Unit\""
+    )]
+    pub custom_property: Option<String>,
+
+    #[arg(
+        short = 'C',
+        long,
+        help = "Optional prefix of location path, e.g. \"All/Datacenter 1/\""
+    )]
+    pub location_path: Option<String>,
+
+    #[arg(short = 'M', long, help = "Optional manufacturer name filter, e.g. dell")]
+    pub manufacturer: Option<String>,
+
+    #[arg(short = 'R', long, help = "Optional product name filter, e.g. poweredge")]
+    pub product: Option<String>,
+
+    #[arg(
+        long,
+        help = "Number of assets to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        long,
+        help = "Asset page size (1 -> 1000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=1000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short = 'o',
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "csv-file"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short = 'f', long, help = "Output filename, e.g. report.csv")]
     pub filename: Option<String>,
 }
 

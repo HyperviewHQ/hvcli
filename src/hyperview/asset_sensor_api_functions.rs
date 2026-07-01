@@ -6,8 +6,10 @@ use uuid::Uuid;
 use crate::retry_on_unauthorized_async;
 
 use super::{
-    api_constants::SENSOR_API_PREFIX,
-    asset_sensor_api_data::{AssetSensorDto, AssetSensorUpdateDto},
+    api_constants::{SENSOR_API_PREFIX, SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX},
+    asset_sensor_api_data::{
+        AssetSensorDto, AssetSensorUpdateDto, NumericSensorDailySummaryDto,
+    },
     auth::AuthToken,
     cli_data::AppConfig,
 };
@@ -146,6 +148,42 @@ pub async fn get_asset_sensor_list_async(
         .error_for_status()?
         .json::<Vec<AssetSensorDto>>()
         .await?;
+
+    Ok(resp)
+}
+
+pub async fn get_numeric_sensor_daily_summaries_async(
+    config: &AppConfig,
+    req: &Client,
+    auth_header: &String,
+    sensor_ids: &[Uuid],
+    start: chrono::NaiveDate,
+    end: chrono::NaiveDate,
+) -> color_eyre::Result<Vec<NumericSensorDailySummaryDto>> {
+    let target_url = format!(
+        "{}{}",
+        config.instance_url, SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX
+    );
+    debug!("Request URL: {target_url}");
+
+    let mut query: Vec<(&str, String)> = sensor_ids
+        .iter()
+        .map(|id| ("sensorIds", id.to_string()))
+        .collect();
+    query.push(("startTime", format!("{}T00:00:00.000", start.format("%Y-%m-%d"))));
+    query.push(("endTime", format!("{}T00:00:00.000", end.format("%Y-%m-%d"))));
+
+    let resp = req
+        .get(target_url)
+        .header(AUTHORIZATION, auth_header)
+        .query(&query)
+        .send()
+        .await?
+        .error_for_status()?
+        .json::<Vec<NumericSensorDailySummaryDto>>()
+        .await?;
+
+    trace!("Numeric sensor daily summaries: {resp:?}");
 
     Ok(resp)
 }
@@ -441,6 +479,127 @@ mod tests {
         list_mock.assert();
         put_fail_mock.assert();
         put_ok_mock.assert();
+    }
+
+    #[tokio::test]
+    async fn test_get_numeric_sensor_daily_summaries_async_sends_expected_query() {
+        let sensor_id_a = Uuid::new_v4();
+        let sensor_id_b = Uuid::new_v4();
+        let start = chrono::NaiveDate::from_ymd_opt(2026, 2, 1).unwrap();
+        let end = chrono::NaiveDate::from_ymd_opt(2026, 3, 1).unwrap();
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX)
+                .query_param("startTime", "2026-02-01T00:00:00.000")
+                .query_param("endTime", "2026-03-01T00:00:00.000")
+                .query_param_exists("sensorIds");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([{
+                    "sensorId": sensor_id_a.to_string(),
+                    "sensorTypeDescription": "Power",
+                    "sensorTypeId": "type-1",
+                    "name": "averageKwhByHour",
+                    "sensorDataPoints": [
+                        { "r": "2026-02-01T00:00:00.000", "avg": 1.0, "max": 2.0, "min": 0.5, "lst": 1.5 }
+                    ]
+                }]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let result = get_numeric_sensor_daily_summaries_async(
+            &config,
+            &client,
+            &auth_header,
+            &[sensor_id_a, sensor_id_b],
+            start,
+            end,
+        )
+        .await
+        .unwrap();
+
+        m.assert();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].sensor_id, sensor_id_a.to_string());
+        assert_eq!(result[0].sensor_data_points.len(), 1);
+        assert!((result[0].sensor_data_points[0].avg - 1.0).abs() < f64::EPSILON);
+    }
+
+    #[tokio::test]
+    async fn test_get_numeric_sensor_daily_summaries_async_returns_empty_on_empty_body() {
+        let sensor_id = Uuid::new_v4();
+        let start = chrono::NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
+        let end = chrono::NaiveDate::from_ymd_opt(2026, 2, 1).unwrap();
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let result = get_numeric_sensor_daily_summaries_async(
+            &config,
+            &client,
+            &auth_header,
+            &[sensor_id],
+            start,
+            end,
+        )
+        .await
+        .unwrap();
+
+        m.assert();
+        assert!(result.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_get_numeric_sensor_daily_summaries_async_propagates_http_error() {
+        let sensor_id = Uuid::new_v4();
+        let start = chrono::NaiveDate::from_ymd_opt(2026, 1, 1).unwrap();
+        let end = chrono::NaiveDate::from_ymd_opt(2026, 2, 1).unwrap();
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            then.status(500);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let result = get_numeric_sensor_daily_summaries_async(
+            &config,
+            &client,
+            &auth_header,
+            &[sensor_id],
+            start,
+            end,
+        )
+        .await;
+
+        m.assert();
+        assert!(result.is_err());
     }
 
     #[tokio::test]

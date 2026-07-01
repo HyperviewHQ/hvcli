@@ -37,6 +37,7 @@ use super::{
         bulk_update_custom_property_by_name_async, get_custom_asset_property_list_async,
         update_custom_property_by_name_async,
     },
+    sensor_report_functions::generate_sensor_report_async,
 };
 
 pub fn get_config_path() -> String {
@@ -422,6 +423,14 @@ pub async fn route_command_async(
         AppArgsSubcommands::BulkAddPowerAssociation(options) => {
             bulk_add_power_association_async(&config, &req, &mut auth_token, &options.filename)
                 .await?;
+        }
+
+        AppArgsSubcommands::GenerateSensorReport(options) => {
+            let resp =
+                generate_sensor_report_async(&config, &req, &mut auth_token, options.clone())
+                    .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
     }
 

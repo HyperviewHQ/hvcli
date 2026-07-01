@@ -899,6 +899,7 @@ dependencies = [
 name = "hvcli"
 version = "0.10.0"
 dependencies = [
+ "chrono",
  "clap",
  "color-eyre",
  "confy",
