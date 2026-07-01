@@ -945,7 +945,7 @@ mod tests {
         // Test with asset type and location set
         let mut filter = Vec::new();
 
-        filter.push(format!("assetType = '{}'", "Server"));
+        filter.push(format!("assetType = '{}'", "server"));
 
         let input_path = "All/".to_string();
         let prepared_path = input_path.replace('/', "~").clone();

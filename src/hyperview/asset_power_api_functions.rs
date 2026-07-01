@@ -342,7 +342,7 @@ mod tests {
         let client = Client::new();
         let mut token = auth_token();
         // No component number — direct asset-to-asset path.
-        let csv = write_csv(&[&format!("{consumer},{provider},RackPdu,,")]);
+        let csv = write_csv(&[&format!("{consumer},{provider},rackPdu,,")]);
 
         bulk_add_power_association_async(
             &config,
@@ -428,8 +428,8 @@ mod tests {
         let mut token = auth_token();
         // Two rows pointing at the same provider — the component list should only be fetched once.
         let csv = write_csv(&[
-            &format!("{consumer_a},{provider},RackPdu,1,"),
-            &format!("{consumer_b},{provider},RackPdu,1,"),
+            &format!("{consumer_a},{provider},rackPdu,1,"),
+            &format!("{consumer_b},{provider},rackPdu,1,"),
         ]);
 
         bulk_add_power_association_async(
@@ -473,8 +473,8 @@ mod tests {
         let mut token = auth_token();
         // Direct asset-to-asset path so the cache lookup is bypassed.
         let csv = write_csv(&[
-            &format!("{consumer_fail},{provider},RackPdu,,"),
-            &format!("{consumer_ok},{provider},RackPdu,,"),
+            &format!("{consumer_fail},{provider},rackPdu,,"),
+            &format!("{consumer_ok},{provider},rackPdu,,"),
         ]);
 
         bulk_add_power_association_async(

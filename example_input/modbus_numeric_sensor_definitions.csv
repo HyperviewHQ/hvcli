@@ -1,0 +1,4 @@
+id,component_id,name,multiplier,offset,order_of_operations,address,register_type,data_setting,sensor_type,sensor_type_id,unit,unit_id
+182a32f8-b2ce-4c9d-a351-3d918d87009f,,Compressor Runtime,1.0,0.0,scaleThenOffset,1,inputRegister,uInteger16,compressorRuntime,ec5459cf-4ebc-42d8-bd5c-014cc263b0e1,Seconds,b09bf840-ae5f-4086-8bbc-a480c0d0c4ab
+a24fa9f8-2fc3-4ec7-8cb1-5d8ea656db2f,,Compressor Temperature,1.0,0.0,scaleThenOffset,2,inputRegister,uInteger16,compressorTemperature,47ab8d0c-b9f0-49b6-b7f6-84713fd18093,Celsius,d53e036e-a428-4c1a-b779-8322b96dfe16
+,,Fan Speed,1.0,0.0,scaleThenOffset,8,holdingRegister,uInteger32BigEndian,fanSpeed,416799ea-0e25-e211-8183-001c42e521d8,%,95d6a851-86b3-4208-a033-778afb65a700

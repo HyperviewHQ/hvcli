@@ -166,6 +166,117 @@ Add power associations between assets using a CSV. Example data is in the **exam
 
 Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type. Optionally enrich each row with a custom-property value. Defaults to CSV output.
 
+#### 32. list-bacnet-definitions
+
+List current BACnet IP sensor definitions.
+
+#### 33. add-bacnet-definition
+
+Add a new BACnet IP sensor definition.
+
+#### 34. list-bacnet-numeric-sensor-definitions
+
+List numeric sensors for a BACnet IP sensor definition.
+
+#### 35. list-bacnet-non-numeric-sensor-definitions
+
+List non-numeric sensors for a BACnet IP sensor definition.
+
+#### 36. bulk-import-bacnet-numeric-sensor-definitions
+
+Bulk create or update numeric sensors on a BACnet IP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated. Example data is in the **example_input** folder.
+
+#### 37. bulk-import-bacnet-non-numeric-sensor-definitions
+
+Bulk create or update non-numeric sensors on a BACnet IP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated. Example data is in the **example_input** folder.
+
+#### 38. list-modbus-definitions
+
+List current Modbus TCP sensor definitions.
+
+#### 39. add-modbus-definition
+
+Add a new Modbus TCP sensor definition.
+
+#### 40. list-modbus-numeric-sensor-definitions
+
+List numeric sensors for a Modbus TCP sensor definition.
+
+#### 41. list-modbus-non-numeric-sensor-definitions
+
+List non-numeric sensors for a Modbus TCP sensor definition.
+
+#### 42. bulk-import-modbus-numeric-sensor-definitions
+
+Bulk create or update numeric sensors on a Modbus TCP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated. Example data is in the **example_input** folder.
+
+#### 43. bulk-import-modbus-non-numeric-sensor-definitions
+
+Bulk create or update non-numeric sensors on a Modbus TCP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated. Example data is in the **example_input** folder.
+
+#### 44. list-sensor-definition-types
+
+List valid sensor types for an asset type, optionally filtered by sensor class (numeric or enum).
+
+#### 45. list-modbus-components
+
+List the components of a Modbus TCP sensor definition. Modbus sensors are grouped under components; a sensor references its component via the `component_id` column.
+
+#### 46. add-modbus-component
+
+Add a new component to a Modbus TCP sensor definition. Prints the new component's id, which can then be used as the `component_id` for imported Modbus sensors.
+
+#### 47. update-modbus-component
+
+Rename an existing component of a Modbus TCP sensor definition.
+
+#### 48. delete-modbus-component
+
+Delete a component from a Modbus TCP sensor definition.
+
+#### 49. get-bacnet-definition
+
+Get a single BACnet IP sensor definition by its id.
+
+#### 50. update-bacnet-definition
+
+Update the name, asset type, and (optional) description of a BACnet IP sensor definition.
+
+#### 51. delete-bacnet-definition
+
+Delete a BACnet IP sensor definition by its id.
+
+#### 52. get-modbus-definition
+
+Get a single Modbus TCP sensor definition by its id.
+
+#### 53. update-modbus-definition
+
+Update the name, asset type, and (optional) description of a Modbus TCP sensor definition.
+
+#### 54. delete-modbus-definition
+
+Delete a Modbus TCP sensor definition by its id.
+
+#### 55. delete-bacnet-numeric-sensor-definition
+
+Delete a numeric sensor from a BACnet IP sensor definition.
+
+#### 56. delete-bacnet-non-numeric-sensor-definition
+
+Delete a non-numeric sensor from a BACnet IP sensor definition.
+
+#### 57. delete-modbus-numeric-sensor-definition
+
+Delete a numeric sensor from a Modbus TCP sensor definition.
+
+#### 58. delete-modbus-non-numeric-sensor-definition
+
+Delete a non-numeric sensor from a Modbus TCP sensor definition.
+
+> [!NOTE]
+> The BACnet/Modbus numeric sensor import CSVs accept optional `offset` and `order_of_operations` (`scaleThenOffset` | `offsetThenScale`) columns, and the Modbus sensor import CSVs accept an optional `component_id` column. Leave any of these blank to let the server apply its default. The bulk-import commands also accept `--create-as-new`, which ignores the id column and creates every row as a new sensor — use it to clone an exported definition's sensors into a different definition. The `associated assets` shown when listing a definition is a read-only count of how many assets use it; the API provides no way to manage that association.
+
 > [!NOTE]
 > Use --help to explore the various options available within the main command and each subcommand.
 
