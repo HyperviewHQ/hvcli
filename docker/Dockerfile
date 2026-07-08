@@ -4,9 +4,7 @@ ARG BUILD_DIR=/build
 
 RUN set -x && \
     apk update && apk upgrade && \
-    apk add --no-cache musl-dev openssl-dev openssl-libs-static
-
-ENV OPENSSL_STATIC=1
+    apk add --no-cache musl-dev
 
 COPY ./ ${BUILD_DIR}
 
@@ -16,7 +14,8 @@ RUN set -x && \
 
 FROM alpine:latest
 
-RUN apk update && apk upgrade
+RUN apk update && apk upgrade && \
+    apk add --no-cache ca-certificates
 
 WORKDIR /app
 

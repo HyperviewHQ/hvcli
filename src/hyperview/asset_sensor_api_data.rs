@@ -126,3 +126,22 @@ pub struct AssetSensorUpdateDto {
     pub sensor_name: String,
     pub access_policy_id: Option<Uuid>,
 }
+
+#[derive(Debug, Default, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct NumericSensorDailySummaryDto {
+    pub sensor_id: String,
+    pub sensor_type_description: String,
+    pub sensor_type_id: String,
+    pub name: String,
+    pub sensor_data_points: Vec<NumericSensorDailySummaryDataPoint>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Clone)]
+pub struct NumericSensorDailySummaryDataPoint {
+    pub r: String,
+    pub avg: f64,
+    pub max: f64,
+    pub min: f64,
+    pub lst: f64,
+}

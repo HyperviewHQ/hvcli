@@ -1,0 +1,4 @@
+id,name,multiplier,offset,order_of_operations,object_instance,object_type,sensor_type,sensor_type_id,unit,unit_id
+,Cooling Output,1.0,0.0,scaleThenOffset,20,analogInput,coolingOutput,0822ef0a-d0de-4789-9f44-51833c48e7a0,Watts,16b7b95b-c188-456b-ba53-08c028988cd3
+,Compressor Temperature,1.0,0.0,scaleThenOffset,1,analogValue,compressorTemperature,47ab8d0c-b9f0-49b6-b7f6-84713fd18093,Celsius,d53e036e-a428-4c1a-b779-8322b96dfe16
+,Compressor Runtime,2.0,0.0,scaleThenOffset,24,analogValue,compressorRuntime,ec5459cf-4ebc-42d8-bd5c-014cc263b0e1,Seconds,b09bf840-ae5f-4086-8bbc-a480c0d0c4ab

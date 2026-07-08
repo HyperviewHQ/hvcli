@@ -15,3 +15,10 @@ target/
 
 # dist
 dist/
+
+# Claude
+.claude/
+.claude-plugin/
+.devcontainer/
+plugins/
+CLAUDE.md

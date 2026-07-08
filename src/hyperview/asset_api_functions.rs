@@ -8,6 +8,7 @@ use std::str::FromStr;
 use uuid::Uuid;
 
 use crate::hyperview::asset_api_data::AddRackAccessoryRecord;
+use crate::retry_on_unauthorized_async;
 
 use super::{
     api_constants::{
@@ -19,6 +20,7 @@ use super::{
         AssetDto, AssetLocationDTO, AssetPortDto, UpdateAssetLocationRecord, UpdateAssetNameRecord,
     },
     asset_properties_api_functions::get_named_asset_property_async,
+    auth::AuthToken,
     cli_data::{
         AppConfig, ListAnyOfArgs, ListRecordsByAssetIdArgs, RackPanelType, RackSide,
         SearchAssetsArgs, UpdateAssetLocationArgs,
@@ -28,22 +30,30 @@ use super::{
 pub async fn bulk_add_rack_accessory_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: &String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AddRackAccessoryRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("Adding rack accessory to rack_id {}", record.id);
-        add_rack_accessory_async(
+        if let Err(e) = retry_on_unauthorized_async!(
             config,
-            req,
-            auth_header,
-            &record.id,
-            &record.panel_type,
-            &record.side,
-            record.u_location,
-        )
-        .await?;
+            auth_token,
+            add_rack_accessory_async(
+                config,
+                req,
+                &auth_token.header,
+                &record.id,
+                &record.panel_type,
+                &record.side,
+                record.u_location,
+            )
+            .await
+        ) {
+            error!("Failed to add rack accessory to rack_id {}: {e}", record.id);
+        }
     }
 
     Ok(())
@@ -108,7 +118,8 @@ pub async fn add_rack_accessory_async(
         .header(AUTHORIZATION, auth_header)
         .json(&payload)
         .send()
-        .await?;
+        .await?
+        .error_for_status()?;
 
     trace!("Server response: {}", resp.status());
 
@@ -118,12 +129,14 @@ pub async fn add_rack_accessory_async(
 pub async fn bulk_update_ports_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
     is_patchpanel: bool,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<AssetPortDto>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!("Updating port id: {}", record.id);
 
         // Patch panel flow
@@ -145,7 +158,13 @@ pub async fn bulk_update_ports_async(
             });
             debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-            update_port_async(req, auth_header, target_url, payload).await?;
+            if let Err(e) = retry_on_unauthorized_async!(
+                config,
+                auth_token,
+                update_port_async(req, &auth_token.header, &target_url, &payload).await
+            ) {
+                error!("Failed to update patch panel port id {}: {e}", record.id);
+            }
 
             // Go to next record
             continue;
@@ -170,7 +189,13 @@ pub async fn bulk_update_ports_async(
 
         debug!("Payload: {}", serde_json::to_string_pretty(&payload)?);
 
-        update_port_async(req, auth_header, target_url, payload).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_port_async(req, &auth_token.header, &target_url, &payload).await
+        ) {
+            error!("Failed to update asset port id {}: {e}", record.id);
+        }
     }
 
     Ok(())
@@ -179,15 +204,16 @@ pub async fn bulk_update_ports_async(
 async fn update_port_async(
     req: &Client,
     auth_header: &String,
-    target_url: String,
-    payload: Value,
+    target_url: &str,
+    payload: &Value,
 ) -> color_eyre::Result<()> {
     let resp = req
         .put(target_url)
         .header(AUTHORIZATION, auth_header)
-        .json(&payload)
+        .json(payload)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -299,6 +325,7 @@ pub async fn update_asset_location_async(
         .json(&asset_location_dto)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -313,11 +340,16 @@ pub async fn update_asset_location_async(
 pub async fn bulk_update_asset_location_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
+    let mut total: usize = 0;
+    let mut failed: usize = 0;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetLocationRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+        total += 1;
+
         debug!(
             "Updating asset id: {} with new location: {}",
             record.asset_id, record.new_location_id
@@ -334,9 +366,25 @@ pub async fn bulk_update_asset_location_async(
             rack_u_location: record.rack_u_location,
         };
 
-        update_asset_location_async(config, req, auth_header, update_location_data).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_asset_location_async(
+                config,
+                req,
+                &auth_token.header,
+                update_location_data.clone(),
+            )
+            .await
+        ) {
+            error!("Failed to update location for asset id {id}: {e}");
+            failed += 1;
+        }
     }
 
+    if failed > 0 {
+        return Err(AppError::BulkOperationFailures { failed, total }.into());
+    }
     Ok(())
 }
 
@@ -353,6 +401,7 @@ async fn get_raw_asset_by_id_async(
         .header(AUTHORIZATION, auth_header)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -384,16 +433,16 @@ pub async fn update_asset_name_by_id_async(
                 new_name
             );
 
-            if let Value::String(name_string) = name {
-                *name_string = new_name;
-            }
+            // Overwrite unconditionally: a fresh asset can come back with `"name": null`,
+            // and matching only on `Value::String` used to silently PUT the untouched body.
+            *name = Value::String(new_name);
 
-            let _resp = req
-                .put(target_url)
+            req.put(target_url)
                 .header(AUTHORIZATION, auth_header)
                 .json(&asset_value)
                 .send()
-                .await?;
+                .await?
+                .error_for_status()?;
 
             Ok(())
         }
@@ -405,11 +454,13 @@ pub async fn update_asset_name_by_id_async(
 pub async fn bulk_update_asset_name_async(
     config: &AppConfig,
     req: &Client,
-    auth_header: &String,
+    auth_token: &mut AuthToken,
     filename: String,
 ) -> color_eyre::Result<()> {
     let mut reader = csv::Reader::from_path(filename)?;
     while let Some(Ok(record)) = reader.deserialize::<UpdateAssetNameRecord>().next() {
+        auth_token.refresh_if_needed_async(config).await?;
+
         debug!(
             "Updating asset id: {} with new name: {}",
             record.asset_id, record.new_name
@@ -422,10 +473,65 @@ pub async fn bulk_update_asset_name_async(
             continue;
         }
 
-        update_asset_name_by_id_async(config, req, auth_header, record.asset_id, new_name).await?;
+        if let Err(e) = retry_on_unauthorized_async!(
+            config,
+            auth_token,
+            update_asset_name_by_id_async(
+                config,
+                req,
+                &auth_token.header,
+                record.asset_id,
+                new_name.clone(),
+            )
+            .await
+        ) {
+            error!(
+                "Failed to update name for asset id {}: {e}",
+                record.asset_id
+            );
+        }
     }
 
     Ok(())
+}
+
+/// Extracts a JSON string field from a search hit, returning an empty string when the field is
+/// missing, null, or a non-string type. Matches the tolerance the search endpoint requires.
+fn hit_string_field(hit: &Value, key: &str) -> String {
+    hit.get(key)
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string()
+}
+
+/// Converts one search hit into an `AssetDto`. Returns `None` when the hit has no parseable `id`
+/// (so the caller can skip and log rather than panicking mid-iteration).
+fn hit_to_asset_dto(hit: &Value) -> Option<AssetDto> {
+    let id = hit
+        .get("id")
+        .and_then(Value::as_str)
+        .and_then(|s| Uuid::from_str(s).ok())?;
+    Some(AssetDto {
+        id,
+        name: hit_string_field(hit, "displayName"),
+        asset_lifecycle_state: hit_string_field(hit, "assetLifecycleState"),
+        asset_type_id: hit_string_field(hit, "assetType"),
+        manufacturer_id: hit_string_field(hit, "manufacturerId"),
+        manufacturer_name: hit_string_field(hit, "manufacturerName"),
+        monitoring_state: hit_string_field(hit, "monitoringState"),
+        parent_id: hit_string_field(hit, "parentId"),
+        parent_name: hit_string_field(hit, "parentDisplayName"),
+        product_id: hit_string_field(hit, "productId"),
+        product_name: hit_string_field(hit, "productName"),
+        status: hit_string_field(hit, "status"),
+        path: hit_string_field(hit, "delimitedPath").replace('~', "/"),
+        serial_number: hit
+            .get("assetProperty_serialNumber")
+            .and_then(|v| v.as_array())
+            .and_then(|arr| serde_json::to_string(arr).ok())
+            .unwrap_or_else(|| "[]".to_string()),
+        property: None,
+    })
 }
 
 pub async fn list_any_of_async(
@@ -450,6 +556,7 @@ pub async fn list_any_of_async(
         .json(&search_query)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -476,34 +583,13 @@ pub async fn list_any_of_async(
     if let Some(assets) = resp.get("hits") {
         assets.as_array().unwrap().iter().for_each(|a| {
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
-
-            let asset = AssetDto {
-                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
-                asset_type_id: a.get("assetType").unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                parent_id: a.get("parentId").unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().to_string(),
-                product_id: a.get("productId").unwrap().to_string(),
-                product_name: a.get("productName").unwrap().to_string(),
-                status: a.get("status").unwrap().to_string(),
-                path: a
-                    .get("delimitedPath")
-                    .unwrap()
-                    .to_string()
-                    .replace('~', "/"),
-                serial_number: a
-                    .get("assetProperty_serialNumber")
-                    .and_then(|v| v.as_array())
-                    .and_then(|arr| serde_json::to_string(arr).ok())
-                    .unwrap_or_else(|| "[]".to_string()),
-                property: None,
-            };
-
-            asset_list.push(asset);
+            match hit_to_asset_dto(a) {
+                Some(asset) => asset_list.push(asset),
+                None => error!(
+                    "Skipping hit with missing or malformed id: {}",
+                    serde_json::to_string(a).unwrap_or_else(|_| "<unrenderable>".to_string())
+                ),
+            }
         });
     }
 
@@ -646,6 +732,7 @@ pub async fn search_assets_async(
         .json(&search_query)
         .send()
         .await?
+        .error_for_status()?
         .json::<Value>()
         .await?;
 
@@ -672,34 +759,13 @@ pub async fn search_assets_async(
     if let Some(assets) = resp.get("hits") {
         assets.as_array().unwrap().iter().for_each(|a| {
             debug!("RAW: {}", serde_json::to_string_pretty(&a).unwrap());
-
-            let asset = AssetDto {
-                id: Uuid::from_str(a.get("id").unwrap().as_str().unwrap()).unwrap(),
-                name: a.get("displayName").unwrap().to_string(),
-                asset_lifecycle_state: a.get("assetLifecycleState").unwrap().to_string(),
-                asset_type_id: a.get("assetType").unwrap().to_string(),
-                manufacturer_id: a.get("manufacturerId").unwrap().to_string(),
-                manufacturer_name: a.get("manufacturerName").unwrap().to_string(),
-                monitoring_state: a.get("monitoringState").unwrap().to_string(),
-                parent_id: a.get("parentId").unwrap().to_string(),
-                parent_name: a.get("parentDisplayName").unwrap().to_string(),
-                product_id: a.get("productId").unwrap().to_string(),
-                product_name: a.get("productName").unwrap().to_string(),
-                status: a.get("status").unwrap().to_string(),
-                path: a
-                    .get("delimitedPath")
-                    .unwrap()
-                    .to_string()
-                    .replace('~', "/"),
-                serial_number: a
-                    .get("assetProperty_serialNumber")
-                    .and_then(|v| v.as_array())
-                    .and_then(|arr| serde_json::to_string(arr).ok())
-                    .unwrap_or_else(|| "[]".to_string()),
-                property: None,
-            };
-
-            asset_list.push(asset);
+            match hit_to_asset_dto(a) {
+                Some(asset) => asset_list.push(asset),
+                None => error!(
+                    "Skipping hit with missing or malformed id: {}",
+                    serde_json::to_string(a).unwrap_or_else(|_| "<unrenderable>".to_string())
+                ),
+            }
         });
     }
 
@@ -879,11 +945,11 @@ mod tests {
         // Test with asset type and location set
         let mut filter = Vec::new();
 
-        filter.push(format!("assetType = '{}'", "Server"));
+        filter.push(format!("assetType = '{}'", "server"));
 
         let input_path = "All/".to_string();
-        let prepared_path = input_path.replace('/', "~").to_string();
-        filter.push(format!("delimitedPath STARTS WITH '{}'", prepared_path));
+        let prepared_path = input_path.replace('/', "~").clone();
+        filter.push(format!("delimitedPath STARTS WITH '{prepared_path}'"));
 
         let filter_str = filter.join(" AND ");
 
@@ -909,6 +975,15 @@ mod tests {
             then.status(200)
                 .header("Content-Type", "application/json")
                 .body(search_resp1);
+        });
+        let all_location_mock = server.mock(|when, then| {
+            when.method(GET).path(format!(
+                "{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"
+            ));
+
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({"name": "All"}));
         });
 
         let config = AppConfig {
@@ -938,10 +1013,144 @@ mod tests {
 
         // Assert
         m.assert();
+        all_location_mock.assert();
         assert!(result.is_ok());
         let assets = result.unwrap();
         assert_eq!(assets.len(), 1);
-        assert_eq!(assets[0].name, "\"labworker16\"".to_string());
-        assert_eq!(assets[0].asset_type_id, "\"Server\"".to_string())
+        assert_eq!(assets[0].name, "labworker16".to_string());
+        assert_eq!(assets[0].asset_type_id, "Server".to_string());
+    }
+
+    #[tokio::test]
+    async fn test_search_assets_async_tolerates_null_fields() {
+        let asset_id = "58af63dc-1e9e-4b8b-b2b7-e0451aaca8fb";
+        let search_resp = json!({
+            "estimatedTotalHits": 1,
+            "limit": 100,
+            "hits": [{
+                "id": asset_id,
+                "displayName": "rack-01",
+                "assetLifecycleState": null,
+                "assetType": "Rack",
+                "manufacturerId": null,
+                "manufacturerName": null,
+                "monitoringState": null,
+                "parentId": null,
+                "parentDisplayName": null,
+                "productId": null,
+                "productName": null,
+                "status": null,
+                "delimitedPath": null,
+                "assetProperty_serialNumber": null
+            }]
+        });
+
+        let server = MockServer::start();
+        let m = server.mock(|when, then| {
+            when.method(POST).path(ASSET_SEARCH_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(search_resp);
+        });
+        let all_location_mock = server.mock(|when, then| {
+            when.method(GET).path(format!(
+                "{ASSET_ASSETS_API_PREFIX}/11223344-5566-7788-99aa-bbccddeeff00"
+            ));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({"name": "All"}));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let options = SearchAssetsArgs {
+            search_pattern: Some("rack".to_string()),
+            asset_type: None,
+            location_path: None,
+            properties: None,
+            custom_properties: None,
+            id: None,
+            manufacturer: None,
+            product: None,
+            limit: 100,
+            skip: 0,
+            filename: None,
+            output_type: OutputOptions::Record,
+            show_property: None,
+        };
+
+        let result = search_assets_async(&config, &client, &auth_header, options).await;
+
+        m.assert();
+        all_location_mock.assert();
+        let assets = result.expect("search_assets_async must not panic on null fields");
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].name, "rack-01");
+        assert_eq!(assets[0].asset_type_id, "Rack");
+        assert!(assets[0].manufacturer_id.is_empty());
+        assert!(assets[0].manufacturer_name.is_empty());
+        assert!(assets[0].parent_id.is_empty());
+        assert!(assets[0].parent_name.is_empty());
+        assert!(assets[0].product_id.is_empty());
+        assert!(assets[0].product_name.is_empty());
+        assert!(assets[0].path.is_empty());
+        assert!(assets[0].asset_lifecycle_state.is_empty());
+        assert!(assets[0].monitoring_state.is_empty());
+        assert!(assets[0].status.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_bulk_add_rack_accessory_async_continues_after_row_error() {
+        use crate::hyperview::auth::AuthToken;
+        use std::io::Write;
+        use std::time::Duration;
+
+        let rack_fail = Uuid::new_v4();
+        let rack_ok = Uuid::new_v4();
+
+        let server = MockServer::start();
+        // First POST returns 500; second POST returns 200. The bulk call must reach the second.
+        let fail_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path(RACK_PANEL_API_PREFIX)
+                .body_includes(rack_fail.to_string());
+            then.status(500);
+        });
+        let ok_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path(RACK_PANEL_API_PREFIX)
+                .body_includes(rack_ok.to_string());
+            then.status(200);
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = reqwest::Client::new();
+        let mut token = AuthToken::for_test("Bearer t", Duration::from_hours(1));
+
+        let mut tmp = tempfile::NamedTempFile::new().unwrap();
+        writeln!(tmp, "id,panel_type,side,u_location").unwrap();
+        writeln!(tmp, "{rack_fail},BlankingPanel,Front,1").unwrap();
+        writeln!(tmp, "{rack_ok},BlankingPanel,Front,2").unwrap();
+        tmp.flush().unwrap();
+
+        bulk_add_rack_accessory_async(
+            &config,
+            &client,
+            &mut token,
+            &tmp.path().to_string_lossy().to_string(),
+        )
+        .await
+        .expect("bulk add must not abort on a per-row 500");
+
+        fail_mock.assert();
+        ok_mock.assert();
     }
 }

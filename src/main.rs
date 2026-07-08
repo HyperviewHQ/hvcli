@@ -3,7 +3,7 @@ use log::info;
 use reqwest::Client;
 
 use crate::hyperview::{
-    auth::get_auth_header_async,
+    auth::AuthToken,
     cli_data::{AppArgs, AppConfig},
     cli_functions::{get_config_path, get_debug_filter, route_command_async},
 };
@@ -23,8 +23,8 @@ async fn main() -> color_eyre::Result<()> {
     info!("Startup options: | Debug Level: {debug_level:?} |");
 
     let config: AppConfig = confy::load_path(get_config_path())?;
-    let auth_header = get_auth_header_async(&config).await?;
+    let auth_token = AuthToken::fetch_async(&config).await?;
     let req = Client::new();
 
-    route_command_async(args.command, config, auth_header, req).await
+    route_command_async(args.command, config, auth_token, req).await
 }

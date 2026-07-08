@@ -31,9 +31,14 @@ pub enum OutputOptions {
     Record,
 }
 
+// camelCase across clap (CLI input), serde (CSV input), and Display (wire output) so the CLI's
+// representation of an asset type is a single value that matches the Hyperview API's
+// AssetTypeEnum (which is camelCase). The API is case-insensitive on input but emits camelCase.
 #[derive(Debug, ValueEnum, Clone, Serialize, Deserialize)]
-#[clap(rename_all = "PascalCase")]
+#[clap(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub enum AssetTypes {
+    BatteryBank,
     BladeEnclosure,
     BladeNetwork,
     BladeServer,
@@ -43,6 +48,7 @@ pub enum AssetTypes {
     Chiller,
     Crac,
     Crah,
+    DcRectifier,
     Environmental,
     FireControlPanel,
     Generator,
@@ -53,6 +59,7 @@ pub enum AssetTypes {
     NetworkDevice,
     NetworkStorage,
     NodeServer,
+    OtherDevice,
     PatchPanel,
     PduAndRpp,
     PowerMeter,
@@ -60,6 +67,8 @@ pub enum AssetTypes {
     RackPdu,
     Server,
     SmallUps,
+    Switchboard,
+    Switchgear,
     TransferSwitch,
     Unknown,
     Ups,
@@ -68,7 +77,14 @@ pub enum AssetTypes {
 
 impl fmt::Display for AssetTypes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{self:?}")
+        // Emit the API's camelCase form: the PascalCase variant name with its first letter
+        // lowercased. This matches `#[serde(rename_all = "camelCase")]` and the clap value names.
+        let name = format!("{self:?}");
+        let mut chars = name.chars();
+        match chars.next() {
+            Some(first) => write!(f, "{}{}", first.to_ascii_lowercase(), chars.as_str()),
+            None => Ok(()),
+        }
     }
 }
 
@@ -118,6 +134,12 @@ pub enum ManageActionOptions {
 pub enum AlarmEventFilterOptions {
     Unacknowledged,
     Active,
+}
+
+#[derive(Debug, ValueEnum, Clone, Copy)]
+pub enum SensorValueClass {
+    Numeric,
+    Enum,
 }
 
 #[allow(clippy::enum_variant_names)]
@@ -213,6 +235,90 @@ pub enum AppArgsSubcommands {
 
     /// Add power associations between assets using a CSV
     BulkAddPowerAssociation(BulkUpdateSingleInputFileArgs),
+
+    /// Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type, optionally enriched with a custom-property value.
+    GenerateSensorReport(GenerateSensorReportArgs),
+
+    /// List current `BACnet IP` sensor definitions
+    ListBacnetDefinitions(ListDefinitionsArgs),
+
+    /// Add a new `BACnet IP` sensor definition
+    AddBacnetDefinition(AddDefinitionArgs),
+
+    /// List numeric sensors for a `BACnet IP` sensor definition
+    ListBacnetNumericSensorDefinitions(ListSensorDefinitionsArgs),
+
+    /// List non-numeric sensors for a `BACnet IP` sensor definition
+    ListBacnetNonNumericSensorDefinitions(ListSensorDefinitionsArgs),
+
+    /// Bulk create or update numeric sensors on a `BACnet IP` sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    BulkImportBacnetNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
+
+    /// Bulk create or update non-numeric sensors on a `BACnet IP` sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    BulkImportBacnetNonNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
+
+    /// List current Modbus TCP sensor definitions
+    ListModbusDefinitions(ListDefinitionsArgs),
+
+    /// Add a new Modbus TCP sensor definition
+    AddModbusDefinition(AddDefinitionArgs),
+
+    /// List numeric sensors for a Modbus TCP sensor definition
+    ListModbusNumericSensorDefinitions(ListSensorDefinitionsArgs),
+
+    /// List non-numeric sensors for a Modbus TCP sensor definition
+    ListModbusNonNumericSensorDefinitions(ListSensorDefinitionsArgs),
+
+    /// Bulk create or update numeric sensors on a Modbus TCP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    BulkImportModbusNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
+
+    /// Bulk create or update non-numeric sensors on a Modbus TCP sensor definition from a CSV file. Rows with a blank id are created; rows with a valid UUID id are updated
+    BulkImportModbusNonNumericSensorDefinitions(BulkImportSensorDefinitionsArgs),
+
+    /// List valid sensor types for an asset type, optionally filtered by sensor class (numeric or enum)
+    ListSensorDefinitionTypes(ListSensorDefinitionTypesArgs),
+
+    /// List components of a Modbus TCP sensor definition
+    ListModbusComponents(ListModbusComponentsArgs),
+
+    /// Add a new component to a Modbus TCP sensor definition
+    AddModbusComponent(AddModbusComponentArgs),
+
+    /// Rename a component of a Modbus TCP sensor definition
+    UpdateModbusComponent(UpdateModbusComponentArgs),
+
+    /// Delete a component from a Modbus TCP sensor definition
+    DeleteModbusComponent(DeleteModbusComponentArgs),
+
+    /// Get a single `BACnet IP` sensor definition by its id
+    GetBacnetDefinition(GetDefinitionArgs),
+
+    /// Update the name, asset type, and description of a `BACnet IP` sensor definition
+    UpdateBacnetDefinition(UpdateDefinitionArgs),
+
+    /// Delete a `BACnet IP` sensor definition by its id
+    DeleteBacnetDefinition(DeleteDefinitionArgs),
+
+    /// Get a single Modbus TCP sensor definition by its id
+    GetModbusDefinition(GetDefinitionArgs),
+
+    /// Update the name, asset type, and description of a Modbus TCP sensor definition
+    UpdateModbusDefinition(UpdateDefinitionArgs),
+
+    /// Delete a Modbus TCP sensor definition by its id
+    DeleteModbusDefinition(DeleteDefinitionArgs),
+
+    /// Delete a numeric sensor from a `BACnet IP` sensor definition
+    DeleteBacnetNumericSensorDefinition(DeleteSensorDefinitionArgs),
+
+    /// Delete a non-numeric sensor from a `BACnet IP` sensor definition
+    DeleteBacnetNonNumericSensorDefinition(DeleteSensorDefinitionArgs),
+
+    /// Delete a numeric sensor from a Modbus TCP sensor definition
+    DeleteModbusNumericSensorDefinition(DeleteSensorDefinitionArgs),
+
+    /// Delete a non-numeric sensor from a Modbus TCP sensor definition
+    DeleteModbusNonNumericSensorDefinition(DeleteSensorDefinitionArgs),
 }
 
 #[derive(Args, Debug, Clone)]
@@ -507,6 +613,103 @@ pub struct ListAnyOfArgs {
 }
 
 #[derive(Args, Debug, Clone)]
+pub struct GenerateSensorReportArgs {
+    #[arg(short = 't', long, help = "Asset type to include, e.g. Rack")]
+    pub asset_type: AssetTypes,
+
+    #[arg(
+        short = 's',
+        long,
+        help = "Sensor name to report on, e.g. averageKwhByHour"
+    )]
+    pub sensor: String,
+
+    #[arg(
+        short = 'y',
+        long,
+        help = "Year for the report month (2020-2029). Required unless --start and --end are supplied.",
+        value_parser(value_parser!(i32).range(2020..=2029))
+    )]
+    pub year: Option<i32>,
+
+    #[arg(
+        short = 'm',
+        long,
+        help = "Month for the report (1-12). Required unless --start and --end are supplied.",
+        value_parser(value_parser!(u32).range(1..=12))
+    )]
+    pub month: Option<u32>,
+
+    #[arg(
+        short = 'S',
+        long,
+        help = "Optional start date (YYYY-MM-DD, inclusive). Must be paired with --end and mutually exclusive with --year/--month."
+    )]
+    pub start: Option<String>,
+
+    #[arg(
+        short = 'E',
+        long,
+        help = "Optional end date (YYYY-MM-DD, exclusive). Must be paired with --start and mutually exclusive with --year/--month."
+    )]
+    pub end: Option<String>,
+
+    #[arg(
+        short = 'c',
+        long,
+        help = "Optional custom property name whose value is added as a column, e.g. \"Business Unit\""
+    )]
+    pub custom_property: Option<String>,
+
+    #[arg(
+        short = 'C',
+        long,
+        help = "Optional prefix of location path, e.g. \"All/Datacenter 1/\""
+    )]
+    pub location_path: Option<String>,
+
+    #[arg(
+        short = 'M',
+        long,
+        help = "Optional manufacturer name filter, e.g. dell"
+    )]
+    pub manufacturer: Option<String>,
+
+    #[arg(
+        short = 'R',
+        long,
+        help = "Optional product name filter, e.g. poweredge"
+    )]
+    pub product: Option<String>,
+
+    #[arg(
+        long,
+        help = "Number of assets to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        long,
+        help = "Asset page size (1 -> 1000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=1000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short = 'o',
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "csv-file"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short = 'f', long, help = "Output filename, e.g. report.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
 pub struct SearchAssetsArgs {
     #[arg(short = 'p', long, help = "Search pattern or string, e.g. chrome")]
     pub search_pattern: Option<String>,
@@ -578,4 +781,233 @@ pub struct SearchAssetsArgs {
 
     #[arg(short, long, help = "Output filename, e.g. output.csv")]
     pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListDefinitionsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct AddDefinitionArgs {
+    #[arg(short, long, help = "Definition name")]
+    pub name: String,
+
+    #[arg(short = 't', long, help = "Asset type, e.g. Crah")]
+    pub asset_type: AssetTypes,
+
+    #[arg(short = 'D', long, help = "Optional definition description")]
+    pub description: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListSensorDefinitionsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct BulkImportSensorDefinitionsArgs {
+    #[arg(short, long, help = "Input filename, e.g. input.csv")]
+    pub filename: String,
+
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        long,
+        help = "Ignore the id column and create every row as a new sensor. Use to clone an exported file into a different definition."
+    )]
+    pub create_as_new: bool,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListSensorDefinitionTypesArgs {
+    #[arg(short = 't', long, help = "Asset type, e.g. Crah")]
+    pub asset_type: AssetTypes,
+
+    #[arg(
+        short,
+        long,
+        help = "Sensor class, e.g. numeric",
+        default_value = "numeric"
+    )]
+    pub sensor_class: SensorValueClass,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListModbusComponentsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct AddModbusComponentArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(short, long, help = "Component name")]
+    pub name: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct UpdateModbusComponentArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Component ID. It must be a valid GUID/UUID, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196"
+    )]
+    pub component_id: Uuid,
+
+    #[arg(short, long, help = "New component name")]
+    pub name: String,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct DeleteModbusComponentArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Component ID. It must be a valid GUID/UUID, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196"
+    )]
+    pub component_id: Uuid,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct GetDefinitionArgs {
+    #[arg(
+        short = 'i',
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct UpdateDefinitionArgs {
+    #[arg(
+        short = 'i',
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(short, long, help = "Definition name")]
+    pub name: String,
+
+    #[arg(short = 't', long, help = "Asset type, e.g. Crah")]
+    pub asset_type: AssetTypes,
+
+    #[arg(short = 'D', long, help = "Optional definition description")]
+    pub description: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct DeleteDefinitionArgs {
+    #[arg(
+        short = 'i',
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct DeleteSensorDefinitionArgs {
+    #[arg(
+        short,
+        long,
+        help = "Definition ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub definition_id: Uuid,
+
+    #[arg(
+        short,
+        long,
+        help = "Sensor ID. It must be a valid GUID/UUID, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196"
+    )]
+    pub sensor_id: Uuid,
 }

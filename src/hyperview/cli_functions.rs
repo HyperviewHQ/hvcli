@@ -16,6 +16,7 @@ use crate::hyperview::asset_power_api_functions::{
 use super::{
     api_constants::{
         ASSET_PROPERTY_ASSET_TAG, ASSET_PROPERTY_DESIGN_VALUE, ASSET_PROPERTY_SERIAL_NUMBER,
+        BACNET_DEFINITION_API_PREFIX, MODBUS_DEFINITION_API_PREFIX,
     },
     app_errors::AppError,
     asset_alarm_events_functions::{list_alarm_events_async, manage_asset_alarm_events_async},
@@ -31,11 +32,36 @@ use super::{
         update_asset_property_async,
     },
     asset_sensor_api_functions::{bulk_update_asset_sensor_async, get_asset_sensor_list_async},
+    auth::AuthToken,
+    bacnet_definition_api_data::BacnetNonNumericSensorDefinitionExportWrapper,
+    bacnet_definition_api_functions::{
+        bulk_import_bacnet_non_numeric_sensor_definitions_async,
+        bulk_import_bacnet_numeric_sensor_definitions_async,
+        list_bacnet_non_numeric_sensor_definitions_async,
+        list_bacnet_numeric_sensor_definitions_async,
+    },
     cli_data::{AppArgsSubcommands, AppConfig, DebugLevels, OutputOptions},
     custom_asset_properties_api_functions::{
         bulk_update_custom_property_by_name_async, get_custom_asset_property_list_async,
         update_custom_property_by_name_async,
     },
+    definition_api_functions::{
+        add_definition_async, delete_definition_async, delete_sensor_definition_async,
+        get_definition_async, list_definitions_async, list_sensor_definition_types_async,
+        update_definition_async,
+    },
+    modbus_component_api_functions::{
+        add_modbus_component_async, delete_modbus_component_async, list_modbus_components_async,
+        update_modbus_component_async,
+    },
+    modbus_definition_api_data::ModbusNonNumericSensorDefinitionExportWrapper,
+    modbus_definition_api_functions::{
+        bulk_import_modbus_non_numeric_sensor_definitions_async,
+        bulk_import_modbus_numeric_sensor_definitions_async,
+        list_modbus_non_numeric_sensor_definitions_async,
+        list_modbus_numeric_sensor_definitions_async,
+    },
+    sensor_report_functions::generate_sensor_report_async,
 };
 
 pub fn get_config_path() -> String {
@@ -127,32 +153,34 @@ pub fn handle_output_choice<T: Display + Serialize>(
 pub async fn route_command_async(
     command: AppArgsSubcommands,
     config: AppConfig,
-    auth_header: String,
+    mut auth_token: AuthToken,
     req: reqwest::Client,
 ) -> color_eyre::Result<()> {
     match command {
         AppArgsSubcommands::ListAssetProperties(options) => {
-            let resp =
-                get_asset_property_list_async(&config, &req, &auth_header, options.id).await?;
+            let resp = get_asset_property_list_async(&config, &req, &auth_token.header, options.id)
+                .await?;
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListCustomAssetProperties(options) => {
             let resp =
-                get_custom_asset_property_list_async(&config, &req, &auth_header, options.id)
+                get_custom_asset_property_list_async(&config, &req, &auth_token.header, options.id)
                     .await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::SearchAssets(options) => {
-            let resp = search_assets_async(&config, &req, &auth_header, options.clone()).await?;
+            let resp =
+                search_assets_async(&config, &req, &auth_token.header, options.clone()).await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::ListAnyOf(options) => {
-            let resp = list_any_of_async(&config, &req, &auth_header, options.clone()).await?;
+            let resp =
+                list_any_of_async(&config, &req, &auth_token.header, options.clone()).await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
@@ -161,7 +189,7 @@ pub async fn route_command_async(
             update_asset_name_by_id_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.id,
                 options.new_name.clone(),
             )
@@ -169,24 +197,29 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::BulkUpdateAssetName(options) => {
-            bulk_update_asset_name_async(&config, &req, &auth_header, options.filename.clone())
+            bulk_update_asset_name_async(&config, &req, &mut auth_token, options.filename.clone())
                 .await?;
         }
 
         AppArgsSubcommands::UpdateAssetLocation(options) => {
-            update_asset_location_async(&config, &req, &auth_header, options.clone()).await?;
+            update_asset_location_async(&config, &req, &auth_token.header, options.clone()).await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetLocation(options) => {
-            bulk_update_asset_location_async(&config, &req, &auth_header, options.filename.clone())
-                .await?;
+            bulk_update_asset_location_async(
+                &config,
+                &req,
+                &mut auth_token,
+                options.filename.clone(),
+            )
+            .await?;
         }
 
         AppArgsSubcommands::UpdateAssetSerialNumber(options) => {
             update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.id,
                 options.new_value.clone(),
                 ASSET_PROPERTY_SERIAL_NUMBER.to_string(),
@@ -198,7 +231,7 @@ pub async fn route_command_async(
             bulk_update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &mut auth_token,
                 options.filename.clone(),
                 ASSET_PROPERTY_SERIAL_NUMBER.to_string(),
             )
@@ -209,7 +242,7 @@ pub async fn route_command_async(
             update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.id,
                 options.new_value.clone(),
                 ASSET_PROPERTY_ASSET_TAG.to_string(),
@@ -221,7 +254,7 @@ pub async fn route_command_async(
             bulk_update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &mut auth_token,
                 options.filename.clone(),
                 ASSET_PROPERTY_ASSET_TAG.to_string(),
             )
@@ -232,7 +265,7 @@ pub async fn route_command_async(
             update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.id,
                 options.new_value.clone(),
                 ASSET_PROPERTY_DESIGN_VALUE.to_string(),
@@ -244,7 +277,7 @@ pub async fn route_command_async(
             bulk_update_asset_property_async(
                 &config,
                 &req,
-                &auth_header,
+                &mut auth_token,
                 options.filename.clone(),
                 ASSET_PROPERTY_DESIGN_VALUE.to_string(),
             )
@@ -252,26 +285,39 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::ListAssetPorts(options) => {
-            let resp = list_asset_ports_async(&config, &req, &auth_header, options.clone()).await?;
+            let resp =
+                list_asset_ports_async(&config, &req, &auth_token.header, options.clone()).await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::BulkUpdatePatchPanelPorts(options) => {
-            bulk_update_ports_async(&config, &req, &auth_header, options.filename.clone(), true)
-                .await?;
+            bulk_update_ports_async(
+                &config,
+                &req,
+                &mut auth_token,
+                options.filename.clone(),
+                true,
+            )
+            .await?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetPorts(options) => {
-            bulk_update_ports_async(&config, &req, &auth_header, options.filename.clone(), false)
-                .await?;
+            bulk_update_ports_async(
+                &config,
+                &req,
+                &mut auth_token,
+                options.filename.clone(),
+                false,
+            )
+            .await?;
         }
 
         AppArgsSubcommands::UpdateCustomAssetProperty(options) => {
             update_custom_property_by_name_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.id,
                 options.custom_property.clone(),
                 options.new_custom_property_value.clone(),
@@ -283,7 +329,7 @@ pub async fn route_command_async(
             bulk_update_custom_property_by_name_async(
                 &config,
                 &req,
-                &auth_header,
+                &mut auth_token,
                 options.filename.clone(),
             )
             .await?;
@@ -293,7 +339,7 @@ pub async fn route_command_async(
             let resp = list_alarm_events_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.skip,
                 options.limit,
                 options.alarm_filter,
@@ -307,7 +353,7 @@ pub async fn route_command_async(
             manage_asset_alarm_events_async(
                 &config,
                 &req,
-                &auth_header,
+                &mut auth_token,
                 options.filename.clone(),
                 options.manage_action,
             )
@@ -318,7 +364,7 @@ pub async fn route_command_async(
             add_rack_accessory_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 &options.id,
                 &options.panel_type,
                 &options.rack_side,
@@ -328,24 +374,27 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::BulkAddRackAccessory(options) => {
-            bulk_add_rack_accessory_async(&config, &req, &auth_header, &options.filename).await?;
+            bulk_add_rack_accessory_async(&config, &req, &mut auth_token, &options.filename)
+                .await?;
         }
 
         AppArgsSubcommands::ListAssetSensors(options) => {
-            let resp = get_asset_sensor_list_async(&config, &req, &auth_header, options.id).await?;
+            let resp =
+                get_asset_sensor_list_async(&config, &req, &auth_token.header, options.id).await?;
 
             handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
 
         AppArgsSubcommands::BulkUpdateAssetSensor(options) => {
-            bulk_update_asset_sensor_async(&config, &req, &auth_header, &options.filename).await?;
+            bulk_update_asset_sensor_async(&config, &req, &mut auth_token, &options.filename)
+                .await?;
         }
 
         AppArgsSubcommands::ListRackPduOutlets(options) => {
             let resp = get_power_provider_components_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 RACK_PDU_OUTLETS_API_PREFIX,
                 options.id,
             )
@@ -358,7 +407,7 @@ pub async fn route_command_async(
             let resp = get_power_provider_components_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 BUSWAY_TAPOFF_API_PREFIX,
                 options.id,
             )
@@ -371,7 +420,7 @@ pub async fn route_command_async(
             let resp = get_power_provider_components_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 PDU_RPP_BREAKERS_API_PREFIX,
                 options.id,
             )
@@ -384,7 +433,7 @@ pub async fn route_command_async(
             add_power_association_async(
                 &config,
                 &req,
-                &auth_header,
+                &auth_token.header,
                 options.power_consuming_asset_id,
                 options.power_providing_asset_id,
             )
@@ -392,8 +441,354 @@ pub async fn route_command_async(
         }
 
         AppArgsSubcommands::BulkAddPowerAssociation(options) => {
-            bulk_add_power_association_async(&config, &req, &auth_header, &options.filename)
+            bulk_add_power_association_async(&config, &req, &mut auth_token, &options.filename)
                 .await?;
+        }
+
+        AppArgsSubcommands::GenerateSensorReport(options) => {
+            let resp =
+                generate_sensor_report_async(&config, &req, &mut auth_token, options.clone())
+                    .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListBacnetDefinitions(options) => {
+            let resp = list_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::AddBacnetDefinition(options) => {
+            let id = add_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                options.name.clone(),
+                options.asset_type.clone(),
+                options.description.clone(),
+            )
+            .await?;
+            println!("{id}");
+        }
+
+        AppArgsSubcommands::ListBacnetNumericSensorDefinitions(options) => {
+            let resp = list_bacnet_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListBacnetNonNumericSensorDefinitions(options) => {
+            let resp = list_bacnet_non_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+            )
+            .await?;
+            let resp: Vec<BacnetNonNumericSensorDefinitionExportWrapper> = resp
+                .into_iter()
+                .map(BacnetNonNumericSensorDefinitionExportWrapper)
+                .collect();
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::BulkImportBacnetNumericSensorDefinitions(options) => {
+            bulk_import_bacnet_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &mut auth_token,
+                &options.filename,
+                options.definition_id,
+                options.create_as_new,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkImportBacnetNonNumericSensorDefinitions(options) => {
+            bulk_import_bacnet_non_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &mut auth_token,
+                &options.filename,
+                options.definition_id,
+                options.create_as_new,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::ListModbusDefinitions(options) => {
+            let resp = list_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::AddModbusDefinition(options) => {
+            let id = add_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                options.name.clone(),
+                options.asset_type.clone(),
+                options.description.clone(),
+            )
+            .await?;
+            println!("{id}");
+        }
+
+        AppArgsSubcommands::ListModbusNumericSensorDefinitions(options) => {
+            let resp = list_modbus_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListModbusNonNumericSensorDefinitions(options) => {
+            let resp = list_modbus_non_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+            )
+            .await?;
+            let resp: Vec<ModbusNonNumericSensorDefinitionExportWrapper> = resp
+                .into_iter()
+                .map(ModbusNonNumericSensorDefinitionExportWrapper)
+                .collect();
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::BulkImportModbusNumericSensorDefinitions(options) => {
+            bulk_import_modbus_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &mut auth_token,
+                &options.filename,
+                options.definition_id,
+                options.create_as_new,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::BulkImportModbusNonNumericSensorDefinitions(options) => {
+            bulk_import_modbus_non_numeric_sensor_definitions_async(
+                &config,
+                &req,
+                &mut auth_token,
+                &options.filename,
+                options.definition_id,
+                options.create_as_new,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::ListSensorDefinitionTypes(options) => {
+            let resp = list_sensor_definition_types_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.asset_type.clone(),
+                options.sensor_class,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListModbusComponents(options) => {
+            let resp = list_modbus_components_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::AddModbusComponent(options) => {
+            let id = add_modbus_component_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+                options.name.clone(),
+            )
+            .await?;
+            println!("{id}");
+        }
+
+        AppArgsSubcommands::UpdateModbusComponent(options) => {
+            update_modbus_component_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+                options.component_id,
+                options.name.clone(),
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteModbusComponent(options) => {
+            delete_modbus_component_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.definition_id,
+                options.component_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::GetBacnetDefinition(options) => {
+            let resp = get_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                options.definition_id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), vec![resp])?;
+        }
+
+        AppArgsSubcommands::UpdateBacnetDefinition(options) => {
+            update_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                &options,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteBacnetDefinition(options) => {
+            delete_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                options.definition_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::GetModbusDefinition(options) => {
+            let resp = get_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                options.definition_id,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), vec![resp])?;
+        }
+
+        AppArgsSubcommands::UpdateModbusDefinition(options) => {
+            update_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                &options,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteModbusDefinition(options) => {
+            delete_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                options.definition_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteBacnetNumericSensorDefinition(options) => {
+            delete_sensor_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                "bacnetIpNumericSensors",
+                options.definition_id,
+                options.sensor_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteBacnetNonNumericSensorDefinition(options) => {
+            delete_sensor_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                BACNET_DEFINITION_API_PREFIX,
+                "bacnetIpNonNumericSensors",
+                options.definition_id,
+                options.sensor_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteModbusNumericSensorDefinition(options) => {
+            delete_sensor_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                "modbusTcpNumericSensors",
+                options.definition_id,
+                options.sensor_id,
+            )
+            .await?;
+        }
+
+        AppArgsSubcommands::DeleteModbusNonNumericSensorDefinition(options) => {
+            delete_sensor_definition_async(
+                &config,
+                &req,
+                &auth_token.header,
+                MODBUS_DEFINITION_API_PREFIX,
+                "modbusTcpNonNumericSensors",
+                options.definition_id,
+                options.sensor_id,
+            )
+            .await?;
         }
     }
 
