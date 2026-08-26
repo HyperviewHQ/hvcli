@@ -319,6 +319,15 @@ pub enum AppArgsSubcommands {
 
     /// Delete a non-numeric sensor from a Modbus TCP sensor definition
     DeleteModbusNonNumericSensorDefinition(DeleteSensorDefinitionArgs),
+
+    /// List business entities
+    ListBusinessEntities(ListBusinessEntitiesArgs),
+
+    /// List business entity contacts. Lists the contacts of every business entity unless a business entity id is given
+    ListBusinessEntityContacts(ListBusinessEntityRecordsArgs),
+
+    /// List business entity addresses. Lists the addresses of every business entity unless a business entity id is given
+    ListBusinessEntityAddresses(ListBusinessEntityRecordsArgs),
 }
 
 #[derive(Args, Debug, Clone)]
@@ -1010,4 +1019,73 @@ pub struct DeleteSensorDefinitionArgs {
         help = "Sensor ID. It must be a valid GUID/UUID, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196"
     )]
     pub sensor_id: Uuid,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListBusinessEntitiesArgs {
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 100_000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=100_000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListBusinessEntityRecordsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Optional business entity ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Option<Uuid>,
+
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 100_000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=100_000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
 }

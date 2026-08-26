@@ -274,6 +274,18 @@ Delete a numeric sensor from a Modbus TCP sensor definition.
 
 Delete a non-numeric sensor from a Modbus TCP sensor definition.
 
+#### 59. list-business-entities
+
+List business entities, showing each entity's id, name and type.
+
+#### 60. list-business-entity-contacts
+
+List business entity contacts. By default it lists the contacts of every business entity, ordered by business entity name and then by contact name. Pass a business entity id to list only that entity's contacts.
+
+#### 61. list-business-entity-addresses
+
+List business entity addresses. By default it lists the addresses of every business entity, ordered by business entity name and then by address description. Pass a business entity id to list only that entity's addresses.
+
 > [!NOTE]
 > The BACnet/Modbus numeric sensor import CSVs accept optional `offset` and `order_of_operations` (`scaleThenOffset` | `offsetThenScale`) columns, and the Modbus sensor import CSVs accept an optional `component_id` column. Leave any of these blank to let the server apply its default. The bulk-import commands also accept `--create-as-new`, which ignores the id column and creates every row as a new sensor — use it to clone an exported definition's sensors into a different definition. The `associated assets` shown when listing a definition is a read-only count of how many assets use it; the API provides no way to manage that association.
 

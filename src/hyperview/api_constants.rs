@@ -10,6 +10,12 @@ pub const ASSET_PROPERTIES_API_PREFIX: &str = "/api/asset/assetProperties";
 pub const ASSET_SEARCH_API_PREFIX: &str = "/api/asset/search";
 pub const BACNET_DEFINITION_API_PREFIX: &str = "/api/setting/bacnetIpDefinitions";
 pub const BULK_ACTION_BATCH_SIZE: usize = 100;
+pub const BUSINESS_ENTITY_ADDRESS_API_PREFIX: &str = "/api/asset/businessEntityAddresses";
+pub const BUSINESS_ENTITY_API_PREFIX: &str = "/api/asset/businessEntities";
+pub const BUSINESS_ENTITY_CONTACT_API_PREFIX: &str = "/api/asset/businessEntityContacts";
+/// Page size used when walking the business entity collection to gather every entity's
+/// contacts or addresses.
+pub const BUSINESS_ENTITY_PAGE_SIZE: u32 = 100;
 pub const BUSWAY_TAPOFF_API_PREFIX: &str = "/api/asset/buswayTapOff";
 pub const CUSTOM_ASSET_PROPERTIES_API_PREFIX: &str = "/api/asset/customAssetProperties";
 pub const MODBUS_DEFINITION_API_PREFIX: &str = "/api/setting/modbusTcpDefinitions";

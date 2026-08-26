@@ -13,6 +13,8 @@ pub mod asset_sensor_api_functions;
 pub mod auth;
 pub mod bacnet_definition_api_data;
 pub mod bacnet_definition_api_functions;
+pub mod business_entity_api_data;
+pub mod business_entity_api_functions;
 pub mod cli_data;
 pub mod cli_functions;
 pub mod common_types;

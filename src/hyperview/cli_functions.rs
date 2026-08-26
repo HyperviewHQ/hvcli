@@ -40,6 +40,10 @@ use super::{
         list_bacnet_non_numeric_sensor_definitions_async,
         list_bacnet_numeric_sensor_definitions_async,
     },
+    business_entity_api_functions::{
+        list_business_entities_async, list_business_entity_addresses_async,
+        list_business_entity_contacts_async,
+    },
     cli_data::{AppArgsSubcommands, AppConfig, DebugLevels, OutputOptions},
     custom_asset_properties_api_functions::{
         bulk_update_custom_property_by_name_async, get_custom_asset_property_list_async,
@@ -789,6 +793,47 @@ pub async fn route_command_async(
                 options.sensor_id,
             )
             .await?;
+        }
+
+        AppArgsSubcommands::ListBusinessEntities(options) => {
+            let resp = list_business_entities_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.skip,
+                options.limit,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListBusinessEntityContacts(options) => {
+            let resp = list_business_entity_contacts_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.id,
+                options.skip,
+                options.limit,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
+        }
+
+        AppArgsSubcommands::ListBusinessEntityAddresses(options) => {
+            let resp = list_business_entity_addresses_async(
+                &config,
+                &req,
+                &auth_token.header,
+                options.id,
+                options.skip,
+                options.limit,
+            )
+            .await?;
+
+            handle_output_choice(options.output_type, options.filename.as_ref(), resp)?;
         }
     }
 
