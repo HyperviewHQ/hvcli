@@ -10,6 +10,7 @@ use super::{
     api_constants::BULK_ACTION_BATCH_SIZE,
     app_errors::AppError,
     asset_api_functions::search_assets_async,
+    asset_sensor_api_data::AssetSensorDto,
     asset_sensor_api_functions::{
         get_asset_sensor_list_async, get_numeric_sensor_daily_summaries_async,
     },
@@ -29,9 +30,29 @@ fn multi_type_value_to_plain_string(v: &MultiTypeValue) -> String {
     }
 }
 
+/// Whether a sensor is the one the report was asked for. Clap requires exactly one of
+/// `--sensor-name` / `--sensor-type`, so an unset pair matches nothing.
+fn sensor_matches(sensor: &AssetSensorDto, options: &GenerateSensorReportArgs) -> bool {
+    match (&options.sensor_name, &options.sensor_type) {
+        (Some(name), _) => sensor.name == *name,
+        (_, Some(sensor_type)) => sensor.sensor_type_description == *sensor_type,
+        (None, None) => false,
+    }
+}
+
+/// Describes the selector for log messages, e.g. `name "averageKwhByHour"`.
+fn sensor_selection(options: &GenerateSensorReportArgs) -> String {
+    match (&options.sensor_name, &options.sensor_type) {
+        (Some(name), _) => format!("name {name:?}"),
+        (_, Some(sensor_type)) => format!("type {sensor_type:?}"),
+        (None, None) => String::new(),
+    }
+}
+
 struct AssetContext {
     asset_name: String,
     asset_id: Uuid,
+    business_entity_name: String,
     custom_property: String,
     sensor_id: Uuid,
     sensor_name: String,
@@ -71,6 +92,7 @@ pub async fn generate_sensor_report_async(
         search_assets_async(config, req, &auth_token.header, search_args.clone()).await
     )?;
 
+    let selection = sensor_selection(&options);
     let mut contexts: Vec<AssetContext> = Vec::new();
 
     for asset in assets {
@@ -88,32 +110,27 @@ pub async fn generate_sensor_report_async(
             }
         };
 
-        let Some(sensor) = sensors.into_iter().find(|s| s.name == options.sensor) else {
-            error!(
-                "Sensor {:?} not found on asset {}. Skipping.",
-                options.sensor, asset.id
-            );
-            continue;
-        };
+        let (numeric, non_numeric): (Vec<_>, Vec<_>) = sensors
+            .into_iter()
+            .filter(|s| sensor_matches(s, &options))
+            .partition(|s| s.is_numeric);
 
-        if !sensor.is_numeric {
+        for sensor in &non_numeric {
             error!(
                 "Sensor {:?} on asset {} is not numeric. Skipping.",
-                options.sensor, asset.id
+                sensor.name, asset.id
             );
-            continue;
         }
 
-        let sensor_id = match Uuid::parse_str(&sensor.id) {
-            Ok(u) => u,
-            Err(e) => {
+        if numeric.is_empty() {
+            if non_numeric.is_empty() {
                 error!(
-                    "Failed to parse sensor id {:?} on asset {}: {e}. Skipping.",
-                    sensor.id, asset.id
+                    "No sensor with {selection} found on asset {}. Skipping.",
+                    asset.id
                 );
-                continue;
             }
-        };
+            continue;
+        }
 
         let custom_property = if let Some(name) = options.custom_property.as_ref() {
             match retry_on_unauthorized_async!(
@@ -139,14 +156,28 @@ pub async fn generate_sensor_report_async(
             String::new()
         };
 
-        contexts.push(AssetContext {
-            asset_name: asset.name.clone(),
-            asset_id: asset.id,
-            custom_property,
-            sensor_id,
-            sensor_name: sensor.name,
-            sensor_unit: sensor.unit_string,
-        });
+        for sensor in numeric {
+            let sensor_id = match Uuid::parse_str(&sensor.id) {
+                Ok(u) => u,
+                Err(e) => {
+                    error!(
+                        "Failed to parse sensor id {:?} on asset {}: {e}. Skipping.",
+                        sensor.id, asset.id
+                    );
+                    continue;
+                }
+            };
+
+            contexts.push(AssetContext {
+                asset_name: asset.name.clone(),
+                asset_id: asset.id,
+                business_entity_name: asset.business_entity_name.clone(),
+                custom_property: custom_property.clone(),
+                sensor_id,
+                sensor_name: sensor.name,
+                sensor_unit: sensor.unit_string,
+            });
+        }
     }
 
     // Key by `Uuid` (not String) so uppercase/braced UUIDs from the server still match the
@@ -214,6 +245,7 @@ pub async fn generate_sensor_report_async(
             rows.push(SensorReportRow {
                 asset_name: ctx.asset_name.clone(),
                 asset_id: ctx.asset_id.to_string(),
+                business_entity_name: ctx.business_entity_name.clone(),
                 custom_property: ctx.custom_property.clone(),
                 sensor_name: ctx.sensor_name.clone(),
                 sensor_id: ctx.sensor_id.to_string(),
@@ -250,6 +282,16 @@ fn resolve_date_range(
             .map_err(|_| AppError::InvalidDateFormat(start_str.clone()))?;
         let end = NaiveDate::parse_from_str(end_str, "%Y-%m-%d")
             .map_err(|_| AppError::InvalidDateFormat(end_str.clone()))?;
+
+        // The daily summaries endpoint returns 400 for anything narrower than two days.
+        if (end - start).num_days() < 2 {
+            return Err(AppError::DateRangeTooShort {
+                start: start.to_string(),
+                end: end.to_string(),
+            }
+            .into());
+        }
+
         return Ok((start, end));
     }
 
@@ -286,7 +328,8 @@ mod tests {
     fn base_args(asset_type: AssetTypes, sensor: &str) -> GenerateSensorReportArgs {
         GenerateSensorReportArgs {
             asset_type,
-            sensor: sensor.to_string(),
+            sensor_name: Some(sensor.to_string()),
+            sensor_type: None,
             year: Some(2026),
             month: Some(2),
             start: None,
@@ -322,6 +365,7 @@ mod tests {
             "status": "Ok",
             "delimitedPath": "All~Datacenter",
             "assetProperty_serialNumber": [],
+            "businessEntityDisplayName": "Customer 1",
         })
     }
 
@@ -351,12 +395,22 @@ mod tests {
     }
 
     fn sensor_body(sensor_id: &str, asset_id: Uuid, name: &str, is_numeric: bool) -> Value {
+        sensor_body_with_type(sensor_id, asset_id, name, "", is_numeric)
+    }
+
+    fn sensor_body_with_type(
+        sensor_id: &str,
+        asset_id: Uuid,
+        name: &str,
+        sensor_type: &str,
+        is_numeric: bool,
+    ) -> Value {
         json!({
             "id": sensor_id,
             "name": name,
             "sensorTypeId": "t",
             "listIndex": null,
-            "sensorTypeDescription": "",
+            "sensorTypeDescription": sensor_type,
             "value": 0,
             "rawValue": 0,
             "unitString": "kW",
@@ -404,6 +458,31 @@ mod tests {
         let (start, end) = resolve_date_range(&args).unwrap();
         assert_eq!(start, NaiveDate::from_ymd_opt(2026, 2, 15).unwrap());
         assert_eq!(end, NaiveDate::from_ymd_opt(2026, 2, 20).unwrap());
+    }
+
+    #[test]
+    fn test_resolve_date_range_rejects_range_shorter_than_two_days() {
+        let mut args = base_args(AssetTypes::Rack, "s");
+        args.year = None;
+        args.month = None;
+
+        for (start, end) in [
+            ("2026-02-15", "2026-02-16"), // one day
+            ("2026-02-15", "2026-02-15"), // same day
+            ("2026-02-20", "2026-02-15"), // end before start
+        ] {
+            args.start = Some(start.to_string());
+            args.end = Some(end.to_string());
+            assert!(
+                resolve_date_range(&args).is_err(),
+                "{start} .. {end} must be rejected"
+            );
+        }
+
+        // Two days is the narrowest range the daily summaries endpoint accepts.
+        args.start = Some("2026-02-15".to_string());
+        args.end = Some("2026-02-17".to_string());
+        assert!(resolve_date_range(&args).is_ok());
     }
 
     #[test]
@@ -507,6 +586,7 @@ mod tests {
         assert_eq!(rows[0].asset_id, asset_id.to_string());
         assert_eq!(rows[0].sensor_id, sensor_id.to_string());
         assert_eq!(rows[0].sensor_unit, "kW");
+        assert_eq!(rows[0].business_entity_name, "Customer 1");
         assert_eq!(rows[0].custom_property, "");
         assert!((rows[0].avg - 1.0).abs() < f64::EPSILON);
         assert!((rows[1].avg - 3.0).abs() < f64::EPSILON);
@@ -558,6 +638,150 @@ mod tests {
 
         assert!(rows.is_empty());
         summaries_should_not_fire.assert_calls(0);
+    }
+
+    #[tokio::test]
+    async fn test_generate_sensor_report_sensor_type_selects_every_matching_sensor() {
+        let asset_id = Uuid::new_v4();
+        let sensor_a = Uuid::new_v4();
+        let sensor_b = Uuid::new_v4();
+
+        let server = MockServer::start();
+        let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Pdu-1")]);
+
+        let sensors_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([
+                    sensor_body_with_type(
+                        &sensor_a.to_string(),
+                        asset_id,
+                        "outputCurrentL1",
+                        "outputTotalCurrent",
+                        true
+                    ),
+                    sensor_body_with_type(
+                        &sensor_b.to_string(),
+                        asset_id,
+                        "outputCurrentL2",
+                        "outputTotalCurrent",
+                        true
+                    ),
+                    sensor_body_with_type(
+                        &Uuid::new_v4().to_string(),
+                        asset_id,
+                        "outputVoltage",
+                        "outputVoltage",
+                        true
+                    ),
+                ]));
+        });
+
+        // Both matching sensors must reach the summaries call; the third one must not.
+        let summaries_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX)
+                .query_param("sensorIds", sensor_a.to_string())
+                .query_param("sensorIds", sensor_b.to_string());
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([
+                    {
+                        "sensorId": sensor_a.to_string(),
+                        "sensorTypeDescription": "outputTotalCurrent",
+                        "sensorTypeId": "type-1",
+                        "name": "outputCurrentL1",
+                        "sensorDataPoints": [
+                            { "r": "2026-02-01T00:00:00.000", "avg": 1.0, "max": 2.0, "min": 0.5, "lst": 1.5 }
+                        ]
+                    },
+                    {
+                        "sensorId": sensor_b.to_string(),
+                        "sensorTypeDescription": "outputTotalCurrent",
+                        "sensorTypeId": "type-1",
+                        "name": "outputCurrentL2",
+                        "sensorDataPoints": [
+                            { "r": "2026-02-01T00:00:00.000", "avg": 9.0, "max": 9.0, "min": 9.0, "lst": 9.0 }
+                        ]
+                    }
+                ]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+
+        let mut args = base_args(AssetTypes::RackPdu, "unused");
+        args.sensor_name = None;
+        args.sensor_type = Some("outputTotalCurrent".to_string());
+
+        let rows = generate_sensor_report_async(&config, &client, &mut token, args)
+            .await
+            .unwrap();
+
+        sensors_mock.assert();
+        summaries_mock.assert();
+
+        assert_eq!(rows.len(), 2);
+        let mut names: Vec<&str> = rows.iter().map(|r| r.sensor_name.as_str()).collect();
+        names.sort_unstable();
+        assert_eq!(names, ["outputCurrentL1", "outputCurrentL2"]);
+    }
+
+    #[tokio::test]
+    async fn test_generate_sensor_report_sensor_name_does_not_match_sensor_type() {
+        let asset_id = Uuid::new_v4();
+
+        let server = MockServer::start();
+        let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Pdu-1")]);
+
+        let sensors_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([sensor_body_with_type(
+                    &Uuid::new_v4().to_string(),
+                    asset_id,
+                    "outputCurrent",
+                    "outputTotalCurrent",
+                    true
+                )]));
+        });
+
+        let summaries_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+
+        // The type description is not a name, so the name selector must not match it.
+        let rows = generate_sensor_report_async(
+            &config,
+            &client,
+            &mut token,
+            base_args(AssetTypes::RackPdu, "outputTotalCurrent"),
+        )
+        .await
+        .unwrap();
+
+        sensors_mock.assert();
+        assert_eq!(summaries_mock.calls(), 0);
+        assert!(rows.is_empty());
     }
 
     #[tokio::test]

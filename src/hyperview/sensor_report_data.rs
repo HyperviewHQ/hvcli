@@ -5,6 +5,7 @@ use std::fmt;
 pub struct SensorReportRow {
     pub asset_name: String,
     pub asset_id: String,
+    pub business_entity_name: String,
     pub custom_property: String,
     pub sensor_name: String,
     pub sensor_id: String,
@@ -20,20 +21,22 @@ impl fmt::Display for SensorReportRow {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let row = format!(
             r"
-asset_name      : {}
-asset_id        : {}
-custom_property : {}
-sensor_name     : {}
-sensor_id       : {}
-sensor_unit     : {}
-timestamp       : {}
-avg             : {}
-max             : {}
-min             : {}
-lst             : {}
+asset_name           : {}
+asset_id             : {}
+business_entity_name : {}
+custom_property      : {}
+sensor_name          : {}
+sensor_id            : {}
+sensor_unit          : {}
+timestamp            : {}
+avg                  : {}
+max                  : {}
+min                  : {}
+lst                  : {}
         ",
             self.asset_name,
             self.asset_id,
+            self.business_entity_name,
             self.custom_property,
             self.sensor_name,
             self.sensor_id,
