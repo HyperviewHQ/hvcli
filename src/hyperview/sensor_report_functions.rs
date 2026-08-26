@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use log::{debug, error};
+use log::{debug, error, warn};
 use reqwest::Client;
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -116,7 +116,7 @@ pub async fn generate_sensor_report_async(
             .partition(|s| s.is_numeric);
 
         for sensor in &non_numeric {
-            error!(
+            warn!(
                 "Sensor {:?} on asset {} is not numeric. Skipping.",
                 sensor.name, asset.id
             );
@@ -124,7 +124,7 @@ pub async fn generate_sensor_report_async(
 
         if numeric.is_empty() {
             if non_numeric.is_empty() {
-                error!(
+                warn!(
                     "No sensor with {selection} found on asset {}. Skipping.",
                     asset.id
                 );
