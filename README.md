@@ -164,7 +164,7 @@ Add power associations between assets using a CSV. Example data is in the **exam
 
 #### 31. generate-sensor-report
 
-Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a sensor across all assets of a given type. Select the sensor either by name (`--sensor-name`, also accepted as `--sensor`) or by type (`--sensor-type`), not both; a type reports every sensor of that type on each asset. Each row carries the business entity the asset is attributed to. Optionally enrich each row with a custom-property value. A `--start`/`--end` range must span at least two days. Defaults to CSV output.
+Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a sensor across all assets of a given type. Select the sensor either by name (`--sensor-name`, also accepted as `--sensor`) or by type (`--sensor-type`), not both; a type reports every sensor of that type on each asset. Each row carries the business entity the asset is attributed to. `--summarize` collapses the period into one row per sensor (lowest daily minimum, highest daily maximum, mean of the daily averages, and the last value of the most recent day) instead of one row per day; the timestamp column then holds the period, e.g. `2026-07-01..2026-08-01`. Optionally enrich each row with a custom-property value. A `--start`/`--end` range must span at least two days. Defaults to CSV output.
 
 #### 32. list-bacnet-definitions
 

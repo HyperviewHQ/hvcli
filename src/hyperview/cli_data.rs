@@ -677,6 +677,12 @@ pub struct GenerateSensorReportArgs {
     pub end: Option<String>,
 
     #[arg(
+        long,
+        help = "Summarize the period into one row per sensor (min/max/last from the whole period, avg of the daily averages) instead of one row per day."
+    )]
+    pub summarize: bool,
+
+    #[arg(
         short = 'c',
         long,
         help = "Optional custom property name whose value is added as a column, e.g. \"Business Unit\""

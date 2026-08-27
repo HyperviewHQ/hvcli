@@ -10,7 +10,7 @@ use super::{
     api_constants::BULK_ACTION_BATCH_SIZE,
     app_errors::AppError,
     asset_api_functions::search_assets_async,
-    asset_sensor_api_data::AssetSensorDto,
+    asset_sensor_api_data::{AssetSensorDto, NumericSensorDailySummaryDataPoint},
     asset_sensor_api_functions::{
         get_asset_sensor_list_async, get_numeric_sensor_daily_summaries_async,
     },
@@ -47,6 +47,42 @@ fn sensor_selection(options: &GenerateSensorReportArgs) -> String {
         (_, Some(sensor_type)) => format!("type {sensor_type:?}"),
         (None, None) => String::new(),
     }
+}
+
+/// One sensor's statistics for the whole reporting period.
+struct PeriodSummary {
+    avg: f64,
+    max: f64,
+    min: f64,
+    lst: f64,
+}
+
+/// Collapses a sensor's daily summaries into a single record: the lowest daily minimum, the highest
+/// daily maximum, the mean of the daily averages, and the last value of the most recent day.
+/// Returns `None` when the sensor reported nothing in the period.
+fn summarize_points(points: &[NumericSensorDailySummaryDataPoint]) -> Option<PeriodSummary> {
+    // Days arrive per batch and are not guaranteed to be ordered; the timestamps are fixed-width
+    // ISO-8601, so comparing them as strings orders them by date.
+    let last = points.iter().max_by(|a, b| a.r.cmp(&b.r))?;
+
+    let mut days = 0.0_f64;
+    let mut sum = 0.0_f64;
+    let mut max = f64::NEG_INFINITY;
+    let mut min = f64::INFINITY;
+
+    for point in points {
+        sum += point.avg;
+        days += 1.0;
+        max = max.max(point.max);
+        min = min.min(point.min);
+    }
+
+    Some(PeriodSummary {
+        avg: sum / days,
+        max,
+        min,
+        lst: last.lst,
+    })
 }
 
 struct AssetContext {
@@ -241,6 +277,30 @@ pub async fn generate_sensor_report_async(
         let Some(points) = data_points_by_sensor.get(&ctx.sensor_id) else {
             continue;
         };
+
+        if options.summarize {
+            let Some(summary) = summarize_points(points) else {
+                continue;
+            };
+
+            rows.push(SensorReportRow {
+                asset_name: ctx.asset_name.clone(),
+                asset_id: ctx.asset_id.to_string(),
+                business_entity_name: ctx.business_entity_name.clone(),
+                custom_property: ctx.custom_property.clone(),
+                sensor_name: ctx.sensor_name.clone(),
+                sensor_id: ctx.sensor_id.to_string(),
+                sensor_unit: ctx.sensor_unit.clone(),
+                timestamp: format!("{start}..{end}"),
+                avg: summary.avg,
+                max: summary.max,
+                min: summary.min,
+                lst: summary.lst,
+            });
+
+            continue;
+        }
+
         for point in points {
             rows.push(SensorReportRow {
                 asset_name: ctx.asset_name.clone(),
@@ -330,6 +390,7 @@ mod tests {
             asset_type,
             sensor_name: Some(sensor.to_string()),
             sensor_type: None,
+            summarize: false,
             year: Some(2026),
             month: Some(2),
             start: None,
@@ -638,6 +699,92 @@ mod tests {
 
         assert!(rows.is_empty());
         summaries_should_not_fire.assert_calls(0);
+    }
+
+    #[tokio::test]
+    async fn test_generate_sensor_report_summarize_collapses_the_period_into_one_row() {
+        let asset_id = Uuid::new_v4();
+        let sensor_id = Uuid::new_v4();
+
+        let server = MockServer::start();
+        let (_all, _search) = mock_search(&server, &[asset_hit(asset_id, "Rack-42")]);
+
+        let sensors_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([sensor_body(
+                    &sensor_id.to_string(),
+                    asset_id,
+                    "averageKwhByHour",
+                    true
+                )]));
+        });
+
+        // Days are deliberately out of order: the last value must come from the latest one.
+        let summaries_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([{
+                    "sensorId": sensor_id.to_string(),
+                    "sensorTypeDescription": "Power",
+                    "sensorTypeId": "type-1",
+                    "name": "averageKwhByHour",
+                    "sensorDataPoints": [
+                        { "r": "2026-02-03T00:00:00.000", "avg": 3.0, "max": 9.0, "min": 2.0, "lst": 7.0 },
+                        { "r": "2026-02-01T00:00:00.000", "avg": 1.0, "max": 4.0, "min": 0.5, "lst": 1.5 },
+                        { "r": "2026-02-02T00:00:00.000", "avg": 2.0, "max": 5.0, "min": 0.25, "lst": 2.5 }
+                    ]
+                }]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+
+        let mut args = base_args(AssetTypes::Rack, "averageKwhByHour");
+        args.summarize = true;
+
+        let rows = generate_sensor_report_async(&config, &client, &mut token, args)
+            .await
+            .unwrap();
+
+        sensors_mock.assert();
+        summaries_mock.assert();
+
+        assert_eq!(rows.len(), 1);
+        let row = &rows[0];
+        assert_eq!(row.asset_name, "Rack-42");
+        assert_eq!(row.sensor_name, "averageKwhByHour");
+        assert_eq!(row.business_entity_name, "Customer 1");
+        assert_eq!(row.timestamp, "2026-02-01..2026-03-01");
+        assert!(
+            (row.avg - 2.0).abs() < f64::EPSILON,
+            "mean of the daily averages"
+        );
+        assert!(
+            (row.max - 9.0).abs() < f64::EPSILON,
+            "highest daily maximum"
+        );
+        assert!(
+            (row.min - 0.25).abs() < f64::EPSILON,
+            "lowest daily minimum"
+        );
+        assert!(
+            (row.lst - 7.0).abs() < f64::EPSILON,
+            "last value of the latest day"
+        );
+    }
+
+    #[test]
+    fn test_summarize_points_returns_none_without_data() {
+        assert!(summarize_points(&[]).is_none());
     }
 
     #[tokio::test]
