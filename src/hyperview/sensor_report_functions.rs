@@ -129,6 +129,7 @@ pub async fn generate_sensor_report_async(
     )?;
 
     let selection = sensor_selection(&options);
+    let asset_count = assets.len();
     let mut contexts: Vec<AssetContext> = Vec::new();
 
     for asset in assets {
@@ -216,12 +217,16 @@ pub async fn generate_sensor_report_async(
         }
     }
 
+    // The per-asset skips above are warnings, which the default log level hides; an empty report
+    // must still say why.
+    if contexts.is_empty() {
+        error!("No numeric sensor matching {selection} found on any of {asset_count} assets");
+    }
+
     // Key by `Uuid` (not String) so uppercase/braced UUIDs from the server still match the
     // lowercase-canonical form produced by `Uuid::to_string()`.
-    let mut data_points_by_sensor: HashMap<
-        Uuid,
-        Vec<super::asset_sensor_api_data::NumericSensorDailySummaryDataPoint>,
-    > = HashMap::new();
+    let mut data_points_by_sensor: HashMap<Uuid, Vec<NumericSensorDailySummaryDataPoint>> =
+        HashMap::new();
 
     for chunk in contexts
         .iter()

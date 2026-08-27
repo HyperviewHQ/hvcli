@@ -162,7 +162,10 @@ async fn list_business_entity_children_async<T: BusinessEntityChild>(
         }
     }
 
-    info!("Meta Data: | Records: {} | Limit: {limit} |", records.len());
+    info!(
+        "Meta Data: | Gathered: {} | Limit: {limit} |",
+        records.len()
+    );
 
     Ok(records
         .into_iter()
@@ -276,8 +279,13 @@ mod tests {
     use uuid::Uuid;
 
     fn asset_list_body(entities: &[(Uuid, &str)]) -> Value {
+        asset_list_page(entities, entities.len())
+    }
+
+    /// One page of a larger collection: `total` is the collection size, not the page size.
+    fn asset_list_page(entities: &[(Uuid, &str)], total: usize) -> Value {
         json!({
-            "_metadata": { "limit": 100, "offset": 0, "total": entities.len() },
+            "_metadata": { "limit": 100, "offset": 0, "total": total },
             "data": entities.iter().map(|(id, name)| json!({
                 "id": id.to_string(),
                 "name": name,
@@ -379,8 +387,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_list_business_entities_async_tolerates_null_type_value() {
-        // An entity with no type value must not fail the whole list.
+    async fn test_list_business_entities_async_tolerates_null_fields() {
+        // The schema marks name and type value nullable; one such entity must not fail the whole
+        // list, on either the asset record or the entity record.
         let id = Uuid::new_v4();
         let server = MockServer::start();
 
@@ -388,7 +397,10 @@ mod tests {
             when.method(GET).path("/api/asset/assets");
             then.status(200)
                 .header("Content-Type", "application/json")
-                .json_body(asset_list_body(&[(id, "Untyped")]));
+                .json_body(json!({
+                    "_metadata": { "limit": 100, "offset": 0, "total": 1 },
+                    "data": [{ "id": id.to_string(), "name": null }]
+                }));
         });
 
         let entity_mock = server.mock(|when, then| {
@@ -398,7 +410,7 @@ mod tests {
                 .header("Content-Type", "application/json")
                 .json_body(json!({
                     "id": id.to_string(),
-                    "name": "Untyped",
+                    "name": null,
                     "businessEntityTypeValue": null,
                     "accessPolicyId": Uuid::new_v4().to_string()
                 }));
@@ -417,6 +429,7 @@ mod tests {
 
         entity_mock.assert();
         assert_eq!(resp.len(), 1);
+        assert_eq!(resp[0].name, "");
         assert_eq!(resp[0].business_entity_type_value, "");
     }
 
@@ -539,6 +552,81 @@ mod tests {
         // Nullable fields come back as empty strings rather than failing the row.
         assert_eq!(resp[0].phone_number_two, "");
         assert_eq!(resp[0].note, "");
+    }
+
+    #[tokio::test]
+    async fn test_list_business_entity_contacts_async_walks_across_pages() {
+        // The entity collection is fetched BUSINESS_ENTITY_PAGE_SIZE at a time. An entity on the
+        // second page must still be visited, and the walk must stop once every entity is seen.
+        let first_page: Vec<(Uuid, String)> = (1..=BUSINESS_ENTITY_PAGE_SIZE)
+            .map(|i| (Uuid::from_u128(u128::from(i)), format!("Entity {i:03}")))
+            .collect();
+        let first_page: Vec<(Uuid, &str)> = first_page
+            .iter()
+            .map(|(id, name)| (*id, name.as_str()))
+            .collect();
+        let last_id = Uuid::from_u128(0x1000);
+        let total = first_page.len() + 1;
+        let server = MockServer::start();
+
+        let page_one_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/api/asset/assets")
+                .query_param("(after)", "0")
+                .query_param("(limit)", "100");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(asset_list_page(&first_page, total));
+        });
+
+        let page_two_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path("/api/asset/assets")
+                .query_param("(after)", "100")
+                .query_param("(limit)", "100");
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(asset_list_page(&[(last_id, "Zulu")], total));
+        });
+
+        // The first-page ids are 1..=100, so they share this prefix; the last id does not.
+        server.mock(|when, then| {
+            when.method(GET).path_includes(
+                "/api/asset/businessEntityContacts/00000000-0000-0000-0000-0000000000",
+            );
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([]));
+        });
+
+        let last_contacts_mock = server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("/api/asset/businessEntityContacts/{last_id}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([contact_body(Uuid::new_v4(), last_id, "Yara")]));
+        });
+
+        let client = Client::new();
+        let auth_header = "Bearer test_token".to_string();
+
+        let resp = list_business_entity_contacts_async(
+            &test_config(&server),
+            &client,
+            &auth_header,
+            None,
+            0,
+            100,
+        )
+        .await
+        .unwrap();
+
+        page_one_mock.assert();
+        page_two_mock.assert();
+        last_contacts_mock.assert();
+        assert_eq!(resp.len(), 1);
+        assert_eq!(resp[0].business_entity_name, "Zulu");
+        assert_eq!(resp[0].name, "Yara");
     }
 
     #[tokio::test]

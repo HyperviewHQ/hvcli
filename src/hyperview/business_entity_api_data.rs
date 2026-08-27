@@ -11,6 +11,7 @@ use uuid::Uuid;
 #[serde(rename_all = "camelCase")]
 pub struct BusinessEntityDto {
     pub id: Uuid,
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub name: String,
     #[serde_as(deserialize_as = "DefaultOnNull")]
     pub business_entity_type_value: String,
@@ -43,9 +44,11 @@ pub struct BusinessEntityAssetListMetadata {
 
 /// The id and name of a business entity as it appears in the asset collection. The entity's type
 /// is not carried here; that comes from the individual business entity endpoint.
+#[serde_as]
 #[derive(Debug, Deserialize)]
 pub struct BusinessEntityAssetRef {
     pub id: Uuid,
+    #[serde_as(deserialize_as = "DefaultOnNull")]
     pub name: String,
 }
 
