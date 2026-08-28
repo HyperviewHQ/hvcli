@@ -530,6 +530,7 @@ fn hit_to_asset_dto(hit: &Value) -> Option<AssetDto> {
             .and_then(|v| v.as_array())
             .and_then(|arr| serde_json::to_string(arr).ok())
             .unwrap_or_else(|| "[]".to_string()),
+        business_entity_name: hit_string_field(hit, "businessEntityDisplayName"),
         property: None,
     })
 }
@@ -635,7 +636,8 @@ fn compose_any_of_query(options: ListAnyOfArgs) -> serde_json::Value {
         "productName",
         "status",
         "delimitedPath",
-        "assetProperty_serialNumber"
+        "assetProperty_serialNumber",
+        "businessEntityDisplayName"
       ],
       "filter": "",
     });
@@ -811,7 +813,8 @@ fn compose_search_query(options: SearchAssetsArgs, all_location_name: &str) -> s
         "productName",
         "status",
         "delimitedPath",
-        "assetProperty_serialNumber"
+        "assetProperty_serialNumber",
+        "businessEntityDisplayName"
       ],
       "q": options.search_pattern,
       "filter": "",
@@ -918,7 +921,8 @@ mod tests {
                 "productName",
                 "status",
                 "delimitedPath",
-                "assetProperty_serialNumber"
+                "assetProperty_serialNumber",
+                "businessEntityDisplayName"
             ],
             "q": "search_pattern",
             "filter": "delimitedPath STARTS WITH 'All~'"

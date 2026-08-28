@@ -26,6 +26,11 @@ pub enum AppError {
     InvalidDateFormat(String),
 
     #[error(
+        "Invalid date range: --start {start} to --end {end} must span at least 2 days (--end is exclusive). The daily summaries API rejects shorter ranges."
+    )]
+    DateRangeTooShort { start: String, end: String },
+
+    #[error(
         "Bulk operation completed with {failed} failure(s) out of {total} row(s); see log for details."
     )]
     BulkOperationFailures { failed: usize, total: usize },

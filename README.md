@@ -164,7 +164,7 @@ Add power associations between assets using a CSV. Example data is in the **exam
 
 #### 31. generate-sensor-report
 
-Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type. Optionally enrich each row with a custom-property value. Defaults to CSV output.
+Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a sensor across all assets of a given type. Select the sensor either by name (`--sensor-name`, also accepted as `--sensor`) or by type (`--sensor-type`), not both; a type reports every sensor of that type on each asset. Each row carries the business entity the asset is attributed to. `--summarize` collapses the period into one row per sensor (lowest daily minimum, highest daily maximum, mean of the daily averages, and the last value of the most recent day) instead of one row per day; the timestamp column then holds the period, e.g. `2026-07-01..2026-08-01`. Optionally enrich each row with a custom-property value. A `--start`/`--end` range must span at least two days. Defaults to CSV output.
 
 #### 32. list-bacnet-definitions
 
@@ -274,6 +274,18 @@ Delete a numeric sensor from a Modbus TCP sensor definition.
 
 Delete a non-numeric sensor from a Modbus TCP sensor definition.
 
+#### 59. list-business-entities
+
+List business entities, showing each entity's id, name and type.
+
+#### 60. list-business-entity-contacts
+
+List business entity contacts. By default it lists the contacts of every business entity, ordered by business entity name and then by contact name. Pass a business entity id to list only that entity's contacts.
+
+#### 61. list-business-entity-addresses
+
+List business entity addresses. By default it lists the addresses of every business entity, ordered by business entity name and then by address description. Pass a business entity id to list only that entity's addresses.
+
 > [!NOTE]
 > The BACnet/Modbus numeric sensor import CSVs accept optional `offset` and `order_of_operations` (`scaleThenOffset` | `offsetThenScale`) columns, and the Modbus sensor import CSVs accept an optional `component_id` column. Leave any of these blank to let the server apply its default. The bulk-import commands also accept `--create-as-new`, which ignores the id column and creates every row as a new sensor — use it to clone an exported definition's sensors into a different definition. The `associated assets` shown when listing a definition is a read-only count of how many assets use it; the API provides no way to manage that association.
 
@@ -345,6 +357,7 @@ $ hvcli search-assets -P serialNumber=SERIALNUMBEREXAMPLE1234 -o json
     "status": "normal",
     "path": "All/DatacenterExample/",
     "serialNumber": "[\"SERIALNUMBEREXAMPLE1234\"]",
+    "businessEntityName": "CustomerExample",
     "property": null
   }
 ]
@@ -370,6 +383,7 @@ product_name          : eXM
 status                : normal
 path                  : All/DatacenterExample/
 serial_number         : ["SERIALNUMBEREXAMPLE1234"]
+business_entity_name  : CustomerExample
 property              :
 ```
 
@@ -393,6 +407,7 @@ $ hvcli search-assets -p "UpsExample" --location-path "All/DatacenterExample/" -
     "status": "normal",
     "path": "All/DatacenterExample/",
     "serialNumber": "[]",
+    "businessEntityName": "CustomerExample",
     "property": null
   }
 ]

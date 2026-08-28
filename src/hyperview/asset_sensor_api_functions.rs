@@ -63,7 +63,7 @@ pub async fn bulk_update_asset_sensor_async(
             if record.access_policy_id.is_none() && !sensor.access_policy_is_inherited {
                 debug!(
                     "Update record does not set access policy. Keeping original: {}",
-                    &sensor.access_policy_id
+                    sensor.access_policy_id
                 );
                 match Uuid::from_str(&sensor.access_policy_id) {
                     Ok(uuid) => record.access_policy_id = Some(uuid),

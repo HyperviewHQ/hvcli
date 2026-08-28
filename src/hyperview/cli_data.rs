@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand, ValueEnum, value_parser};
+use clap::{ArgGroup, Args, Parser, Subcommand, ValueEnum, value_parser};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use uuid::Uuid;
@@ -236,7 +236,7 @@ pub enum AppArgsSubcommands {
     /// Add power associations between assets using a CSV
     BulkAddPowerAssociation(BulkUpdateSingleInputFileArgs),
 
-    /// Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a named sensor across all assets of a given type, optionally enriched with a custom-property value.
+    /// Generate a monthly (or arbitrary date-range) report of daily-summary statistics (avg/max/min/last) for a sensor, selected by name or by type, across all assets of a given type, optionally enriched with a custom-property value.
     GenerateSensorReport(GenerateSensorReportArgs),
 
     /// List current `BACnet IP` sensor definitions
@@ -319,6 +319,15 @@ pub enum AppArgsSubcommands {
 
     /// Delete a non-numeric sensor from a Modbus TCP sensor definition
     DeleteModbusNonNumericSensorDefinition(DeleteSensorDefinitionArgs),
+
+    /// List business entities
+    ListBusinessEntities(ListBusinessEntitiesArgs),
+
+    /// List business entity contacts. Lists the contacts of every business entity unless a business entity id is given
+    ListBusinessEntityContacts(ListBusinessEntityRecordsArgs),
+
+    /// List business entity addresses. Lists the addresses of every business entity unless a business entity id is given
+    ListBusinessEntityAddresses(ListBusinessEntityRecordsArgs),
 }
 
 #[derive(Args, Debug, Clone)]
@@ -613,6 +622,11 @@ pub struct ListAnyOfArgs {
 }
 
 #[derive(Args, Debug, Clone)]
+#[command(group(
+    ArgGroup::new("sensor_selector")
+        .required(true)
+        .args(["sensor_name", "sensor_type"])
+))]
 pub struct GenerateSensorReportArgs {
     #[arg(short = 't', long, help = "Asset type to include, e.g. Rack")]
     pub asset_type: AssetTypes,
@@ -620,9 +634,17 @@ pub struct GenerateSensorReportArgs {
     #[arg(
         short = 's',
         long,
-        help = "Sensor name to report on, e.g. averageKwhByHour"
+        alias = "sensor",
+        help = "Sensor name to report on, e.g. averageKwhByHour. Mutually exclusive with --sensor-type."
     )]
-    pub sensor: String,
+    pub sensor_name: Option<String>,
+
+    #[arg(
+        short = 'T',
+        long,
+        help = "Sensor type to report on, e.g. outputTotalCurrent. Every sensor of that type on the asset is reported. Mutually exclusive with --sensor-name."
+    )]
+    pub sensor_type: Option<String>,
 
     #[arg(
         short = 'y',
@@ -650,9 +672,15 @@ pub struct GenerateSensorReportArgs {
     #[arg(
         short = 'E',
         long,
-        help = "Optional end date (YYYY-MM-DD, exclusive). Must be paired with --start and mutually exclusive with --year/--month."
+        help = "Optional end date (YYYY-MM-DD, exclusive). Must be paired with --start and mutually exclusive with --year/--month. The range must span at least 2 days."
     )]
     pub end: Option<String>,
+
+    #[arg(
+        long,
+        help = "Summarize the period into one row per sensor (min/max/last from the whole period, avg of the daily averages) instead of one row per day."
+    )]
+    pub summarize: bool,
 
     #[arg(
         short = 'c',
@@ -1010,4 +1038,129 @@ pub struct DeleteSensorDefinitionArgs {
         help = "Sensor ID. It must be a valid GUID/UUID, e.g. 61d2dcf3-65f0-4f84-89d4-3110a1e1f196"
     )]
     pub sensor_id: Uuid,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListBusinessEntitiesArgs {
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 100_000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=100_000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ListBusinessEntityRecordsArgs {
+    #[arg(
+        short,
+        long,
+        help = "Optional business entity ID. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub id: Option<Uuid>,
+
+    #[arg(
+        short,
+        long,
+        help = "Number of records to skip (0 -> 1_000_000_000), e.g. 100",
+        default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
+    )]
+    pub skip: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Record limit (1 -> 100_000), e.g. 100",
+        default_value = "100",
+        value_parser(value_parser!(u32).range(1..=100_000))
+    )]
+    pub limit: u32,
+
+    #[arg(
+        short,
+        long,
+        help = "Output type, e.g. csv-file",
+        default_value = "record"
+    )]
+    pub output_type: OutputOptions,
+
+    #[arg(short, long, help = "Output filename, e.g. output.csv")]
+    pub filename: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_sensor_report_requires_exactly_one_sensor_selector() {
+        let base = [
+            "hvcli",
+            "generate-sensor-report",
+            "-t",
+            "rack",
+            "-y",
+            "2026",
+            "-m",
+            "2",
+        ];
+
+        let with = |extra: &[&str]| {
+            let mut args = base.to_vec();
+            args.extend_from_slice(extra);
+            AppArgs::try_parse_from(args)
+        };
+
+        assert!(with(&[]).is_err(), "neither selector must be rejected");
+        assert!(
+            with(&["-s", "averageKwhByHour", "-T", "outputTotalCurrent"]).is_err(),
+            "both selectors must be rejected"
+        );
+        assert!(with(&["-s", "averageKwhByHour"]).is_ok());
+        assert!(with(&["-T", "outputTotalCurrent"]).is_ok());
+    }
+
+    #[test]
+    fn test_generate_sensor_report_accepts_legacy_sensor_alias() {
+        let args = AppArgs::try_parse_from([
+            "hvcli",
+            "generate-sensor-report",
+            "-t",
+            "rack",
+            "-y",
+            "2026",
+            "-m",
+            "2",
+            "--sensor",
+            "averageKwhByHour",
+        ])
+        .expect("--sensor must keep parsing as --sensor-name");
+
+        let AppArgsSubcommands::GenerateSensorReport(options) = args.command else {
+            panic!("expected the generate-sensor-report subcommand");
+        };
+
+        assert_eq!(options.sensor_name.as_deref(), Some("averageKwhByHour"));
+    }
 }

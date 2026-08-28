@@ -31,6 +31,8 @@ pub struct AssetDto {
     pub path: String,
     #[serde(alias = "serialNumber")]
     pub serial_number: String,
+    #[serde(alias = "businessEntityDisplayName")]
+    pub business_entity_name: String,
     pub property: Option<String>,
 }
 
@@ -52,6 +54,7 @@ product_name          : {}
 status                : {}
 path                  : {}
 serial_number         : {}
+business_entity_name  : {}
 property              : {}
 ",
             self.id,
@@ -68,6 +71,7 @@ property              : {}
             self.status,
             self.path,
             self.serial_number,
+            self.business_entity_name,
             self.property.clone().unwrap_or_default()
         );
 
