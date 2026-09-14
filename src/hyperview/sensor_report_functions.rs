@@ -115,6 +115,7 @@ pub async fn generate_sensor_report_async(
         manufacturer: options.manufacturer.clone(),
         product: options.product.clone(),
         show_property: None,
+        business_entity_id: options.business_entity_id,
         skip: options.skip,
         limit: options.limit,
         output_type: OutputOptions::Record,
@@ -404,6 +405,7 @@ mod tests {
             location_path: None,
             manufacturer: None,
             product: None,
+            business_entity_id: None,
             skip: 0,
             limit: 100,
             output_type: OutputOptions::Record,
@@ -656,6 +658,81 @@ mod tests {
         assert_eq!(rows[0].custom_property, "");
         assert!((rows[0].avg - 1.0).abs() < f64::EPSILON);
         assert!((rows[1].avg - 3.0).abs() < f64::EPSILON);
+    }
+
+    #[tokio::test]
+    async fn test_generate_sensor_report_filters_search_by_business_entity() {
+        let asset_id = Uuid::new_v4();
+        let sensor_id = Uuid::new_v4();
+        let business_entity_id = Uuid::new_v4();
+
+        let server = MockServer::start();
+        server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{ASSET_ASSETS_API_PREFIX}/{ALL_LOCATION_ID}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({"name": "All"}));
+        });
+
+        // No other search mock is registered, so a search without the filter fails the report.
+        let filtered_search_mock = server.mock(|when, then| {
+            when.method(POST)
+                .path(ASSET_SEARCH_API_PREFIX)
+                .body_includes(format!("businessEntityId = '{business_entity_id}'"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!({
+                    "estimatedTotalHits": 1,
+                    "limit": 100,
+                    "hits": [asset_hit(asset_id, "Rack-42")],
+                }));
+        });
+
+        server.mock(|when, then| {
+            when.method(GET)
+                .path(format!("{SENSOR_API_PREFIX}/{asset_id}"));
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([sensor_body(
+                    &sensor_id.to_string(),
+                    asset_id,
+                    "averageKwhByHour",
+                    true
+                )]));
+        });
+        server.mock(|when, then| {
+            when.method(GET).path(SENSOR_DAILY_SUMMARIES_NUMERIC_API_PREFIX);
+            then.status(200)
+                .header("Content-Type", "application/json")
+                .json_body(json!([{
+                    "sensorId": sensor_id.to_string(),
+                    "sensorTypeDescription": "",
+                    "sensorTypeId": "t",
+                    "name": "averageKwhByHour",
+                    "sensorDataPoints": [
+                        { "r": "2026-02-01T00:00:00.000", "avg": 1.0, "max": 2.0, "min": 0.5, "lst": 1.5 }
+                    ]
+                }]));
+        });
+
+        let config = AppConfig {
+            instance_url: format!("http://{}", server.address()),
+            ..Default::default()
+        };
+        let client = Client::new();
+        let mut token = auth_token();
+
+        let mut args = base_args(AssetTypes::Rack, "averageKwhByHour");
+        args.business_entity_id = Some(business_entity_id);
+
+        let rows = generate_sensor_report_async(&config, &client, &mut token, args)
+            .await
+            .unwrap();
+
+        filtered_search_mock.assert();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].asset_id, asset_id.to_string());
     }
 
     #[tokio::test]

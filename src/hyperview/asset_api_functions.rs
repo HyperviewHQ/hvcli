@@ -874,6 +874,10 @@ fn compose_search_query(options: SearchAssetsArgs, all_location_name: &str) -> s
         filters.push(id_query);
     }
 
+    if let Some(business_entity_id) = options.business_entity_id {
+        filters.push(format!("businessEntityId = '{business_entity_id}'"));
+    }
+
     if let Some(manufacturer) = options.manufacturer {
         let manufacturer_name_query = format!("manufacturerName = '{manufacturer}'");
         filters.push(manufacturer_name_query);
@@ -942,6 +946,7 @@ mod tests {
             filename: None,
             output_type: OutputOptions::Record,
             show_property: None,
+            business_entity_id: None,
         };
 
         assert_eq!(compose_search_query(options.clone(), "All"), query1);
@@ -963,6 +968,18 @@ mod tests {
 
         options.location_path = Some("All/".to_string());
         options.asset_type = Some(AssetTypes::Server);
+
+        assert_eq!(compose_search_query(options.clone(), "All"), query1);
+
+        // Test with a business entity set
+        let business_entity_id = Uuid::new_v4();
+        filter.push(format!("businessEntityId = '{business_entity_id}'"));
+
+        if let Some(filter_field) = query1.get_mut("filter") {
+            *filter_field = Value::String(filter.join(" AND "));
+        }
+
+        options.business_entity_id = Some(business_entity_id);
 
         assert_eq!(compose_search_query(options, "All"), query1);
     }
@@ -1011,6 +1028,7 @@ mod tests {
             filename: None,
             output_type: OutputOptions::Record,
             show_property: None,
+            business_entity_id: None,
         };
         // Act
         let result = search_assets_async(&config, &client, &auth_header, options).await;
@@ -1086,6 +1104,7 @@ mod tests {
             filename: None,
             output_type: OutputOptions::Record,
             show_property: None,
+            business_entity_id: None,
         };
 
         let result = search_assets_async(&config, &client, &auth_header, options).await;
