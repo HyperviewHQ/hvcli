@@ -711,6 +711,13 @@ pub struct GenerateSensorReportArgs {
     pub product: Option<String>,
 
     #[arg(
+        short = 'b',
+        long,
+        help = "Optional business entity ID; only assets attributed to it are reported. It must be a valid GUID/UUID, e.g. 2776f6c6-78da-4087-ab9e-e7b52275cd9e"
+    )]
+    pub business_entity_id: Option<Uuid>,
+
+    #[arg(
         long,
         help = "Number of assets to skip (0 -> 1_000_000_000), e.g. 100",
         default_value = "0", value_parser(value_parser!(u32).range(0..=1_000_000_000))
@@ -781,6 +788,10 @@ pub struct SearchAssetsArgs {
 
     #[arg(short = 'U', long, help = "Show property in output, e.g. ratedVoltage")]
     pub show_property: Option<String>,
+
+    /// Not a `search-assets` flag; set by commands that search assets on a caller's behalf.
+    #[arg(skip)]
+    pub business_entity_id: Option<Uuid>,
 
     #[arg(
         short,
