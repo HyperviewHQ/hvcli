@@ -974,10 +974,7 @@ mod tests {
         // Test with a business entity set
         let business_entity_id = Uuid::new_v4();
         filter.push(format!("businessEntityId = '{business_entity_id}'"));
-
-        if let Some(filter_field) = query1.get_mut("filter") {
-            *filter_field = Value::String(filter.join(" AND "));
-        }
+        query1["filter"] = json!(filter.join(" AND "));
 
         options.business_entity_id = Some(business_entity_id);
 
